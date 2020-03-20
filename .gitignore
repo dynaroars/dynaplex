@@ -1,7 +1,9 @@
-./idea
-./gradle
-./gradlew
-./gradlew.bat
+.idea
+.gradle
+gradle
+gradlew
+gradlew.bat
+build/
 
 # OCaml 
 *.cmi
