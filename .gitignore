@@ -1,0 +1,10 @@
+./idea
+./gradle
+./gradlew
+./gradlew.bat
+
+# OCaml 
+*.cmi
+*.cmx
+*.o
+ocaml/test
