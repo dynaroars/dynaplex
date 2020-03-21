@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,5 +61,18 @@ public class Tests {
         list.add("2");
         list.add("1");
         assertTrue(rp.isPalindrome(list));
+    }
+
+    @Test
+    public void test_flatten() {
+        LinkedList<TreeNode<String>> emdList = new LinkedList<>();
+        TreeNode<String> nodeA = new TreeNode<>("a");
+        emdList.add(nodeA);
+        TreeNode<String> node2 = new TreeNode<>(null);
+        emdList.add(node2);
+        node2.addChild("b");
+        node2.addChild("c");
+        List<String> res = rp.flatten(emdList);
+        assertEquals(3, res.size());
     }
 }

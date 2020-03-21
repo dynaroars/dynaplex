@@ -5,6 +5,7 @@ import java.util.*;
 import static java.util.Collections.*;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class RecursionProblems {
 
@@ -74,5 +75,24 @@ public class RecursionProblems {
             return false;
         isPalindrome(ls);
         return true;
+    }
+
+    /**
+     * flatten a list of lists
+     */
+    public List<String> flatten(LinkedList<TreeNode<String>> emdList) {
+        List<String> res = new LinkedList<>();
+        aux_flatten(res, emdList);
+        return res;
+    }
+    private void aux_flatten(List<String> acc, List<TreeNode<String>> node) {
+        TreeNode<String> elem = ((LinkedList<TreeNode<String>>) node).pollFirst();
+        if (isNull(elem))
+            return;
+        if (elem.children.size() == 0) {
+            acc.add(elem.data);
+            aux_flatten(acc, node);
+        }
+        aux_flatten(acc, elem.children);
     }
 }
