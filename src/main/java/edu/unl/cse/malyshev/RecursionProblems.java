@@ -1,10 +1,9 @@
 package edu.unl.cse.malyshev;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
 
 public class RecursionProblems {
 
@@ -34,7 +33,26 @@ public class RecursionProblems {
         list.remove(0);
         return lastTwo(list);
     }
-    
+
+    /**
+     * return reverse list
+     */
+    public List<String> rev(List<String> list) {
+        List<String> acc = new ArrayList<>();
+        LinkedList<String> input = new LinkedList<>(list);
+        tot(acc, input);
+        return acc;
+    }
+
+    private void tot(List<String> acc, LinkedList<String> list) {
+        String elem = list.pollLast();
+        if (isNull(elem))
+            return;
+        acc.add(elem);
+        tot(acc, list);
+//        todo: this return is not used. How to remove?
+//        return acc;
+    }
 
 
 }

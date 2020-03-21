@@ -44,4 +44,12 @@ public class Tests {
         assertEquals("2", res.get(0));
         assertEquals("lastElem", res.get(1));
     }
+
+    @Test
+    public void test_reverse() {
+        List<String> res = rp.rev(list);
+        assertEquals(3, res.size());
+//        FIXME: use iterable assertion
+        assertEquals("1", res.get(2));
+    }
 }
