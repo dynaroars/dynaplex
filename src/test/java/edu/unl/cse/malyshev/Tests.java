@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class Tests {
 
@@ -51,5 +51,14 @@ public class Tests {
         assertEquals(3, res.size());
 //        FIXME: use iterable assertion
         assertEquals("1", res.get(2));
+    }
+
+    @Test
+    public void test_palindrome() {
+        boolean res = rp.isPalindrome(list);
+        assertFalse(res);
+        list.add("2");
+        list.add("1");
+        assertTrue(rp.isPalindrome(list));
     }
 }

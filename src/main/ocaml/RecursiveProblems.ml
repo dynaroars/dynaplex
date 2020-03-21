@@ -23,6 +23,13 @@ let rev ls =
     in tot [] ls
 ;; 
 
+(* find out whether a list is a palindrome *)
+let is_palindrome ls = 
+    ls = rev ls
+    (*or use List.rev*)
+;;
+    
+
 let main() = begin
     let le = last [1; 5; 4] in
     printf "last: %d\n" (Option.get le);
@@ -33,6 +40,15 @@ let main() = begin
 
     let res_list = rev [4; 3; 1; 6] in 
     List.iter (printf "%d ") res_list; 
+
+    let pal1 = [3; 5; 3] in
+    if (is_palindrome pal1) then printf "\nthe list is palindrome\n";
+
+    let pal2 = [5; 3] in
+    if (is_palindrome pal2) then printf "\nthe list is palindrome\n";
+
+    let pal3 = [] in
+    if (is_palindrome pal3) then printf "the list is palindrome\n";
 
 end;;
 main();;

@@ -2,6 +2,7 @@ package edu.unl.cse.malyshev;
 
 import java.util.*;
 
+import static java.util.Collections.*;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 
@@ -50,9 +51,28 @@ public class RecursionProblems {
             return;
         acc.add(elem);
         tot(acc, list);
-//        todo: this return is not used. How to remove?
-//        return acc;
     }
 
 
+    public boolean isPalindrome(List<String> list) {
+        if (list.isEmpty())
+            return true;
+        LinkedList<String> copyList = new LinkedList<>(list);
+        return isPalindrome(copyList);
+    }
+
+    /**
+     * returns true if the list is palindrome
+     */
+    private boolean isPalindrome(LinkedList<String> ls) {
+        String first = ls.pollFirst();
+        String last = ls.pollLast();
+        if (isNull(first) || isNull(last)) {
+            return true;
+        }
+        if (!last.equals(first))
+            return false;
+        isPalindrome(ls);
+        return true;
+    }
 }
