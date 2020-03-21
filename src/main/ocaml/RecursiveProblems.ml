@@ -29,6 +29,19 @@ let is_palindrome ls =
     (*or use List.rev*)
 ;;
     
+type 'a node = 
+    | One of 'a
+    | Many of 'a node list
+;;
+
+(* Flatten a nested list structure *)
+let flatten ls = 
+    let rec aux acc = function
+        | [] -> acc
+        | One h :: t -> aux (h::acc) t
+        | Many ls :: t -> aux acc (ls @ t)
+    in List.rev (aux [] ls)
+;;
 
 let main() = begin
     let le = last [1; 5; 4] in
@@ -49,6 +62,14 @@ let main() = begin
 
     let pal3 = [] in
     if (is_palindrome pal3) then printf "the list is palindrome\n";
+
+    let fat_ls = [One "a"; Many [ One "b" ; Many [ One "c" ; One "d" ] ; One "e" ] ] in
+    (*let fat_ls = [One "a"] in*)
+    let flattened_ls = flatten fat_ls in
+    List.iter (printf "%s ") flattened_ls;
+    printf "\n";
+
+
 
 end;;
 main();;
