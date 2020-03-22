@@ -43,6 +43,22 @@ let flatten ls =
     in List.rev (aux [] ls)
 ;;
 
+(* Pack consecutive duplicates of list elemets into sublists *)
+let pack ls = 
+    let rec aux sub acc = function
+        | [] -> begin 
+            let res = (List.filter (fun e -> (List.length e)> 0) acc) in
+            List.rev (sub::res)
+        end;
+        | h :: t -> begin
+            if (List.mem h sub) then
+                aux (h::sub) acc t
+            else
+                aux [h] (sub::acc) t
+        end;
+    in aux [] [] ls
+;;
+
 let main() = begin
     let le = last [1; 5; 4] in
     printf "last: %d\n" (Option.get le);
@@ -68,6 +84,10 @@ let main() = begin
     let flattened_ls = flatten fat_ls in
     List.iter (printf "%s ") flattened_ls;
     printf "\n";
+
+    let cons_ls = ["a"; "a"; "b"] in
+    let packed_ls = pack cons_ls in
+    printf "length of packed list is %d\n" (List.length packed_ls);
 
 
 

@@ -75,4 +75,17 @@ public class Tests {
         List<String> res = rp.flatten(emdList);
         assertEquals(3, res.size());
     }
+
+
+    @Test
+    public void test_pack() {
+        List<String> lsWithDup = new ArrayList<>();
+        lsWithDup.add("a");
+        lsWithDup.add("a");
+        lsWithDup.add("b");
+
+        List<LinkedList<String>> res = rp.pack(lsWithDup);
+
+        assertEquals(2, res.size());
+    }
 }

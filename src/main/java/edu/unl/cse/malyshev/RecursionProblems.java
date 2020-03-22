@@ -95,4 +95,28 @@ public class RecursionProblems {
         }
         aux_flatten(acc, elem.children);
     }
+
+    /**
+     * Pack consecutive duplicates of list elements into sublists
+     */
+    public List<LinkedList<String>> pack(List<String> ls) {
+        LinkedList<String> input = new LinkedList<>(ls);
+        LinkedList<LinkedList<String>> acc = new LinkedList<>();
+        aux_pack(new LinkedList<>(), acc, input);
+        return acc;
+    }
+
+    private void aux_pack(LinkedList<String> sub, LinkedList<LinkedList<String>> acc, LinkedList<String> input) {
+        String elem = input.pollFirst();
+        if (isNull(elem)) {
+            acc.add(sub);
+            return;
+        }
+        if (!sub.isEmpty() && !sub.contains(elem)) {
+            acc.add(sub);
+            sub = new LinkedList<>();
+        }
+        sub.add(elem);
+        aux_pack(sub, acc, input);
+    }
 }
