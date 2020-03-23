@@ -59,7 +59,34 @@ let pack ls =
     in aux [] [] ls
 ;;
 
+type 'a rle = 
+    | On of 'a
+    | Man of int * 'a
+;;
+
+let encode ls = 
+    let rec aux count acc = function
+        | [] -> []
+        | [x] -> 
+            if count = 1 then 
+                (On x)::acc 
+            else
+                (Man (count+1, x))::acc
+        | a :: (b :: _ as t) -> if a=b then
+            aux (count+1) acc t
+        else
+            if count = 0 then 
+                aux 0 ((On a)::acc) t
+            else
+                aux 0 ((Man (count+1, a))::acc) t
+    in List.rev (aux 0 [] ls)
+;;
+
 let main() = begin
+
+    (* testing here is not exhaustive since it is time-consuming to write printing functions
+     * for different structures. The more simple way to test is to use toplevel, which ouputs results of
+     * each variable. So, try.ocamlpro.com provides with online toplevel sandbox. *)
     let le = last [1; 5; 4] in
     printf "last: %d\n" (Option.get le);
     
