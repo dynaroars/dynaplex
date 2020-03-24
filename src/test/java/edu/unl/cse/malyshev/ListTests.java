@@ -12,7 +12,7 @@ import java.util.Optional;
 
 import static org.junit.Assert.*;
 
-public class Tests {
+public class ListTests {
 
     private RecursionProblems rp;
     private List<String> list;
@@ -88,4 +88,5 @@ public class Tests {
 
         assertEquals(2, res.size());
     }
+
 }

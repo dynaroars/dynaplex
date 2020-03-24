@@ -82,7 +82,14 @@ let encode ls =
     in List.rev (aux 0 [] ls)
 ;;
 
-let main() = begin
+let drop_nth ls n = 
+    let rec aux count = function
+        | [] -> []
+        | h :: t -> if count=n then aux 1 t else h::aux (count+1) t 
+    in aux 1 ls
+;;
+
+let main = begin
 
     (* testing here is not exhaustive since it is time-consuming to write printing functions
      * for different structures. The more simple way to test is to use toplevel, which ouputs results of
@@ -119,4 +126,4 @@ let main() = begin
 
 
 end;;
-main();;
+main;;

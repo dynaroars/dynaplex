@@ -9,4 +9,4 @@ build/
 *.cmi
 *.cmx
 *.o
-ocaml/test
+*/test
