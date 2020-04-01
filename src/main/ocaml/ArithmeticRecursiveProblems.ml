@@ -68,7 +68,7 @@ let main = begin
     (*is_prime 30;*)
 
     let d = gcd 20536 7826 in
-    printf "%d\n" d;
+    printf "%d\n %d" d (13 mod 27);
 
 end;;
 
