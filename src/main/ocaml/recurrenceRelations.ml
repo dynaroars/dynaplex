@@ -1,10 +1,11 @@
 open Printf
 
-let rec binary_search ls value low high depth =
-  printf "depth: %d. range: %d\n" depth (high - low + 1);
+let rec binary_search file ls value low high depth =
+  (*fprintf file "depth: %d. range: %d\n" depth (high - low + 1);*)
+  fprintf file "%d\n" (high - low + 1);
   if high = low then begin
     if ls.(low) = value then begin
-        printf "%d\n" low;
+        (*printf "%d\n" low;*)
       low
     end
     else
@@ -12,9 +13,9 @@ let rec binary_search ls value low high depth =
     end
   else let mid = (low + high) / 2 in
     if ls.(mid) > value then
-      binary_search ls value low (mid - 1) (depth+1)
+      binary_search file ls value low (mid - 1) (depth+1)
     else if ls.(mid) < value then
-      binary_search ls value (mid + 1) high (depth+1)
+      binary_search file ls value (mid + 1) high (depth+1)
     else
       mid
 ;;
@@ -95,13 +96,18 @@ let main = begin
     
     (*let half = sublist 0 3 [1;3;5;3;6;7;2] in*)
     (*List.iter (printf "%d ") half;*)
+    Random.self_init ();
 
-    printf "\n";
-    let arr = Array.of_list (range [] 100) in
-    List.iter (printf "%d, ") (range [] 100);
-    printf "\n";
-    let idx = binary_search arr 3 0 (Array.length arr - 1) 0 in
-    printf "%d\n" idx;
+    let random_arr_len = Random.int 200 in
+    let random_target = Random.int random_arr_len in
+    let filename = sprintf "logs/output-%d-%d" random_arr_len random_target in
+    let file = open_out filename in
+    (*printf "\n";*)
+    let arr = Array.of_list (range [] random_arr_len) in
+    (*List.iter (printf "%d, ") (range [] 100);*)
+    (*printf "\n";*)
+    let idx = binary_search file arr random_target 0 (Array.length arr - 1) 0 in
+    close_out file;
 
 end;;
 main;

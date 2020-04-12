@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+'''Recurrence complexity analyzer '''
 import sys
 from os import listdir
 
