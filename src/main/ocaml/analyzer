@@ -16,24 +16,29 @@ class RecRel:
         self.coef = coef
 
 class Node:
-    def __init__(self, d: int, val: float):
+    def __init__(self, d: int, a: int, val: float):
         self.d = d
+        self.a = a
         self.val = val
 
 def calc_coefs(queue, coefs, num_rec_calls):
-    parent = queue[len(queue)-1-num_rec_calls]
+    # get parent node
+    p_index = len(queue)-1-num_rec_calls
+    if (p_index < 0):
+        return coefs
+    parent = queue[p_index]
+     
     if len(coefs) == 0:
         coefs = [[] for i in range(num_rec_calls)]
     ls = range(num_rec_calls-1, -1, -1)
     for i in ls:
         child = queue.pop()
-        #print("child: ", child.val)
         if (child.val != float(0)):
             coefs[i].append(float(parent.val) / float(child.val))
 
-    #print("coef: ", coefs)
-    #print("queue: ", [q.val for q in queue])
-    #print("parent: ", parent.val)
+    # print("coef: ", coefs)
+    # print("queue: ", [q.val for q in queue])
+    # print("parent: ", parent.val)
     count = 1
     prev = parent
     for i in range(1, num_rec_calls, 1):
@@ -45,41 +50,51 @@ def calc_coefs(queue, coefs, num_rec_calls):
             count += 1
         prev = node
 
-    #print("count: ", count)
     if count == num_rec_calls:
         calc_coefs(queue, coefs, num_rec_calls)
     return coefs
 
+def get_cur_node(line: str):
+    # each line has the following format: depth;a;n
+    m = line.rstrip('\n').split(';')
+    m = [int(m[0]), int(m[1]), m[2]]
+    return Node(m[0], m[1], float(m[2]))
 
+def get_num_rec_calls(lines: list):
+    max_depth, nums = 0, 1
+    prev = Node(-1, 1, 0.0)
+    for i, line in enumerate(lines):
+        # print(line)
+        cur = get_cur_node(line)
+        if cur.d < prev.d:
+            return nums
+        if (prev.d <= cur.d and len(lines) - 1 > i):
+            if max_depth < cur.d:
+                max_depth = cur.d
+                nums = 1
+            if prev.d == cur.d and cur.d == max_depth:
+                nums += 1
+        prev = cur          
+    return nums
 
 def read_logs(filename: str):
-    ''' returns a dictionary where the key is depth of a recursive call and
-        value is a list of lengths with coef a (?)'''
     with open(filename) as file:
         #print("reading from ", filename)
-        num_rec_calls = 2
-        queue = []
-        coefs = []
         lines = file.readlines()
-        prev  = Node(-1, 0.0)
+        num_rec_calls = get_num_rec_calls(lines)
+        # print(filename)
+        # print(num_rec_calls)
+        queue, coefs = [], []
+        prev  = Node(-1, 1, 0.0)
         for i, line in enumerate(lines):
-            #print(line)
-            # each line has the following format: depth;a;n
-            m = line.rstrip('\n').split(';')
-            m = [int(m[0]), int(m[1]), m[2]]
-
-            cur = Node(m[0], float(m[2]))
-
-            if (prev.d <= cur.d or len(lines) - 1 < i):
-                #print("iterating. Search for the bottom")
-                # calculating the number of recurrsive calls (= number of branches for each node)
-                # if prev.d == cur.d and num_rec_calls != 0:
-                    # num_rec_calls += 1
+            # print(line)
+            cur = get_cur_node(line)
+            # find the bottom of the branch
+            if (prev.d <= cur.d and len(lines) - 1 != i):
                 prev = cur          
                 queue.append(cur)
                 continue
-
-            #print(num_rec_calls)
+            # calculate coefs for the current branch
             coefs = calc_coefs(queue, coefs, num_rec_calls)
             queue.append(cur)
             prev = cur          
@@ -105,9 +120,13 @@ for filename in filenames:
 # print(final_coefs)
 
 # print([type(c) for c in final_coefs[0]])
-print(final_coefs)
+# print(final_coefs)
 
-print("simle average: " + str(np.average(np.array(final_coefs[0]))) + " + " + str(np.average(np.array(final_coefs[1]))))
+print("simple average: ")
+ # + " + " + str(np.average(np.array(final_coefs[1])))
+for i in range(len(final_coefs)):
+    print(str(np.average(np.array(final_coefs[i]))))
+
 
 print("-------------")
 
@@ -131,7 +150,7 @@ for coefs in final_coefs:
     regr = LinearRegression() 
       
     regr.fit(X_train, y_train) 
-    print(regr.score(X_test, y_test))
+    # print(regr.score(X_test, y_test))
 
     y_pred = regr.predict(X_test)
     plt.scatter(X_test, y_test, color ='b') 
@@ -140,4 +159,6 @@ for coefs in final_coefs:
     # plt.show()
     rec_relations.append(RecRel(1, np.average(y_pred)))
 # rec_relations[0].coef
-print("Recurrent relation is " + str(rec_relations[0].a) + "*" + "T(n/", str(rec_relations[0].coef) + ") + " + str(rec_relations[1].a) + "*T(n/" + str(rec_relations[1].coef) + ")")
+print("Recurrent relation is ")
+for i in range(len(final_coefs)):
+    print(str(rec_relations[i].a) + "*T(n/" + str(int(rec_relations[i].coef)) + ")")

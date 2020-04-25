@@ -2,7 +2,8 @@ open Printf
 
 let rec binary_search file ls value low high depth =
   (*fprintf file "depth: %d. range: %d\n" depth (high - low + 1);*)
-  fprintf file "%d\n" (high - low + 1);
+  fprintf file "%d;%d;%d\n" depth 1 (high - low + 1);
+  (*fprintf file "%d\n" (high - low + 1);*)
   if high = low then begin
     if ls.(low) = value then begin
         (*printf "%d\n" low;*)
@@ -111,12 +112,11 @@ let main = begin
     (*let file = open_out filename in*)
     (*(*printf "\n";*)*)
     (*let arr = Array.of_list (range [] random_arr_len) in*)
-    (*(*List.iter (printf "%d, ") (range [] 100);*)*)
     (*(*printf "\n";*)*)
     (*let idx = binary_search file arr random_target 0 (Array.length arr - 1) 0 in*)
     (*close_out file;*)
 
-    let random_n = Random.int 22200 in
+    let random_n = Random.int 234180 in
     let filename = sprintf "logs/output-%d" random_n in
     let file = open_out filename in
     let res = double_rec_call file 0 0 random_n in 
