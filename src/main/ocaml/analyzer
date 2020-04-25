@@ -2,34 +2,142 @@
 '''Recurrence complexity analyzer '''
 import sys
 from os import listdir
+import numpy as np 
+import pandas as pd 
+import seaborn as sns 
+import matplotlib.pyplot as plt 
+from sklearn import preprocessing, svm 
+from sklearn.model_selection import train_test_split 
+from sklearn.linear_model import LinearRegression 
+
+class RecRel:
+    def __init__(self, a: int, coef: float):
+        self.a = a
+        self.coef = coef
+
+class Node:
+    def __init__(self, d: int, val: float):
+        self.d = d
+        self.val = val
+
+def calc_coefs(queue, coefs, num_rec_calls):
+    parent = queue[len(queue)-1-num_rec_calls]
+    if len(coefs) == 0:
+        coefs = [[] for i in range(num_rec_calls)]
+    ls = range(num_rec_calls-1, -1, -1)
+    for i in ls:
+        child = queue.pop()
+        #print("child: ", child.val)
+        if (child.val != float(0)):
+            coefs[i].append(float(parent.val) / float(child.val))
+
+    #print("coef: ", coefs)
+    #print("queue: ", [q.val for q in queue])
+    #print("parent: ", parent.val)
+    count = 1
+    prev = parent
+    for i in range(1, num_rec_calls, 1):
+        index = len(queue) - 1 - i
+        if index < 0:
+            break
+        node = queue[index]
+        if prev.d == node.d:
+            count += 1
+        prev = node
+
+    #print("count: ", count)
+    if count == num_rec_calls:
+        calc_coefs(queue, coefs, num_rec_calls)
+    return coefs
+
+
 
 def read_logs(filename: str):
-    ''' returns a list of integers that represent lengths ... '''
+    ''' returns a dictionary where the key is depth of a recursive call and
+        value is a list of lengths with coef a (?)'''
     with open(filename) as file:
-        lines = [line.rstrip('\n') for line in file]
+        #print("reading from ", filename)
+        num_rec_calls = 2
+        queue = []
+        coefs = []
+        lines = file.readlines()
+        prev  = Node(-1, 0.0)
+        for i, line in enumerate(lines):
+            #print(line)
+            # each line has the following format: depth;a;n
+            m = line.rstrip('\n').split(';')
+            m = [int(m[0]), int(m[1]), m[2]]
+
+            cur = Node(m[0], float(m[2]))
+
+            if (prev.d <= cur.d or len(lines) - 1 < i):
+                #print("iterating. Search for the bottom")
+                # calculating the number of recurrsive calls (= number of branches for each node)
+                # if prev.d == cur.d and num_rec_calls != 0:
+                    # num_rec_calls += 1
+                prev = cur          
+                queue.append(cur)
+                continue
+
+            #print(num_rec_calls)
+            coefs = calc_coefs(queue, coefs, num_rec_calls)
+            queue.append(cur)
+            prev = cur          
+        #print(coefs)
     file.close()
-    return lines
-
-def get_factors(lengths: list):
-    ''' returns factors that each element of a list is decreased by'''
-    factors = []
-    for i, val in enumerate(lengths):
-        if i == 0:
-            continue
-        factor = int(lengths[i-1])//int(val)
-        factors.append(factor)
-    print(str(factors))
-    return factors
-
-def calc_factors(dirname: str):
-    ''' calc b '''
-    # lengths = [line[1] for line in read_logs(sys.argv[1])]
-    filenames = [f for f in listdir(dirname)]
-    lengths = [read_logs(dirname + '/' + filename) for filename in filenames] # [[50,24,11], [5,2],...]
-    all_factors = [f for sublist in lengths for f in get_factors(sublist)]
-    return all_factors
+    return coefs
 
 dir_name = sys.argv[1]
-factors = calc_factors(dir_name)
-b = max(factors, key=factors.count)
-print('b: ', b)
+
+filenames = [f for f in listdir(dir_name)]
+final_coefs = []
+for filename in filenames:
+    # print("analyzing a file: ", filename)
+    coefs = read_logs(dir_name + filename)
+    if len(final_coefs) == 0:
+        final_coefs = coefs
+    # print(coefs)
+    # print("finished analyzing a file: ", filename)
+    # print(len(coefs))
+    for i, coef in enumerate(coefs):
+        # print("coef: ", coef)
+        final_coefs[i].extend([c for c in coef])
+# print(final_coefs)
+
+# print([type(c) for c in final_coefs[0]])
+print(final_coefs)
+
+print("simle average: " + str(np.average(np.array(final_coefs[0]))) + " + " + str(np.average(np.array(final_coefs[1]))))
+
+print("-------------")
+
+x = [i for i,v in enumerate(final_coefs[0])]
+rec_relations = []
+
+for coefs in final_coefs:
+    data = np.array([x, coefs])
+    #print(data)
+    #columns=['','node id','coefs']
+    df = pd.DataFrame(list(zip(x, coefs)), 
+                   columns =['node ids', 'coefs']) 
+    #df = pd.DataFrame(data=data, index=['node id','coefs'], columns=x)
+    # df.head()
+    #sns.lmplot(x ="node id", y ="coefs", data = df, order = 2, ci = None)
+
+    X = np.array(df['node ids']).reshape(-1, 1) 
+    y = np.array(df['coefs']).reshape(-1, 1)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25)
+    regr = LinearRegression() 
+      
+    regr.fit(X_train, y_train) 
+    print(regr.score(X_test, y_test))
+
+    y_pred = regr.predict(X_test)
+    plt.scatter(X_test, y_test, color ='b') 
+    plt.plot(X_test, y_pred, color ='k') 
+      
+    # plt.show()
+    rec_relations.append(RecRel(1, np.average(y_pred)))
+# rec_relations[0].coef
+print("Recurrent relation is " + str(rec_relations[0].a) + "*" + "T(n/", str(rec_relations[0].coef) + ") + " + str(rec_relations[1].a) + "*T(n/" + str(rec_relations[1].coef) + ")")
