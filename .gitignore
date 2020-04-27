@@ -9,5 +9,5 @@ build/
 *.cmi
 *.cmx
 *.o
-*test
+test
 *logs/
