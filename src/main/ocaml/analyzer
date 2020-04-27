@@ -22,23 +22,25 @@ class Node:
         self.val = val
 
 def calc_coefs(queue, coefs, num_rec_calls):
+    ''' calculates coeficients that the each value of a node decreased by
+        in comparison with the parent node '''
+
     # get parent node
     p_index = len(queue)-1-num_rec_calls
     if (p_index < 0):
         return coefs
     parent = queue[p_index]
      
+    # prepare a list of coefs
     if len(coefs) == 0:
         coefs = [[] for i in range(num_rec_calls)]
-    ls = range(num_rec_calls-1, -1, -1)
-    for i in ls:
+
+    for i in range(num_rec_calls-1, -1, -1):
         child = queue.pop()
-        if (child.val != float(0)):
+        if child.val != float(0):
             coefs[i].append(float(parent.val) / float(child.val))
 
-    # print("coef: ", coefs)
-    # print("queue: ", [q.val for q in queue])
-    # print("parent: ", parent.val)
+    # while we backtracking we have to make sure that the level is fully 'filled'
     count = 1
     prev = parent
     for i in range(1, num_rec_calls, 1):
@@ -55,12 +57,16 @@ def calc_coefs(queue, coefs, num_rec_calls):
     return coefs
 
 def get_cur_node(line: str):
+    ''' builds and returns a Node that fed by the parsed string from traces '''
+
     # each line has the following format: depth;a;n
     m = line.rstrip('\n').split(';')
     m = [int(m[0]), int(m[1]), m[2]]
     return Node(m[0], m[1], float(m[2]))
 
 def get_num_rec_calls(lines: list):
+    ''' returns the number of recursive calls that a function does '''
+
     max_depth, nums = 0, 1
     prev = Node(-1, 1, 0.0)
     for i, line in enumerate(lines):
@@ -78,12 +84,11 @@ def get_num_rec_calls(lines: list):
     return nums
 
 def read_logs(filename: str):
+    ''' reads traces from a file and returns calculated coeficients '''
+
     with open(filename) as file:
-        #print("reading from ", filename)
         lines = file.readlines()
         num_rec_calls = get_num_rec_calls(lines)
-        # print(filename)
-        # print(num_rec_calls)
         queue, coefs = [], []
         prev  = Node(-1, 1, 0.0)
         for i, line in enumerate(lines):
@@ -98,7 +103,6 @@ def read_logs(filename: str):
             coefs = calc_coefs(queue, coefs, num_rec_calls)
             queue.append(cur)
             prev = cur          
-        #print(coefs)
     file.close()
     return coefs
 
@@ -108,25 +112,16 @@ filenames = [f for f in listdir(dir_name)]
 final_coefs = []
 for filename in filenames:
     # print("analyzing a file: ", filename)
-    coefs = read_logs(dir_name + filename)
+    coefs = read_logs(dir_name + "/" + filename)
     if len(final_coefs) == 0:
         final_coefs = coefs
-    # print(coefs)
-    # print("finished analyzing a file: ", filename)
-    # print(len(coefs))
     for i, coef in enumerate(coefs):
-        # print("coef: ", coef)
         final_coefs[i].extend([c for c in coef])
-# print(final_coefs)
-
-# print([type(c) for c in final_coefs[0]])
-# print(final_coefs)
 
 print("simple average: ")
  # + " + " + str(np.average(np.array(final_coefs[1])))
 for i in range(len(final_coefs)):
     print(str(np.average(np.array(final_coefs[i]))))
-
 
 print("-------------")
 
@@ -135,27 +130,25 @@ rec_relations = []
 
 for coefs in final_coefs:
     data = np.array([x, coefs])
-    #print(data)
     #columns=['','node id','coefs']
-    df = pd.DataFrame(list(zip(x, coefs)), 
-                   columns =['node ids', 'coefs']) 
+    df = pd.DataFrame(list(zip(x, coefs)), columns=['node ids', 'coefs'])
     #df = pd.DataFrame(data=data, index=['node id','coefs'], columns=x)
     # df.head()
     #sns.lmplot(x ="node id", y ="coefs", data = df, order = 2, ci = None)
 
-    X = np.array(df['node ids']).reshape(-1, 1) 
+    X = np.array(df['node ids']).reshape(-1, 1)
     y = np.array(df['coefs']).reshape(-1, 1)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25)
-    regr = LinearRegression() 
-      
-    regr.fit(X_train, y_train) 
-    # print(regr.score(X_test, y_test))
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
+    regr = LinearRegression()
+
+    regr.fit(X_train, y_train)
+    # print("score is ", regr.score(X_test, y_test))
 
     y_pred = regr.predict(X_test)
-    plt.scatter(X_test, y_test, color ='b') 
-    plt.plot(X_test, y_pred, color ='k') 
-      
+    plt.scatter(X_test, y_test, color='b')
+    plt.plot(X_test, y_pred, color='k')
+
     # plt.show()
     rec_relations.append(RecRel(1, np.average(y_pred)))
 # rec_relations[0].coef

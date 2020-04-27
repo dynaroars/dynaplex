@@ -106,21 +106,22 @@ let main = begin
     (*List.iter (printf "%d ") half;*)
     Random.self_init ();
 
-    (*let random_arr_len = Random.int 200 in*)
-    (*let random_target = Random.int random_arr_len in*)
-    (*let filename = sprintf "logs/output-%d-%d" random_arr_len random_target in*)
-    (*let file = open_out filename in*)
-    (*(*printf "\n";*)*)
-    (*let arr = Array.of_list (range [] random_arr_len) in*)
-    (*(*printf "\n";*)*)
-    (*let idx = binary_search file arr random_target 0 (Array.length arr - 1) 0 in*)
-    (*close_out file;*)
 
     let random_n = Random.int 234180 in
-    let filename = sprintf "logs/output-%d" random_n in
+    let filename = sprintf "./double_rec_call/output-%d" random_n in
     let file = open_out filename in
     let res = double_rec_call file 0 0 random_n in 
     (*printf "result is %d\n" res*)
+    close_out file;
+
+    let random_arr_len = Random.int 53400 in
+    let random_target = Random.int random_arr_len in
+    let filename = sprintf "./binary_search/output-%d-%d" random_arr_len random_target in
+    let file = open_out filename in
+    (*printf "\n";*)
+    let arr = Array.of_list (range [] random_arr_len) in
+    (*printf "\n";*)
+    let idx = binary_search file arr random_target 0 (Array.length arr - 1) 0 in
     close_out file;
 
 end;;
