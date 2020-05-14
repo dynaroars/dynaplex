@@ -1,24 +1,17 @@
 open Printf
 
 let rec binary_search file ls value low high depth =
-  (*fprintf file "depth: %d. range: %d\n" depth (high - low + 1);*)
   fprintf file "%d;%d;%d\n" depth 1 (high - low + 1);
-  (*fprintf file "%d\n" (high - low + 1);*)
   if high = low then begin
-    if ls.(low) = value then begin
-        (*printf "%d\n" low;*)
-      low
-    end
-    else
-      raise Not_found
-    end
+    if ls.(low) = value then  low
+    else raise Not_found
+  end
   else let mid = (low + high) / 2 in
     if ls.(mid) > value then
       binary_search file ls value low (mid - 1) (depth+1)
     else if ls.(mid) < value then
       binary_search file ls value (mid + 1) high (depth+1)
-    else
-      mid
+    else mid
 ;;
 
 let rec double_rec_call file depth a n  =
@@ -28,84 +21,186 @@ let rec double_rec_call file depth a n  =
     | n -> double_rec_call file (depth+1) (1) (n/3) + 2 * double_rec_call file (depth+1) (2) (n/6)
 ;;
 
-let get_odds ls =
-    printf "--- retreiving odd numbers --- \n";
-    printf "input: ";
-    List.iter (printf "%d ") ls;
-    printf "\n";
-    let rec aux acc depth = function
-    | [] -> acc
-    | h::t as arr ->
-            printf "depth: %d, array length: %d\n" depth (List.length arr);
-            if h mod 2 = 1 
-                then aux (h::acc) (depth+1) t
-                else aux acc (depth+1) t
-    in 
-    let res = List.rev (aux [] 0 ls) in
-    printf "output: ";
-    List.iter (printf "%d ") res;
-    printf "\n";
-    (*res;*)
+let rec split_at_sep file n xs depth =
+  fprintf file "%d;%d;%d\n" depth 1 n;
+  match n, xs with
+      0, xs ->
+        [], xs
+    | _, [] ->
+        failwith "index too large"
+    | n, x::xs when n > 0 ->
+        let xs', xs'' = split_at_sep file (pred n) xs (depth+1) in
+          x::xs', xs''
+    | _, _ ->
+        invalid_arg "negative argument"
+
+let rec split_at n xs =
+  match n, xs with
+      0, xs ->
+        [], xs
+    | _, [] ->
+        failwith "index too large"
+    | n, x::xs when n > 0 ->
+        let xs', xs'' = split_at (pred n) xs in
+          x::xs', xs''
+    | _, _ ->
+        invalid_arg "negative argument"
+ 
+let rec merge_sort file cmp ls depth = 
+    fprintf file "%d;%d;%d\n" depth 1 (List.length ls);
+    match ls with 
+    [] -> []
+  | [x] -> [x]
+  | xs ->
+      let xs, ys = split_at (List.length xs / 2) xs in
+        List.merge cmp (merge_sort file cmp xs (depth+1)) (merge_sort file cmp ys (depth+1))
 ;;
 
-let sublist fst_index snd_index ls = 
-    (*if (fst_index > snd_index) then [];*)
-    let rec aux cur_index acc = function
-        | [] -> acc
-        | h::t -> if (fst_index <= cur_index) && (cur_index <= snd_index) 
-            then aux (cur_index+1) (h::acc) t
-            else aux (cur_index+1) acc t
-    in List.rev (aux 0 [] ls)
+let rec selection_sort file depth ls =
+  fprintf file "%d;%d;%d\n" depth 1 (List.length ls);
+  (*printf "%d;%d;%d\n" depth 1 (List.length ls);*)
+    match ls with 
+    [] -> []
+  | first::lst ->
+      let rec select_r small output = function
+          [] -> small :: selection_sort file (depth+1) output
+        | x::xs when x < small -> select_r x (small::output) xs
+        | x::xs                -> select_r small (x::output) xs
+      in
+      select_r first [] lst
 ;;
 
-let arr_splitter ls =
-    printf "--- splitting a list --- \n";
-    printf "input: [";
-    List.iter (printf "%d ") ls;
-    printf "]\n";
-    let rec aux l =
-        if (List.length l) <= 1 
-            then printf "length = %d\n" 1
-        else begin
-                printf "length = %d\n" (List.length l);
-                let half = (List.length l) / 2 in
-                aux (sublist 0 (half-1) l)
-             end
-    in aux ls
-;;
-
-let rec f1 n depth=
-    printf "depth: %d; value of n: %d\n" depth n;
-    if (n = 3 || n <= 1)
-        then 2
-    else (f1 (n/3) (depth+1) + 2*(f1 (n/6) (depth+1)))
+let rec select_r file small output depth ls = 
+    fprintf file "%d;%d;%d\n" depth 1 (List.length ls);
+    match ls with 
+      [] -> []
+    | x::xs when x < small -> select_r file x (small::output) (depth+1) xs
+    | x::xs                -> select_r file small (x::output) (depth+1) xs
 ;;
 
 let rec range l elem = 
     if elem < 1 then (elem::l)
     else range (elem::l) (elem-1)
 ;;
-        
+
+let rec successors n = function 
+    [] -> []
+    | (s,t) :: edges -> if s=n then 
+            t::successors n edges
+        else 
+            successors n edges
+;;
+
+let rec extract_nodes nodes = function
+    | [] -> nodes
+    | (n1,n2)::edges -> 
+        if not (List.mem n1 nodes) then 
+            if not (List.mem n2 nodes) then 
+                let tmp = n1::nodes in
+                extract_nodes (n2::tmp) edges
+            else extract_nodes (n1::nodes) edges
+        else 
+            if not (List.mem n2 nodes) then extract_nodes (n2::nodes) edges
+            else extract_nodes nodes edges;;
+;;
+
+let remove_elem_from_list e ls = 
+  List.filter (fun x -> not (String.equal x e) ) ls
+;;
+
+(*let remove_elem_from_list e ls = *)
+  (*List.filter (fun x -> not (Char.equal x e) ) ls*)
+(*;;*)
+
+let rec remove_visited nodes = function
+    | [] -> nodes
+    | n::t ->  remove_visited (remove_elem_from_list n nodes) t
+;;
+
+let rec dfs file edges visited depth all_nodes ls = 
+    let rest_nodes = remove_visited all_nodes visited in
+    fprintf file "%d;%d;%d\n" depth 1 (List.length rest_nodes);
+    match ls with
+    [] -> List.rev visited
+    | n::nodes -> if List.mem n visited then 
+            dfs file edges visited (depth+1) rest_nodes nodes 
+        else 
+            dfs file edges(n::visited) (depth+1) rest_nodes ((successors n edges)@ nodes)
+;;
+
+let rec n_squared file depth n = begin
+    fprintf file "%d;%d;%d\n" depth 1 n;
+    (*printf "extrnl %d \n" n;*)
+    let rec aux file depth k = begin
+        (*printf "intrl %d " n;*)
+        fprintf file "%d;%d;%d\n" depth 1 k;
+        if k>0 then aux file (depth+1) (k-1)
+    end
+    in begin aux file (depth+1) (4); if n>0 then n_squared file (depth+1) (n-1) end
+end
+;;
+
+let split file list n =
+    let rec aux i acc depth ls =
+        fprintf file "%d;%d;%d\n" depth 1 (List.length list);
+        match ls with
+      | [] -> List.rev acc, []
+      | h :: t as l -> if i = 0 then List.rev acc, l
+                       else aux (i-1) (h :: acc) (depth+1) t  in
+    aux n [] 0 list
+;;
+  
+let rotate file list n =
+    let len = List.length list in
+    (* Compute a rotation value between 0 and len-1 *)
+    let n = if len = 0 then 0 else (n mod len + len) mod len in
+    if n = 0 then list
+    else let a, b = split file list n in b @ a;;
+;;
+
+let rec gcd a b =
+    if b = 0 then a else gcd b (a mod b)
+;;
+
+let coprime a b = gcd a b = 1 ;;
+
+let phi file n =
+    let rec count_coprime acc depth d =
+      fprintf file "%d;%d;%d\n" depth 1 (n-d);
+      if d < n then
+        count_coprime (if coprime n d then acc + 1 else acc) (depth+1) (d + 1)
+      else acc
+    in
+    if n = 1 then 1 else count_coprime 0 0 1
+;;
+
+let rec fib_rec file depth n =
+  fprintf file "%d;%d;%d\n" depth 1 n;
+  if n < 2 then
+   n
+  else
+    fib_rec file (depth+1) (n - 1) + fib_rec file (depth+1) (n - 2)
+;;
+ 
+let rec hanoi file depth n a b c =
+  fprintf file "%d;%d;%d\n" depth 1 n;
+  if n <> 0 then begin
+    hanoi file (depth+1) (pred n) a c b;
+    hanoi file (depth+1) (pred n) c b a
+  end
+;;
+ 
+
 let main = begin
 
-    (*get_odds [1; 2; 3; 4; 5; 6];*)
-    (*printf "\n";*)
-    (*get_odds [1;1;1;5;2;2;22;53;44;23;];*)
-
-    (*printf "get_odds = [n, ...] where n=2k+1 and k is any integer\n";*)
-
-    (*printf "\n";*)
-    (*arr_splitter [2;5;23;3;1;53;5;11;];*)
-    (*printf "\n";*)
-    (*printf "T(k) = 1, where k = 0 or 1; \nT(n) = 1 + T(n/2), where n > 1\n";*)
-    
-    (*let n = f1 1111 0 in*)
-    (*printf "%d\n" n;*)
-    
-    (*let half = sublist 0 3 [1;3;5;3;6;7;2] in*)
-    (*List.iter (printf "%d ") half;*)
     Random.self_init ();
 
+    let random_n = Random.int 18 in
+    let filename = sprintf "./n_squared/output-%d" random_n in
+    let file = open_out filename in
+    n_squared file 0 random_n;
+    close_out file;
+    printf "\n----------------\n";
 
     let random_n = Random.int 234180 in
     let filename = sprintf "./double_rec_call/output-%d" random_n in
@@ -124,5 +219,61 @@ let main = begin
     let idx = binary_search file arr random_target 0 (Array.length arr - 1) 0 in
     close_out file;
 
+    let random_arr_len = Random.int 100 in
+    let ls = ref [] in
+    for i = 1 to random_arr_len do
+        let value = Random.int 859 in
+        if not (List.mem value !ls) then ls := value::!ls
+    done;
+    let filename = sprintf "./merge_sort/output-%d" (List.length !ls) in
+    let file = open_out filename in
+    let sorted = merge_sort file compare !ls 0 in
+    (*List.iter (printf "%d ") sorted;*)
+    close_out file;
+
+    let filename = sprintf "./merge_sort_split/output-%d" (List.length !ls) in
+    let file = open_out filename in
+    split_at_sep file (List.length !ls / 2) !ls 0;
+    close_out file;
+
+    List.iter (printf "%d ") !ls;
+    printf "\n----------------\n";
+    let filename = sprintf "./selection_sort/output-%d" (List.length !ls) in
+    let file = open_out filename in
+    let res = selection_sort file 0 !ls in 
+    close_out file;
+    List.iter (printf "%d ") res;
+
+    let filename = sprintf "./select_r/output-%d" (List.length !ls) in
+    let file = open_out filename in
+    let res = select_r file (List.hd !ls) [] 0 !ls in 
+    close_out file;
+
+    printf "\n---------------- Rotation\n";
+    let filename = sprintf "./rotate/output-%d" (List.length !ls) in
+    let file = open_out filename in
+    let res = rotate file !ls 5 in 
+    close_out file;
+
+    printf "\n---------------- Euler's totient\n";
+    let random_n = Random.int 1399 in
+    let filename = sprintf "./euler_totient/output-%d" random_n in
+    let file = open_out filename in
+    phi file random_n;
+    close_out file;
+
+    printf "\n---------------- Fibonacci function\n";
+    let random_n = Random.int 55 in
+    let filename = sprintf "./fibonacci/output-%d" random_n in
+    let file = open_out filename in
+    fib_rec file 0 random_n;
+    close_out file;
+
+    printf "\n---------------- Hanoi\n";
+    let random_n = Random.int 15 in
+    let filename = sprintf "./hanoi/output-%d" random_n in
+    let file = open_out filename in
+    hanoi file 0 random_n 1 2 3;
+    close_out file;
 end;;
 main;

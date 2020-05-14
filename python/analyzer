@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 '''Recurrence complexity analyzer '''
 import sys
+import statistics
 from os import listdir
 import numpy as np 
 import pandas as pd 
@@ -11,9 +12,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression 
 
 class RecRel:
-    def __init__(self, a: int, coef: float):
+    def __init__(self, a: int, coef: float, diff: float):
         self.a = a
         self.coef = coef
+        self.diff = diff
 
 class Node:
     def __init__(self, d: int, a: int, val: float):
@@ -21,24 +23,26 @@ class Node:
         self.a = a
         self.val = val
 
-def calc_coefs(queue, coefs, num_rec_calls):
+def calc_coefs(queue, coefs, diffs, num_rec_calls):
     ''' calculates coeficients that the each value of a node decreased by
         in comparison with the parent node '''
 
     # get parent node
     p_index = len(queue)-1-num_rec_calls
     if (p_index < 0):
-        return coefs
+        return coefs, diffs
     parent = queue[p_index]
      
     # prepare a list of coefs
     if len(coefs) == 0:
         coefs = [[] for i in range(num_rec_calls)]
+        diffs = [[] for i in range(num_rec_calls)]
 
     for i in range(num_rec_calls-1, -1, -1):
         child = queue.pop()
-        if child.val != float(0):
+        if child.val != float(0) and child.val != float(1):
             coefs[i].append(float(parent.val) / float(child.val))
+            diffs[i].append(float(parent.val) - float(child.val))
 
     # while we backtracking we have to make sure that the level is fully 'filled'
     count = 1
@@ -53,8 +57,8 @@ def calc_coefs(queue, coefs, num_rec_calls):
         prev = node
 
     if count == num_rec_calls:
-        calc_coefs(queue, coefs, num_rec_calls)
-    return coefs
+        calc_coefs(queue, coefs, diffs, num_rec_calls)
+    return coefs, diffs
 
 def get_cur_node(line: str):
     ''' builds and returns a Node that fed by the parsed string from traces '''
@@ -89,7 +93,7 @@ def read_logs(filename: str):
     with open(filename) as file:
         lines = file.readlines()
         num_rec_calls = get_num_rec_calls(lines)
-        queue, coefs = [], []
+        queue, coefs, diffs = [], [], []
         prev  = Node(-1, 1, 0.0)
         for i, line in enumerate(lines):
             # print(line)
@@ -100,41 +104,47 @@ def read_logs(filename: str):
                 queue.append(cur)
                 continue
             # calculate coefs for the current branch
-            coefs = calc_coefs(queue, coefs, num_rec_calls)
+            coefs, diffs = calc_coefs(queue, coefs, diffs, num_rec_calls)
             queue.append(cur)
             prev = cur          
     file.close()
-    return coefs
+    return coefs, diffs
 
 dir_name = sys.argv[1]
 
 filenames = [f for f in listdir(dir_name)]
-final_coefs = []
+final_coefs, final_diffs = [], []
 for filename in filenames:
     # print("analyzing a file: ", filename)
-    coefs = read_logs(dir_name + "/" + filename)
+    coefs, diffs = read_logs(dir_name + "/" + filename)
     if len(final_coefs) == 0:
         final_coefs = coefs
+        final_diffs = diffs
     for i, coef in enumerate(coefs):
         final_coefs[i].extend([c for c in coef])
+    for i, diff in enumerate(diffs):
+        final_diffs[i].extend([d for d in diff])
 
-print("simple average: ")
  # + " + " + str(np.average(np.array(final_coefs[1])))
 for i in range(len(final_coefs)):
-    print(str(np.average(np.array(final_coefs[i]))))
+    print("coefs: ", str(final_coefs[i]))
+    print("average: ", str(np.average(np.array(final_coefs[i]))))
 
 print("-------------")
 
 x = [i for i,v in enumerate(final_coefs[0])]
 rec_relations = []
 
-for coefs in final_coefs:
+for i,coefs in enumerate(final_coefs):
     data = np.array([x, coefs])
     #columns=['','node id','coefs']
     df = pd.DataFrame(list(zip(x, coefs)), columns=['node ids', 'coefs'])
     #df = pd.DataFrame(data=data, index=['node id','coefs'], columns=x)
     # df.head()
     #sns.lmplot(x ="node id", y ="coefs", data = df, order = 2, ci = None)
+
+    # df.plot(x="node ids", y="coefs", style="o")
+    # plt.show()
 
     X = np.array(df['node ids']).reshape(-1, 1)
     y = np.array(df['coefs']).reshape(-1, 1)
@@ -144,14 +154,29 @@ for coefs in final_coefs:
 
     regr.fit(X_train, y_train)
     # print("score is ", regr.score(X_test, y_test))
+    print("intercept: ", regr.intercept_)
+    print("coef: ", regr.coef_)
 
     y_pred = regr.predict(X_test)
-    plt.scatter(X_test, y_test, color='b')
-    plt.plot(X_test, y_pred, color='k')
+    plt.scatter(X_test, y_test, color='#6699cc')
+    plt.title("Distribution of coeficients for all tree nodes")
+    plt.xlabel("Node id")
+    plt.ylabel("Coef")
+    plt.plot(X_test, y_pred, color='r')
 
-    # plt.show()
-    rec_relations.append(RecRel(1, np.average(y_pred)))
+    plt.show()
+
+    med_coef = statistics.median(coefs)
+    med_diff = statistics.median(final_diffs[i])
+    rec_relations.append(RecRel(1, med_coef, med_diff))
+
 # rec_relations[0].coef
 print("Recurrent relation is ")
 for i in range(len(final_coefs)):
-    print(str(rec_relations[i].a) + "*T(n/" + str(int(rec_relations[i].coef)) + ")")
+    coef = rec_relations[i].coef
+    if coef <= float(1.7):
+        res = int(round(rec_relations[i].diff))
+        print(str(rec_relations[i].a) + "*T(n-" + str(res) + ")")
+    else:
+        res = int(round(rec_relations[i].coef))
+        print(str(rec_relations[i].a) + "*T(n/" + str(res) + ")")
