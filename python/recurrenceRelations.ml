@@ -215,8 +215,9 @@ let main = begin
     let file = open_out filename in
     (*printf "\n";*)
     let arr = Array.of_list (range [] random_arr_len) in
+(*let arr = [|2;3;4;5;8;9;10;12;14;15;17|] in*)
     (*printf "\n";*)
-    let idx = binary_search file arr random_target 0 (Array.length arr - 1) 0 in
+    let idx = binary_search file arr 8 0 (Array.length arr - 1) 0 in
     close_out file;
 
     let random_arr_len = Random.int 100 in
@@ -266,7 +267,8 @@ let main = begin
     let random_n = Random.int 55 in
     let filename = sprintf "./fibonacci/output-%d" random_n in
     let file = open_out filename in
-    fib_rec file 0 random_n;
+    let res = fib_rec file 0 random_n in
+    printf "%d\n" res;
     close_out file;
 
     printf "\n---------------- Hanoi\n";

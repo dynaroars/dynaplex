@@ -12,20 +12,43 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression 
 
 class RecRel:
+    ''' a structure storing the final results of recurrence relation '''
     def __init__(self, a: int, coef: float, diff: float):
         self.a = a
         self.coef = coef
         self.diff = diff
 
 class Node:
+    ''' node of a parsing tree '''
     def __init__(self, d: int, a: int, val: float):
         self.d = d
         self.a = a
         self.val = val
 
+def read_logs(filename: str):
+    ''' reads traces from a file and returns calculated coeficients and diffs'''
+
+    with open(filename) as file:
+        lines = file.readlines()
+        num_rec_calls = get_num_rec_calls(lines)
+        queue, coefs, diffs = [], [], []
+        prev  = Node(-1, 1, 0.0)
+        for i, line in enumerate(lines):
+            cur = get_cur_node(line)
+            # find the bottom of the branch
+            if (prev.d <= cur.d and len(lines) - 1 != i):
+                prev = cur          
+                queue.append(cur)
+                continue
+            # calculate coefs for the current branch
+            coefs, diffs = calc_coefs(queue, coefs, diffs, num_rec_calls)
+            queue.append(cur)
+            prev = cur          
+    file.close()
+    return coefs, diffs
+
 def calc_coefs(queue, coefs, diffs, num_rec_calls):
-    ''' calculates coeficients that the each value of a node decreased by
-        in comparison with the parent node '''
+    ''' calculates coeficients and diff.'''
 
     # get parent node
     p_index = len(queue)-1-num_rec_calls
@@ -63,13 +86,14 @@ def calc_coefs(queue, coefs, diffs, num_rec_calls):
 def get_cur_node(line: str):
     ''' builds and returns a Node that fed by the parsed string from traces '''
 
-    # each line has the following format: depth;a;n
+    # each line has the following format: depth;a;n. TODO: derive 'a' using a static analysis tool
     m = line.rstrip('\n').split(';')
     m = [int(m[0]), int(m[1]), m[2]]
     return Node(m[0], m[1], float(m[2]))
 
 def get_num_rec_calls(lines: list):
-    ''' returns the number of recursive calls that a function does '''
+    ''' returns the number of recursive calls that a function does. 
+    Basically, it is a number of branches each parent node has'''
 
     max_depth, nums = 0, 1
     prev = Node(-1, 1, 0.0)
@@ -86,29 +110,6 @@ def get_num_rec_calls(lines: list):
                 nums += 1
         prev = cur          
     return nums
-
-def read_logs(filename: str):
-    ''' reads traces from a file and returns calculated coeficients '''
-
-    with open(filename) as file:
-        lines = file.readlines()
-        num_rec_calls = get_num_rec_calls(lines)
-        queue, coefs, diffs = [], [], []
-        prev  = Node(-1, 1, 0.0)
-        for i, line in enumerate(lines):
-            # print(line)
-            cur = get_cur_node(line)
-            # find the bottom of the branch
-            if (prev.d <= cur.d and len(lines) - 1 != i):
-                prev = cur          
-                queue.append(cur)
-                continue
-            # calculate coefs for the current branch
-            coefs, diffs = calc_coefs(queue, coefs, diffs, num_rec_calls)
-            queue.append(cur)
-            prev = cur          
-    file.close()
-    return coefs, diffs
 
 dir_name = sys.argv[1]
 
@@ -137,14 +138,7 @@ rec_relations = []
 
 for i,coefs in enumerate(final_coefs):
     data = np.array([x, coefs])
-    #columns=['','node id','coefs']
     df = pd.DataFrame(list(zip(x, coefs)), columns=['node ids', 'coefs'])
-    #df = pd.DataFrame(data=data, index=['node id','coefs'], columns=x)
-    # df.head()
-    #sns.lmplot(x ="node id", y ="coefs", data = df, order = 2, ci = None)
-
-    # df.plot(x="node ids", y="coefs", style="o")
-    # plt.show()
 
     X = np.array(df['node ids']).reshape(-1, 1)
     y = np.array(df['coefs']).reshape(-1, 1)
@@ -153,7 +147,6 @@ for i,coefs in enumerate(final_coefs):
     regr = LinearRegression()
 
     regr.fit(X_train, y_train)
-    # print("score is ", regr.score(X_test, y_test))
     print("intercept: ", regr.intercept_)
     print("coef: ", regr.coef_)
 
@@ -166,14 +159,17 @@ for i,coefs in enumerate(final_coefs):
 
     plt.show()
 
+    # median is used here since it is much simpler apporach yet showing good results.
+    # ML can also be applied here.
     med_coef = statistics.median(coefs)
     med_diff = statistics.median(final_diffs[i])
     rec_relations.append(RecRel(1, med_coef, med_diff))
 
-# rec_relations[0].coef
 print("Recurrent relation is ")
 for i in range(len(final_coefs)):
     coef = rec_relations[i].coef
+    # there is no theory behind why 1.7 is selected. it is an observation
+    # definitely the better approach is needed to define
     if coef <= float(1.7):
         res = int(round(rec_relations[i].diff))
         print(str(rec_relations[i].a) + "*T(n-" + str(res) + ")")
