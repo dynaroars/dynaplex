@@ -6,7 +6,7 @@ To run the program that calculates recurrence relations, follow these steps:
 	it will create an executable file 'test' and folders that are required for storing traces of analyzed functions
 
 2. generate traces of functions by executing the command
-	make gen-logs
+	./run-loop.sh
 
 3. run 'analyzer' over the generate traces (but before that make sure that analzyer has enough permissions to be executed)
 	./analyzer double_rec_call/

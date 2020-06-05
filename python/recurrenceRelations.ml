@@ -200,23 +200,18 @@ let main = begin
     let file = open_out filename in
     n_squared file 0 random_n;
     close_out file;
-    printf "\n----------------\n";
 
     let random_n = Random.int 234180 in
     let filename = sprintf "./double_rec_call/output-%d" random_n in
     let file = open_out filename in
     let res = double_rec_call file 0 0 random_n in 
-    (*printf "result is %d\n" res*)
     close_out file;
 
     let random_arr_len = Random.int 53400 in
     let random_target = Random.int random_arr_len in
     let filename = sprintf "./binary_search/output-%d-%d" random_arr_len random_target in
     let file = open_out filename in
-    (*printf "\n";*)
     let arr = Array.of_list (range [] random_arr_len) in
-(*let arr = [|2;3;4;5;8;9;10;12;14;15;17|] in*)
-    (*printf "\n";*)
     let idx = binary_search file arr 8 0 (Array.length arr - 1) 0 in
     close_out file;
 
@@ -229,7 +224,6 @@ let main = begin
     let filename = sprintf "./merge_sort/output-%d" (List.length !ls) in
     let file = open_out filename in
     let sorted = merge_sort file compare !ls 0 in
-    (*List.iter (printf "%d ") sorted;*)
     close_out file;
 
     let filename = sprintf "./merge_sort_split/output-%d" (List.length !ls) in
@@ -237,42 +231,38 @@ let main = begin
     split_at_sep file (List.length !ls / 2) !ls 0;
     close_out file;
 
-    List.iter (printf "%d ") !ls;
-    printf "\n----------------\n";
     let filename = sprintf "./selection_sort/output-%d" (List.length !ls) in
     let file = open_out filename in
     let res = selection_sort file 0 !ls in 
     close_out file;
-    List.iter (printf "%d ") res;
 
     let filename = sprintf "./select_r/output-%d" (List.length !ls) in
     let file = open_out filename in
     let res = select_r file (List.hd !ls) [] 0 !ls in 
     close_out file;
 
-    printf "\n---------------- Rotation\n";
     let filename = sprintf "./rotate/output-%d" (List.length !ls) in
     let file = open_out filename in
     let res = rotate file !ls 5 in 
     close_out file;
 
-    printf "\n---------------- Euler's totient\n";
+    (*printf "\n---------------- Euler's totient\n";*)
     let random_n = Random.int 1399 in
     let filename = sprintf "./euler_totient/output-%d" random_n in
     let file = open_out filename in
     phi file random_n;
     close_out file;
 
-    printf "\n---------------- Fibonacci function\n";
-    let random_n = Random.int 55 in
+    (*printf "\n---------------- Fibonacci function\n";*)
+    let random_n = Random.int 35 in
     let filename = sprintf "./fibonacci/output-%d" random_n in
     let file = open_out filename in
     let res = fib_rec file 0 random_n in
-    printf "%d\n" res;
+    (*printf "%d\n" res;*)
     close_out file;
 
-    printf "\n---------------- Hanoi\n";
-    let random_n = Random.int 15 in
+    (*printf "\n---------------- Hanoi\n";*)
+    let random_n = Random.int 10 in
     let filename = sprintf "./hanoi/output-%d" random_n in
     let file = open_out filename in
     hanoi file 0 random_n 1 2 3;
