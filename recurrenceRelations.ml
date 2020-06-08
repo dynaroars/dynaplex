@@ -196,20 +196,36 @@ let main = begin
     Random.self_init ();
 
     let random_n = Random.int 18 in
-    let filename = sprintf "./n_squared/output-%d" random_n in
+
+    let directory_name = "n_squared" in
+    let is_dir_exist = Sys.file_exists directory_name in
+    if not is_dir_exist 
+      then let _ = Sys.command (sprintf "mkdir %s" directory_name) in ();
+      else ();
+    let filename = sprintf "./%s/output-%d" directory_name random_n in
     let file = open_out filename in
     n_squared file 0 random_n;
     close_out file;
 
     let random_n = Random.int 234180 in
-    let filename = sprintf "./double_rec_call/output-%d" random_n in
+    let directory_name = "double_rec_call" in
+    let is_dir_exist = Sys.file_exists directory_name in
+    if not is_dir_exist 
+      then let _ = Sys.command (sprintf "mkdir %s" directory_name) in ();
+      else ();
+    let filename = sprintf "./%s/output-%d" directory_name random_n in
     let file = open_out filename in
     let res = double_rec_call file 0 0 random_n in 
     close_out file;
 
     let random_arr_len = Random.int 53400 in
     let random_target = Random.int random_arr_len in
-    let filename = sprintf "./binary_search/output-%d-%d" random_arr_len random_target in
+    let directory_name = "binary_search" in
+    let is_dir_exist = Sys.file_exists directory_name in
+    if not is_dir_exist 
+      then let _ = Sys.command (sprintf "mkdir %s" directory_name) in ();
+      else ();
+    let filename = sprintf "./%s/output-%d-%d" directory_name random_arr_len random_target in
     let file = open_out filename in
     let arr = Array.of_list (range [] random_arr_len) in
     let idx = binary_search file arr 8 0 (Array.length arr - 1) 0 in
@@ -221,41 +237,77 @@ let main = begin
         let value = Random.int 859 in
         if not (List.mem value !ls) then ls := value::!ls
     done;
-    let filename = sprintf "./merge_sort/output-%d" (List.length !ls) in
+    let directory_name = "merge_sort" in
+    let is_dir_exist = Sys.file_exists directory_name in
+    if not is_dir_exist 
+      then let _ = Sys.command (sprintf "mkdir %s" directory_name) in ();
+      else ();
+    let filename = sprintf "./%s/output-%d" directory_name (List.length !ls) in
     let file = open_out filename in
     let sorted = merge_sort file compare !ls 0 in
     close_out file;
 
-    let filename = sprintf "./merge_sort_split/output-%d" (List.length !ls) in
+    let directory_name = "merge_sort_split" in
+    let is_dir_exist = Sys.file_exists directory_name in
+    if not is_dir_exist 
+      then let _ = Sys.command (sprintf "mkdir %s" directory_name) in ();
+      else ();
+    let filename = sprintf "./%s/output-%d" directory_name (List.length !ls) in
     let file = open_out filename in
     split_at_sep file (List.length !ls / 2) !ls 0;
     close_out file;
 
-    let filename = sprintf "./selection_sort/output-%d" (List.length !ls) in
+    let directory_name = "selection_sort" in
+    let is_dir_exist = Sys.file_exists directory_name in
+    if not is_dir_exist 
+      then let _ = Sys.command (sprintf "mkdir %s" directory_name) in ();
+      else ();
+    let filename = sprintf "./%s/output-%d" directory_name (List.length !ls) in
     let file = open_out filename in
     let res = selection_sort file 0 !ls in 
     close_out file;
 
-    let filename = sprintf "./select_r/output-%d" (List.length !ls) in
+    let directory_name = "select_r" in
+    let is_dir_exist = Sys.file_exists directory_name in
+    if not is_dir_exist 
+      then let _ = Sys.command (sprintf "mkdir %s" directory_name) in ();
+      else ();
+    let filename = sprintf "./%s/output-%d" directory_name (List.length !ls) in
     let file = open_out filename in
     let res = select_r file (List.hd !ls) [] 0 !ls in 
     close_out file;
 
-    let filename = sprintf "./rotate/output-%d" (List.length !ls) in
+    let directory_name = "rotate" in
+    let is_dir_exist = Sys.file_exists directory_name in
+    if not is_dir_exist 
+      then let _ = Sys.command (sprintf "mkdir %s" directory_name) in ();
+      else ();
+
+    let filename = sprintf "./%s/output-%d" directory_name (List.length !ls) in
     let file = open_out filename in
     let res = rotate file !ls 5 in 
     close_out file;
 
     (*printf "\n---------------- Euler's totient\n";*)
     let random_n = Random.int 1399 in
-    let filename = sprintf "./euler_totient/output-%d" random_n in
+    let directory_name = "euler_totient" in
+    let is_dir_exist = Sys.file_exists directory_name in
+    if not is_dir_exist 
+      then let _ = Sys.command (sprintf "mkdir %s" directory_name) in ();
+      else ();
+    let filename = sprintf "./%s/output-%d" directory_name random_n in
     let file = open_out filename in
     phi file random_n;
     close_out file;
 
     (*printf "\n---------------- Fibonacci function\n";*)
     let random_n = Random.int 35 in
-    let filename = sprintf "./fibonacci/output-%d" random_n in
+    let directory_name = "fibonacci" in
+    let is_dir_exist = Sys.file_exists directory_name in
+    if not is_dir_exist 
+      then let _ = Sys.command (sprintf "mkdir %s" directory_name) in ();
+      else ();
+    let filename = sprintf "./%s/output-%d" directory_name random_n in
     let file = open_out filename in
     let res = fib_rec file 0 random_n in
     (*printf "%d\n" res;*)
@@ -263,7 +315,12 @@ let main = begin
 
     (*printf "\n---------------- Hanoi\n";*)
     let random_n = Random.int 10 in
-    let filename = sprintf "./hanoi/output-%d" random_n in
+    let directory_name = "hanoi" in
+    let is_dir_exist = Sys.file_exists directory_name in
+    if not is_dir_exist 
+      then let _ = Sys.command (sprintf "mkdir %s" directory_name) in ();
+      else ();
+    let filename = sprintf "./%s/output-%d" directory_name random_n in
     let file = open_out filename in
     hanoi file 0 random_n 1 2 3;
     close_out file;
