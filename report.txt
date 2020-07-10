@@ -1,0 +1,13 @@
+program               recurrence found        known recurrence        complexity
+binary search         T(n/2)                  T(n/2)                  O(log n)
+bubble sort           T(n-1)                  T(n-1) + n              O(n^2)
+double_rec_call       T(n/6)+T(n/3)           T(n/6)+T(n/3)           -
+euler totient         T(n-1)                  -                       O(\sqrt{n})
+fibonacci             T(n-2)+T(n-1)           T(n-2)+T(n-1)           O(2^n)
+Hanoi                 -                       2*T(n-1)                O(2^n)
+heap sort             T(n-1)                  T(n-1) + log n          O(n log n)
+insertion sort        T(n-1)                  T(n-1) + n              O(n2)
+merge sort            T(n/2)                  2*T(n/2) + n            O(n log n)
+pack                  T(n-1)                  -                       -
+quick sort            T(n-1)                  T(n-1) + n              O(n^2)
+selection sort        T(n-1)                  T(n-1) + n              O(n^2)
