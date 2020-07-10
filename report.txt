@@ -11,3 +11,4 @@ merge sort            T(n/2)                  2*T(n/2) + n            O(n log n)
 pack                  T(n-1)                  -                       -
 quick sort            T(n-1)                  T(n-1) + n              O(n^2)
 selection sort        T(n-1)                  T(n-1) + n              O(n^2)
+karatsuba             2*T(n/2)+T(n-1)         3*T(n/2)
