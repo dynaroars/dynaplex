@@ -1,15 +1,16 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''Recurrence complexity analyzer '''
 import sys
 import statistics
 from os import listdir
-import numpy as np 
-import pandas as pd 
-import seaborn as sns 
-import matplotlib.pyplot as plt 
-from sklearn import preprocessing, svm 
-from sklearn.model_selection import train_test_split 
-from sklearn.linear_model import LinearRegression 
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn import preprocessing, svm
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.cluster import KMeans
 
 class RecRel:
     ''' a structure storing the final results of recurrence relation '''
@@ -37,15 +38,15 @@ def read_logs(filename: str):
             cur = get_cur_node(line)
             # find the bottom of the branch
             if (prev.d <= cur.d and len(lines) - 1 != i):
-                prev = cur          
+                prev = cur
                 queue.append(cur)
                 continue
             # calculate coefs for the current branch
             coefs, diffs = calc_coefs(queue, coefs, diffs, num_rec_calls)
             queue.append(cur)
-            prev = cur          
+            prev = cur
     file.close()
-    return coefs, diffs
+    return coefs, diffs, num_rec_calls
 
 def calc_coefs(queue, coefs, diffs, num_rec_calls):
     ''' calculates coeficients and diff.'''
@@ -55,7 +56,7 @@ def calc_coefs(queue, coefs, diffs, num_rec_calls):
     if (p_index < 0):
         return coefs, diffs
     parent = queue[p_index]
-     
+
     # prepare a list of coefs
     if len(coefs) == 0:
         coefs = [[] for i in range(num_rec_calls)]
@@ -92,7 +93,7 @@ def get_cur_node(line: str):
     return Node(m[0], m[1], float(m[2]))
 
 def get_num_rec_calls(lines: list):
-    ''' returns the number of recursive calls that a function does. 
+    ''' returns the number of recursive calls that a function does.
     Basically, it is a number of branches each parent node has'''
 
     max_depth, nums = 0, 1
@@ -108,30 +109,25 @@ def get_num_rec_calls(lines: list):
                 nums = 1
             if prev.d == cur.d and cur.d == max_depth:
                 nums += 1
-        prev = cur          
+        prev = cur
     return nums
 
 dir_name = sys.argv[1]
+num_rec_calls = 0
 
 filenames = [f for f in listdir(dir_name)]
 final_coefs, final_diffs = [], []
 for filename in filenames:
     # print("analyzing a file: ", filename)
-    coefs, diffs = read_logs(dir_name + "/" + filename)
+    coefs, diffs, num_rec_calls = read_logs(dir_name + "/" + filename)
     if len(final_coefs) == 0:
         final_coefs = coefs
         final_diffs = diffs
+
     for i, coef in enumerate(coefs):
         final_coefs[i].extend([c for c in coef])
     for i, diff in enumerate(diffs):
         final_diffs[i].extend([d for d in diff])
-
- # + " + " + str(np.average(np.array(final_coefs[1])))
-for i in range(len(final_coefs)):
-    print("coefs: ", str(final_coefs[i]))
-    print("average: ", str(np.average(np.array(final_coefs[i]))))
-
-print("-------------")
 
 x = [i for i,v in enumerate(final_coefs[0])]
 rec_relations = []
@@ -150,23 +146,23 @@ for i,coefs in enumerate(final_coefs):
     print("intercept: ", regr.intercept_)
     print("coef: ", regr.coef_)
 
-    y_pred = regr.predict(X_test)
-    plt.scatter(X_test, y_test, color='#6699cc')
-    plt.title("Distribution of coeficients for all tree nodes")
-    plt.xlabel("Node id")
-    plt.ylabel("Coef")
-    plt.plot(X_test, y_pred, color='r')
-
-    plt.show()
-
-    # median is used here since it is much simpler apporach yet showing good results.
-    # ML can also be applied here.
-    med_coef = statistics.median(coefs)
     med_diff = statistics.median(final_diffs[i])
-    rec_relations.append(RecRel(1, med_coef, med_diff))
+    rec_relations.append(RecRel(1, regr.intercept_[0], med_diff))
+
+
+flat_list = [item for sublist in final_coefs for item in sublist]
+x = [i for i,v in enumerate(flat_list)]
+df = pd.DataFrame({'x': x, 'y': flat_list}, columns=['x','y'])
+kmeans = KMeans(n_clusters=num_rec_calls)
+kmeans.fit(df)
+centroids = kmeans.cluster_centers_
+central_coef = [item[1] for item in centroids]
+print("centroids ", central_coef)
+
 
 print("Recurrent relation is ")
 for i in range(len(final_coefs)):
+    print("diff ", rec_relations[i].diff)
     coef = rec_relations[i].coef
     # there is no theory behind why 1.7 is selected. it is an observation
     # definitely the better approach is needed to define
