@@ -3,10 +3,12 @@
 import random
 import os
 
+counter = 0
+
 def random_list(size):
     list = []
     for i in range(size):
-        list.append(random.randint(-100,-100))
+        list.append(random.randint(-100, 100))
     return list
 
 #Recursive Bubble Sort
@@ -15,10 +17,13 @@ def bubble_sort(arr, n, depth, file):
     with open(file, 'a') as f:
         print("{};1;{}".format(depth, n), file=f)
 
+    global counter
+
     if n==1:
         return arr
 
     for i in range(n-1):
+        counter = counter + 1
         if arr[i]>arr[i+1]:
             arr[i], arr[i+1] = arr[i+1], arr[i]
 
@@ -30,12 +35,15 @@ def insertion_sort(arr,n, depth, file):
     with open(file, 'a') as f:
         print("{};1;{}".format(depth, n), file=f)
 
+    global counter
+
     if n<=1:
         return
     insertion_sort(arr,n-1, depth+1, file)
     last = arr[n-1]
     j = n-2
     while (j>=0 and arr[j]>last):
+        counter = counter + 1
         arr[j+1] = arr[j]
         j = j-1
     arr[j+1]=last
@@ -46,18 +54,24 @@ def insertion_sort(arr,n, depth, file):
 def heapify(arr, n, i, depth, file):
     with open(file, 'a') as f:
         print("{};1;{}".format(depth,n), file=f)
+
+    global counter
+
     largest = i
     l = 2 * i + 1
     r = 2 * i + 2
 
     if l < n and arr[i] < arr[l]:
         largest = l
+        counter = counter + 1
 
     if r < n and arr[largest] < arr[r]:
         largest = r
+        counter = counter + 1
 
     if largest != i:
         arr[i],arr[largest] = arr[largest],arr[i] # swap
+        counter = counter + 1
 
         heapify(arr, n, largest, depth+1, file)
 
@@ -65,11 +79,15 @@ def heapify(arr, n, i, depth, file):
 def heapSort(arr, depth, file):
     n = len(arr)
 
+    global counter
+
     for i in range(n//2 - 1, -1, -1):
+        counter = counter + 1
         heapify(arr, n, i, depth, file)
         depth = depth+1
 
     for i in range(n-1, 0, -1):
+        counter = counter + 1
         arr[i], arr[0] = arr[0], arr[i] # swap
         heapify(arr, i, 0, depth, file)
         depth = depth+1
@@ -77,8 +95,10 @@ def heapSort(arr, depth, file):
 def partition(arr,low,high):
     i = ( low-1 )
     pivot = arr[high]
+    global counter
 
     for j in range(low , high):
+        counter = counter + 1
         if arr[j] <= pivot:
             i = i+1
             arr[i],arr[j] = arr[j],arr[i]
@@ -89,15 +109,58 @@ def partition(arr,low,high):
 #recursive quicksort
 #T(n) = T(n-1) + n
 def quickSort(arr, low, high, depth, file):
+
     if low < high:
         with open(file, 'a') as f:
             print("{};1;{}".format(depth, (high-low)), file=f)
         pi = partition(arr,low,high)
         quickSort(arr, low, pi-1, depth+1, file)
         quickSort(arr, pi+1, high, depth+1, file)
-        
+
+#merge sorting
+#2*T(n/2) + n
+def mergeSort(arr, depth, file):
+    if len(arr) >1:
+        with open(file, 'a') as f:
+            print("{};1;{}".format(depth, len(arr)), file=f)
+
+        mid = len(arr)//2
+        L = arr[:mid]
+        R = arr[mid:]
+
+        mergeSort(L, depth+1, file)
+        mergeSort(R, depth+1, file)
+
+        i = j = k = 0
+
+        global counter
+        while i < len(L) and j < len(R):
+            counter = counter + 1
+            if L[i] < R[j]:
+                arr[k] = L[i]
+                i+= 1
+            else:
+                arr[k] = R[j]
+                j+= 1
+            k+= 1
+
+        while i < len(L):
+            counter = counter + 1
+            arr[k] = L[i]
+            i+= 1
+            k+= 1
+
+        while j < len(R):
+            counter = counter + 1
+            arr[k] = R[j]
+            j+= 1
+            k+= 1
+
+
 # Driver collect traces
 def main():
+    global counter
+    counter = 0
     size = random.randint(1,500)
     arr = random_list(size)
     depth = 0
@@ -108,6 +171,9 @@ def main():
         pass
     file = "./insertion_sort/output-{}".format(size)
     insertion_sort(arr, size, depth, file)
+    with open("./insertion_sort/traces", 'a') as f:
+        print("{};{}".format(size, counter), file=f)
+    counter = 0
 
     path = "./bubble_sort"
     try:
@@ -116,6 +182,9 @@ def main():
         pass
     file = "./bubble_sort/output-{}".format(size)
     bubble_sort(arr, size, depth, file)
+    with open("./bubble_sort/traces", 'a') as f:
+        print("{};{}".format(size, counter), file=f)
+    counter = 0
 
     path = "./heap_sort"
     try:
@@ -124,6 +193,9 @@ def main():
         pass
     file = "./heap_sort/output-{}".format(size)
     heapSort(arr, depth, file)
+    with open("./heap_sort/traces", 'a') as f:
+        print("{};{}".format(size, counter), file=f)
+    counter = 0
 
     path = "./quick_sort"
     try:
@@ -132,5 +204,21 @@ def main():
         pass
     file = "./quick_sort/output-{}".format(size)
     quickSort(arr, 0, size-1, depth, file)
+    with open("./quick_sort/traces", 'a') as f:
+        print("{};{}".format(size, counter), file=f)
+    counter = 0
+
+    path = "./merge_sort"
+    try:
+        os.mkdir(path)
+    except OSError as error:
+        pass
+    file = "./merge_sort/output-{}".format(size)
+    mergeSort(arr, depth, file)
+    with open("./merge_sort/traces", 'a') as f:
+        print("{};{}".format(size, counter), file=f)
+    counter = 0
+
 if __name__ == '__main__':
-    main()
+    for i in range(150):
+        main()
