@@ -2,7 +2,7 @@
 '''Recurrence complexity analyzer '''
 import sys
 import statistics
-from os import listdir
+from os import listdir, path
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -11,6 +11,7 @@ from sklearn import preprocessing, svm
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.cluster import KMeans
+import math
 
 class RecRel:
     ''' a structure storing the final results of recurrence relation '''
@@ -112,13 +113,47 @@ def get_num_rec_calls(lines: list):
         prev = cur
     return nums
 
+def read_traces(filename):
+    ''' reads traces from a file. format "size;counter"'''
+    sizes = []
+    counters = []
+    with open(filename) as file:
+        lines = file.readlines()
+    for line in lines:
+        size, counter = line.split(';')
+        sizes.append(int(size))
+        counters.append(int(counter.strip()))
+
+    return sizes, counters
+
+def get_regression(size, counter):
+
+    #quadratic polynomial fit
+    x = np.array(size)
+    y = np.array(counter)
+    z = np.polyfit(x, y, 2)
+    quadratic = int(z[0])
+
+    #linear regression
+    y = np.array(counter)
+    z = np.polyfit(x, y, 1)
+    linear = int(z[0])
+
+    # #logarithmic fit
+    logs = [math.log(c, 2) if c is not 0  else 0 for c in counter] #arbitrary make log(0,10) = 0
+    y = np.array(logs)
+    z = np.polyfit(x, y, 1)
+    logs = int(z[0])
+
+    return quadratic, linear, logs
+
 dir_name = sys.argv[1]
 num_rec_calls = 0
 
-filenames = [f for f in listdir(dir_name)]
+filenames = [f for f in listdir(dir_name) if f != 'traces']
 final_coefs, final_diffs = [], []
 for filename in filenames:
-    # print("analyzing a file: ", filename)
+    # print("analyzing a file:{}".format(filename))
     coefs, diffs, num_rec_calls = read_logs(dir_name + "/" + filename)
     if len(final_coefs) == 0:
         final_coefs = coefs
@@ -143,8 +178,8 @@ for i,coefs in enumerate(final_coefs):
     regr = LinearRegression()
 
     regr.fit(X_train, y_train)
-    print("intercept: ", regr.intercept_)
-    print("coef: ", regr.coef_)
+    # print("intercept: ", regr.intercept_)
+    # print("coef: ", regr.coef_)
 
     med_diff = statistics.median(final_diffs[i])
     rec_relations.append(RecRel(1, regr.intercept_[0], med_diff))
@@ -157,18 +192,30 @@ kmeans = KMeans(n_clusters=num_rec_calls)
 kmeans.fit(df)
 centroids = kmeans.cluster_centers_
 central_coef = [item[1] for item in centroids]
-print("centroids ", central_coef)
+# print("centroids ", central_coef)
+
+#calculating non-recursive complexity
+complexity = "1"
+if path.exists("{}/traces".format(dir_name)):
+    size, counter = read_traces("{}/traces".format(dir_name))
+    quadratic, linear, logs = get_regression(size, counter)
+    if quadratic >= 1:
+        complexity = "n^2"
+    elif linear >= 1:
+        complexity = "n"
+    elif logs >= 1:
+        complexity = "log(n)"
 
 
 print("Recurrent relation is ")
 for i in range(len(final_coefs)):
-    print("diff ", rec_relations[i].diff)
-    coef = rec_relations[i].coef
+    print("diff {} regr {} kmeans {} ".format(rec_relations[i].diff, rec_relations[i].coef, central_coef[i]))
+    coef = rec_relations[i].coef if rec_relations[i].coef > central_coef[i] else central_coef[i]
     # there is no theory behind why 1.7 is selected. it is an observation
     # definitely the better approach is needed to define
-    if coef <= float(1.7):
+    if coef <= float(1.6):
         res = int(round(rec_relations[i].diff))
-        print(str(rec_relations[i].a) + "*T(n-" + str(res) + ")")
+        print(str(rec_relations[i].a) + "*T(n-" + str(res) + ") + " + complexity)
     else:
-        res = int(round(rec_relations[i].coef))
-        print(str(rec_relations[i].a) + "*T(n/" + str(res) + ")")
+        res = int(round(coef))
+        print(str(rec_relations[i].a) + "*T(n/" + str(res) + ") + " + complexity)
