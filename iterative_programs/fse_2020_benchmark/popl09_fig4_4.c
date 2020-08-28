@@ -1,10 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <dirent.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 void vassume(int b){}
 void vtrace_post(int n, int m, int tCtr){}
 
-int mainQ(int n, int m){
+int mainQ(int n, int m, int *counter){
      vassume(m >= 0);
      vassume(n >= 0);
      int x = 0;
@@ -16,10 +21,12 @@ int mainQ(int n, int m){
 	  while(y < m){
 	       y++;
 	       tCtr++;
+         *counter = *counter + 1;
 	  }
           tCtr++;
+          *counter = *counter + 1;
      }
-     vtrace_post(n, m, tCtr);     
+     vtrace_post(n, m, tCtr);
      //%%%traces: int n, int m, int t
      //dig2: t>= 0
      //NOTE: *** why didn't I get anything useful here ?  should t = some function of n, m ?
@@ -28,6 +35,27 @@ int mainQ(int n, int m){
 }
 
 
-void main(int argc, char **argv){
-     mainQ(atoi(argv[1]), atoi(argv[2]));
+int main() {
+  int counter = 0;
+  int num;
+  time_t t;
+
+  opendir("popl09_fig4_4");
+  if (ENOENT == errno) {
+      mkdir("popl09_fig4_4", 0777);
+  }
+
+  FILE *file;
+  file = fopen("popl09_fig4_4/traces", "a");
+  srand((unsigned) time(&t));
+
+  for (size_t i = 0; i < 150; i++) {
+    num = 1 + rand() % 100;
+    mainQ(num, num, &counter);
+    fprintf(file, "%d;%d\n", num, counter);
+    counter = 0;
+
+  }
+  fclose(file);
+  return 0;
 }

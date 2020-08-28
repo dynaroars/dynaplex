@@ -78,7 +78,7 @@ int main() {
 
   for (size_t i = 0; i < 150; i++) {
     num = 1 + rand() % 250;
-    mainQ(num, 1+num%10, &counter);
+    mainQ(num, 1+num, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;
 

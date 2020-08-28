@@ -44,7 +44,7 @@ int main() {
 
   for (size_t i = 0; i < 150; i++) {
     num = rand() % 100;
-    mainQ(3, num, &counter);
+    mainQ(-num*num*num, num, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;
 

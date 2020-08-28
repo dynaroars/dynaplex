@@ -24,6 +24,10 @@ int binary_search(int search, int array[], int n, int *counter) {
   return -1;
 }
 
+int comparator(const void *p, const void *q)
+  {
+     return (*(int*)p-*(int*)q);
+     }
 
 int main() {
   int counter = 0;
@@ -40,12 +44,13 @@ int main() {
   srand((unsigned) time(&t));
   int j;
   for (size_t i = 0; i < 150; i++) {
-    num = rand() % 150;
+    num = rand() % 1500;
     int arr[num];
     for (j = 0; j < num; j++) {
-        arr[j] = rand()%150;
+        arr[j] = rand()%100;
     }
-    term = rand()%150;
+    term = rand()%600;
+    qsort((void*)arr, num, sizeof(arr[0]), comparator);
     term = binary_search(term, arr, num, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;

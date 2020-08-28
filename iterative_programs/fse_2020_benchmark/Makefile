@@ -102,4 +102,4 @@ pldi09_fig4_5:
 
 # Removes all object files and the executable (if they exist).
 clean:
-	rm -rf *.o array_max binary_search bubble_sort factorial fibonacci find_first heapsort insertion_sort mergesort palindrome permutations prime quicksort selection_sort cav09_fig1a cav09_fig1d cav09_fig2d cav09_fig3a cav09_fig3a cav09_fig5b popl09_fig4_4 popl09_fig2_1 popl09_fig2_2 popl09_fig3_4 popl09_fig4_1 popl09_fig4_2 popl09_fig4_3 pldi09_ex6 pldi09_fig2 pldi09_fig4_1 pldi09_fig4_2 pldi09_fig4_3 pldi09_fig4_4 pldi09_fig4_5
+	rm -rf *.o array_max binary_search bubble_sort factorial fibonacci find_first heapsort insertion_sort mergesort palindrome permutations prime quicksort selection_sort cav09_fig1a cav09_fig1d cav09_fig2d cav09_fig3a cav09_fig5b cav09_fig5b popl09_fig4_4 popl09_fig2_1 popl09_fig2_2 popl09_fig3_4 popl09_fig4_1 popl09_fig4_2 popl09_fig4_3 pldi09_ex6 pldi09_fig2 pldi09_fig4_1 pldi09_fig4_2 pldi09_fig4_3 pldi09_fig4_4 pldi09_fig4_5
