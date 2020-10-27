@@ -72,41 +72,6 @@ def poly_regression(sizes, counters, maxsize, maxdeg, plotting=False):
     return complexity
 
 
-def get_regression(size, counter):
-
-    #quadratic polynomial fit
-    x = np.array(size)
-    y = np.array(counter)
-    z = np.polyfit(x, y, 3)
-    cubic = z[0]
-
-    #quadratic polynomial fit
-    x = np.array(size)
-    y = np.array(counter)
-    z = np.polyfit(x, y, 2)
-    quadratic = z[0]
-
-    #linear regression
-    y = np.array(counter)
-    z = np.polyfit(x, y, 1)
-    linear = z[0]
-
-    #logarithmic fit
-    logs = [c*math.log(c, 2) if c is not 0  else 0 for c in size] #arbitrary make log(0,2) = 0
-    y = np.array(logs)
-    z = np.polyfit(counter, y, 1)
-    nlogs = z[0]
-    # print(z)
-
-    #logarithmic fit
-    logs = [math.log(c, 2) if c is not 0  else 0 for c in size] #arbitrary make log(0,2) = 0
-    y = np.array(logs)
-    z = np.polyfit(counter, y, 1)
-    logs = z[0]
-    # print(z)
-
-    return cubic, quadratic, linear, nlogs, logs
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog="dig.py")
     parser.add_argument('-trace', help="path/to/traceFile")
