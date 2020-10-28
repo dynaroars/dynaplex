@@ -38,36 +38,45 @@ def poly_regression(sizes, counters, maxsize, maxdeg, plotting=False):
 
     for i in range(1, maxdeg+1):
         mymodel = numpy.poly1d(numpy.polyfit(x, y, i))
-        r_square = r2_score(y, mymodel(x))
         models.append(mymodel)
-        r2_scores.append(r_square)
         if plotting:
             plt.plot(myline, mymodel(myline), c=(random.random(), random.random(), random.random()), label="{}-D polynomial".format(i))
+
+    #discard models where the coe of the highest order is less than 1/maxinput
+    if plotting: #for debug purpose
+        print("Models before applying Heuristics ", models)
+
+    tmp = models
+    models = []
+    for model in tmp:
+        order = model.order
+        high_order_coe  = model[order]
+        if not(high_order_coe < (1.0/float(maxsize))): #make sure the heuristics work
+            models.append(model)
+
+    assert(len(models)>0), "Heuristics eliminated all candidate models"
+    if plotting: #for debug purpose
+        print("Models after applying Heuristics ", models)
+
+    #Calculate r2_scores
+    for model in models:
+        r_square = r2_score(y, mymodel(x))
+        r2_scores.append(r_square)
+
+    highest_r2 = max(r2_scores)
+    #pick the highest order model if there are multiple max r2
+    if r2_scores.count(highest_r2)>1:
+        r2_scores.reverse()
+        models.reverse()
+
+    index = r2_scores.index(highest_r2)
+    complexity = models[index].order
 
     if plotting:
         plt.xlabel('Input size')
         plt.ylabel('Instruction Counter')
         plt.legend(loc='upper left')
         plt.show()
-
-    #discard models where the coe of the highest order is less than 1/maxinput
-    if plotting: #for debug purpose
-        print("Models before applying Heuristics ", models)
-    for i in range(len(models)):
-        order = models[i].order
-        high_order_coe  = models[i][order]
-        #if (high_order_coe * math.pow(maxsize, order) <= 1):
-        if high_order_coe < (1/maxsize):
-            models.remove(models[i])
-            r2_scores.remove(r2_scores[i])
-
-    assert(len(models)>0), "Heuristics eliminated all candidate models"
-    if plotting: #for debug purpose
-        print("Models after applying Heuristics ", models)
-
-    highest_r2 = max(r2_scores)
-    index = r2_scores.index(highest_r2)
-    complexity = models[index].order
 
     return complexity
 
