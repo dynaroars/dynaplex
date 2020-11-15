@@ -12,10 +12,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.cluster import KMeans
 import math
+import time
 
 class RecRel:
     ''' a structure storing the final results of recurrence relation '''
-    def __init__(self, a: int, coef: float, diff: float):
+    def __init__(self, a, coef, diff):
         self.a = a
         self.coef = coef
         self.diff = diff
@@ -27,9 +28,9 @@ class Node:
         self.a = a
         self.val = val
 
-def read_logs(filename: str):
+def read_logs(filename):
     ''' reads traces from a file and returns calculated coeficients and diffs'''
-
+    # print(filename)
     with open(filename) as file:
         lines = file.readlines()
         num_rec_calls = get_num_rec_calls(lines)
@@ -66,8 +67,8 @@ def calc_coefs(queue, coefs, diffs, num_rec_calls):
     for i in range(num_rec_calls-1, -1, -1):
         child = queue.pop()
         if child.val != float(0) and child.val != float(1):
-            coefs[i].append(float(parent.val) / float(child.val))
-            diffs[i].append(float(parent.val) - float(child.val))
+            coefs[i].append(parent.val / child.val)
+            diffs[i].append(parent.val - child.val)
 
     # while we backtracking we have to make sure that the level is fully 'filled'
     count = 1
@@ -90,6 +91,7 @@ def get_cur_node(line: str):
 
     # each line has the following format: depth;a;n. TODO: derive 'a' using a static analysis tool
     m = line.rstrip('\n').split(';')
+    # print(m)
     m = [int(m[0]), int(m[1]), m[2]]
     return Node(m[0], m[1], float(m[2]))
 
@@ -113,45 +115,13 @@ def get_num_rec_calls(lines: list):
         prev = cur
     return nums
 
-def read_traces(filename):
-    ''' reads traces from a file. format "size;counter"'''
-    sizes = []
-    counters = []
-    with open(filename) as file:
-        lines = file.readlines()
-    for line in lines:
-        size, counter = line.split(';')
-        sizes.append(int(size))
-        counters.append(int(counter.strip()))
-
-    return sizes, counters
-
-def get_regression(size, counter):
-
-    #quadratic polynomial fit
-    x = np.array(size)
-    y = np.array(counter)
-    z = np.polyfit(x, y, 2)
-    quadratic = int(z[0])
-
-    #linear regression
-    y = np.array(counter)
-    z = np.polyfit(x, y, 1)
-    linear = int(z[0])
-
-    # #logarithmic fit
-    logs = [math.log(c, 2) if c is not 0  else 0 for c in counter] #arbitrary make log(0,10) = 0
-    y = np.array(logs)
-    z = np.polyfit(x, y, 1)
-    logs = int(z[0])
-
-    return quadratic, linear, logs
 
 dir_name = sys.argv[1]
 num_rec_calls = 0
 
 filenames = [f for f in listdir(dir_name) if f != 'traces']
 final_coefs, final_diffs = [], []
+start_time = time.time()
 for filename in filenames:
     # print("analyzing a file:{}".format(filename))
     coefs, diffs, num_rec_calls = read_logs(dir_name + "/" + filename)
@@ -159,6 +129,8 @@ for filename in filenames:
         final_coefs = coefs
         final_diffs = diffs
 
+    if len(final_coefs) != len(coefs):
+        continue
     for i, coef in enumerate(coefs):
         final_coefs[i].extend([c for c in coef])
     for i, diff in enumerate(diffs):
@@ -178,44 +150,30 @@ for i,coefs in enumerate(final_coefs):
     regr = LinearRegression()
 
     regr.fit(X_train, y_train)
-    # print("intercept: ", regr.intercept_)
-    # print("coef: ", regr.coef_)
 
     med_diff = statistics.median(final_diffs[i])
+    format = "diff" if all(math.isclose(final_diffs[i][0], x, rel_tol=1e-3) or x <= 0.0 for x in final_diffs[i]) else "coef"
+    if(med_diff>3):
+        format = "coef" # I haven't seen a program with T(n) = T(n-a)+f(n) where a>2
     rec_relations.append(RecRel(1, regr.intercept_[0], med_diff))
 
+seconds = time.time() - start_time
 
-flat_list = [item for sublist in final_coefs for item in sublist]
-x = [i for i,v in enumerate(flat_list)]
-df = pd.DataFrame({'x': x, 'y': flat_list}, columns=['x','y'])
-kmeans = KMeans(n_clusters=num_rec_calls)
-kmeans.fit(df)
-centroids = kmeans.cluster_centers_
-central_coef = [item[1] for item in centroids]
-# print("centroids ", central_coef)
-
-#calculating non-recursive complexity
-complexity = "1"
-if path.exists("{}/traces".format(dir_name)):
-    size, counter = read_traces("{}/traces".format(dir_name))
-    quadratic, linear, logs = get_regression(size, counter)
-    if quadratic >= 1:
-        complexity = "n^2"
-    elif linear >= 1:
-        complexity = "n"
-    elif logs >= 1:
-        complexity = "log(n)"
-
-
-print("Recurrent relation is ")
+# with open("{}/analysis".format(dir_name)) as f:
+print("Time: ", seconds)
+#print("Time: ", seconds, file=f)
 for i in range(len(final_coefs)):
-    print("diff {} regr {} kmeans {} ".format(rec_relations[i].diff, rec_relations[i].coef, central_coef[i]))
-    coef = rec_relations[i].coef if rec_relations[i].coef > central_coef[i] else central_coef[i]
-    # there is no theory behind why 1.7 is selected. it is an observation
-    # definitely the better approach is needed to define
-    if coef <= float(1.6):
-        res = int(round(rec_relations[i].diff))
-        print(str(rec_relations[i].a) + "*T(n-" + str(res) + ") + " + complexity)
+    print("diff {} regr {}".format(rec_relations[i].diff, rec_relations[i].coef))
+    coef = rec_relations[i].coef
+    if format == "diff" or int(round(coef))==1:
+        res = abs(int(round(rec_relations[i].diff))) #some recursion size increase with depth instead of decreasing (ex: recursive_loop)
+        #print("Format: 2", file=f)
+        #print("a: {}".format(str(res)), file=f)
+        #print("b: {}".format(str(res)), file=f)
+        print(str(rec_relations[i].a) + "*T(n-" + str(res) + ")")
     else:
         res = int(round(coef))
-        print(str(rec_relations[i].a) + "*T(n/" + str(res) + ") + " + complexity)
+        #print("Format: 1", file=f)
+        #print("a: {}".format(str(rec_relations[i].a)), file=f)
+        #print("b: {}".format(str(res)), file=f)
+        print(str(rec_relations[i].a) + "*T(n/" + str(res) + ")")
