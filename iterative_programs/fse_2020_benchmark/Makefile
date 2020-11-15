@@ -1,10 +1,7 @@
 CXX = clang-6.0
-CXX_FLAGS = -pedantic -Wall -Wextra
+CXX_FLAGS = -Wall
 
-all: binary_search array_max bubblesort cav09_fig1a cav09_fig1d cav09_fig2d cav09_fig3a cav09_fig5b factorial fibonacci find_val_in_array heapsort insertion_sort mergesort palindrome popl09_fig4_4 popl09_fig2_1 popl09_fig2_2 popl09_fig3_4 popl09_fig4_1 popl09_fig4_2 popl09_fig4_3 prime quicksort selectionsort pldi09_ex6 pldi09_fig4_4 pldi09_fig4_5 pldi09_fig2 pldi09_fig4_1 pldi09_fig4_2 pldi09_fig4_3
-
-array_max:
-	$(CXX) $(CXX_FLAGS) array_max.c -o array_max.o
+all: binary_search bubblesort cav09_fig1a cav09_fig1d cav09_fig2d cav09_fig3a cav09_fig5b factorial fibonacci heapsort insertion_sort mergesort popl09_fig4_4 popl09_fig2_1 popl09_fig2_2 popl09_fig3_4 popl09_fig4_1 popl09_fig4_2 popl09_fig4_3 quicksort selectionsort pldi09_ex6 pldi09_fig4_4 pldi09_fig4_5 pldi09_fig2 pldi09_fig4_1 pldi09_fig4_2 pldi09_fig4_3
 
 binary_search:
 	$(CXX) $(CXX_FLAGS) binary_search.c -o binary_search.o
@@ -47,15 +44,6 @@ factorial:
 
 fibonacci:
 	$(CXX) $(CXX_FLAGS) fibonacci.c -o fibonacci.o
-
-find_val_in_array:
-	$(CXX) $(CXX_FLAGS) find_val_in_array.c -o find_val_in_array.o
-
-palindrome:
-	$(CXX) $(CXX_FLAGS) palindrome.c -o palindrome.o
-
-prime:
-	$(CXX) $(CXX_FLAGS) prime.c -o prime.o
 
 popl09_fig4_4:
 	$(CXX) $(CXX_FLAGS) popl09_fig4_4.c -o popl09_fig4_4.o
@@ -102,4 +90,4 @@ pldi09_fig4_5:
 
 # Removes all object files and the executable (if they exist).
 clean:
-	rm -rf *.o array_max binary_search bubble_sort factorial fibonacci find_first heapsort insertion_sort mergesort palindrome permutations prime quicksort selection_sort cav09_fig1a cav09_fig1d cav09_fig2d cav09_fig3a cav09_fig5b cav09_fig5b popl09_fig4_4 popl09_fig2_1 popl09_fig2_2 popl09_fig3_4 popl09_fig4_1 popl09_fig4_2 popl09_fig4_3 pldi09_ex6 pldi09_fig2 pldi09_fig4_1 pldi09_fig4_2 pldi09_fig4_3 pldi09_fig4_4 pldi09_fig4_5
+	rm -rf *.o binary_search bubble_sort factorial fibonacci heapsort insertion_sort mergesort quicksort selection_sort cav09_fig1a cav09_fig1d cav09_fig2d cav09_fig3a cav09_fig5b cav09_fig5b popl09_ex6 popl09_fig4_4 popl09_fig2_1 popl09_fig2_2 popl09_fig3_4 popl09_fig4_1 popl09_fig4_2 popl09_fig4_3 pldi09_ex6 pldi09_fig2 pldi09_fig4_1 pldi09_fig4_2 pldi09_fig4_3 pldi09_fig4_4 pldi09_fig4_5
