@@ -1,6 +1,12 @@
 #/bin/bash
 
-for i in 1 2 3 4 5 6 7 8 9
-do
-./test
-done
+make clean -C iterative_programs/fse_2020_benchmark && make -C iterative_programs/fse_2020_benchmark
+
+for file in iterative_programs/fse_2020_benchmark/*; do
+	if [[ $file == *.o ]]
+	then
+		echo $file
+	fi
+done;
+
+./$file
