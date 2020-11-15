@@ -6,8 +6,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-void vassume(int b){}
-void vtrace(int n, int tCtr){}
 
 int mainQ(int n, int *counter){
     int x = 0;
@@ -23,7 +21,6 @@ int mainQ(int n, int *counter){
 
 	x=y+1;
     }
-    vtrace(n, tCtr);
     //%%%traces: int n, int t
     //dig2:  n*t - (t*t) == 0, -t <= 0, n - t <= 0
     return 0;

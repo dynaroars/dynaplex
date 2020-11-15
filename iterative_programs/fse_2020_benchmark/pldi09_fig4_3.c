@@ -6,12 +6,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-void vassume(int b){}
-void vtrace(int n, int m, int tCtr){}
-
 int mainQ(int n, int m, int * counter){
-    vassume(m > 0);
-    vassume(n > m);
     int i = 0;
     int j = 0;
     int tCtr = 0;
@@ -25,7 +20,6 @@ int mainQ(int n, int m, int * counter){
 	tCtr++;
   *counter = *counter + 1;
     }
-    vtrace(n, m, tCtr);
     //%%%traces: int n, int m, int t
     //dig2: -m <= -1, m*n + n - t == 0, m - n <= -1
 

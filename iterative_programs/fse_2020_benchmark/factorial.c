@@ -16,10 +16,6 @@ int factorial( int N, int *counter )
   return product;
 }
 
-int permutations(int n, int k, int *counter){
-  *counter = *counter + 1;
-  return factorial(n, counter)/factorial(n-k, counter);
-}
 
 int main() {
   int counter = 0;
@@ -31,13 +27,7 @@ int main() {
       mkdir("factorial", 0777);
   }
 
-  opendir("permutations");
-  if (ENOENT == errno) {
-      mkdir("permutations", 0777);
-  }
   FILE *file;
-  FILE *fptr;
-  fptr = fopen("permutations/traces", "a");
   file = fopen("factorial/traces", "a");
   srand((unsigned) time(&t));
 
@@ -47,11 +37,8 @@ int main() {
     factorial(num, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;
-    permutations(num, k, &counter);
-    fprintf(fptr, "%d;%d\n", num, counter);
-    counter = 0;
+
   }
   fclose(file);
-  fclose(fptr);
   return 0;
 }

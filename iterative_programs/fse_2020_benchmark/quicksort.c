@@ -76,6 +76,9 @@ void quickSortIterative(int arr[], int l, int h, int *counter)
     }
 }
 
+int cmpfunc (const void * a, const void * b) {
+   return ( *(int*)a - *(int*)b );
+}
 
 int main() {
   int counter = 0;
@@ -91,12 +94,13 @@ int main() {
   file = fopen("quicksort/traces", "a");
   srand((unsigned) time(&t));
   int j;
-  for (size_t i = 0; i < 150; i++) {
-    num = rand() % 150;
+  for (size_t i = 0; i < 1000; i++) {
+    num = rand() % 7000;
     int arr[num];
     for (j = 0; j < num; j++) {
-        arr[j] = rand()%150;
+        arr[j] = rand()%15000;
     }
+    // qsort(arr, num, sizeof(int), cmpfunc);
     quickSortIterative(arr, 0, num-1, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;

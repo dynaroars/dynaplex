@@ -6,12 +6,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-void vassume(int b){}
-void vtrace(int n, int m, int tCtr, int x, int y){}
-
 int mainQ(int n, int m, int *counter){
-    vassume(n > 0);
-    vassume(m > 0);
     int x = n;
     int y = 0;
     int tCtr = 0;
@@ -26,7 +21,6 @@ int mainQ(int n, int m, int *counter){
   *counter = *counter + 1;
     }
 
-    vtrace(n, m, tCtr, x, y);
     //%%%traces: int n, int m, int t, int x, int y
     //dig2: l23: -t + y <= 0, -m + y <= 0, x == 0, m*n - m*t + n - y == 0, x - y <= -1
     //Note: cannot find relationship among t and m,n  (annotated n+n/m)

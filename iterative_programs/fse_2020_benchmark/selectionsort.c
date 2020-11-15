@@ -10,8 +10,8 @@ void selection_sort(int list[], int count, int *counter) {
   int i, j, temp;
   for (i = 0; i < count; i++) {
     for (j = i + 1; j < count; j++) {
+      *counter = *counter + 1;
       if (list[i] > list[j]) {
-        *counter = *counter + 1;
         temp = list[i];
         list[i] = list[j];
         list[j] = temp;
@@ -20,6 +20,9 @@ void selection_sort(int list[], int count, int *counter) {
   }
 }
 
+int cmpfunc (const void * a, const void * b) {
+   return ( *(int*)a - *(int*)b );
+}
 
 int main() {
   int counter = 0;
@@ -35,13 +38,13 @@ int main() {
   file = fopen("selection_sort/traces", "a");
   srand((unsigned) time(&t));
   int j;
-  for (size_t i = 0; i < 150; i++) {
-    num = rand() % 150;
+  for (size_t i = 0; i < 1000; i++) {
+    num = rand() % 7000;
     int arr[num];
     for (j = 0; j < num; j++) {
-        arr[j] = rand()%150;
+        arr[j] = rand()%150000;
     }
-
+    //qsort(arr, num, sizeof(int), cmpfunc);
     selection_sort(arr, num, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;

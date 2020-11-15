@@ -12,13 +12,20 @@ void bubble_sort(int list[], int n, int *counter) {
   for (c = 0; c < n - 1; c++) {
     for (d = 0; d < n - c - 1; d++) {
       if (list[d] > list[d + 1]) {
-        *counter = *counter + 1;
+        // *counter = *counter + 1;
         t = list[d];
         list[d] = list[d + 1];
         list[d + 1] = t;
       }
+      *counter = *counter + 1;
     }
+    *counter = *counter + 1;
   }
+}
+
+
+int cmpfunc (const void * a, const void * b) {
+   return ( *(int*)a - *(int*)b );
 }
 
 int main() {
@@ -35,13 +42,13 @@ int main() {
   file = fopen("bubble_sort/traces", "a");
   srand((unsigned) time(&t));
   int j;
-  for (size_t i = 0; i < 150; i++) {
-    num = rand() % 150;
+  for (size_t i = 0; i < 1000; i++) {
+    num = rand() % 7000;
     int arr[num];
     for (j = 0; j < num; j++) {
-        arr[j] = rand()%150;
+        arr[j] = rand()%15000;
     }
-
+    qsort(arr, num, sizeof(int), cmpfunc);
     bubble_sort(arr, num, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;

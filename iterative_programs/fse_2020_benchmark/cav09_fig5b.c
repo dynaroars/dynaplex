@@ -6,10 +6,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-void vassume(int b){}
-void vtrace_post(int a, int n, int y, int x, int tCtr){}
-
-
 int mainQ(int a, int n, int *counter){
      int x = 0;
      int y = a;
@@ -22,7 +18,6 @@ int mainQ(int a, int n, int *counter){
      }
 
      //dig2:  (y*y) - (a*a) - 2*x + y - a == 0, -x <= 0, n - x <= 0, t - y + a == 0, -y + a <= 0
-     vtrace_post(a, n, y, x, tCtr);
 
      return 0;
 }

@@ -6,9 +6,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-void vassume(int b){}
-void vtrace_post(int m, int tCtr){}
-
 int mainQ(int m, int *counter){
 
     int x = 0;
@@ -24,15 +21,13 @@ int mainQ(int m, int *counter){
 	tCtr++;
   *counter = *counter + 1;
     }
-
-    vtrace_post(m, tCtr);
     //dig2: m*t - (t*t) - 100*m + 200*t - 10000 == 0
     //solve for t: t == m + 100, t == 100
     return 0;
 }
 
 
-int main() {
+int main(int argc, char * argv[]) {
   int counter = 0;
   int num;
   time_t t;

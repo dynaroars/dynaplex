@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#define MAXTEMPSIZE 150
+#define MAXTEMPSIZE 50000
 
 void mergesort(int arr[], int n, int *counter) {
   int temp[MAXTEMPSIZE];
@@ -54,7 +54,11 @@ void mergesort(int arr[], int n, int *counter) {
   }
 }
 
-int main() {
+int cmpfunc (const void * a, const void * b) {
+   return ( *(int*)a - *(int*)b );
+}
+
+int main(int argc, char * argv[]) {
   int counter = 0;
   int num;
   time_t t;
@@ -68,17 +72,20 @@ int main() {
   file = fopen("mergesort/traces", "a");
   srand((unsigned) time(&t));
   int j;
-  for (size_t i = 0; i < 150; i++) {
-    num = rand() % 150;
+  for (size_t i = 0; i < 1000; i++) {
+    num = rand() % 50000;
     int arr[num];
     for (j = 0; j < num; j++) {
-        arr[j] = rand()%150;
+        arr[j] = rand()%150000;
     }
 
+    //qsort(arr, num, sizeof(int), cmpfunc); //worst-case for mergesort is random list
     mergesort(arr, num, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;
   }
+
   fclose(file);
+
   return 0;
 }

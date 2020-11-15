@@ -8,6 +8,10 @@
 
 #define uint unsigned int
 
+int cmpfunc (const void * a, const void * b) {
+   return ( *(int*)a - *(int*)b );
+}
+
 void heap_sort(int a[], uint len, int *counter) {
   /* heap sort */
   uint half;
@@ -110,13 +114,14 @@ int main() {
   file = fopen("heapsort/traces", "a");
   srand((unsigned) time(&t));
   int j;
-  for (size_t i = 0; i < 150; i++) {
-    num = rand() % 150;
+  for (size_t i = 0; i < 10000; i++) {
+    num = rand() % 550000;
     int arr[num];
     for (j = 0; j < num; j++) {
-        arr[j] = rand()%150;
+        arr[j] = rand()%1500000;
     }
 
+    // qsort(arr, num, sizeof(int), cmpfunc);
     heap_sort(arr, num, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;

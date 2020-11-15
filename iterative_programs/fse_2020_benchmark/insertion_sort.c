@@ -41,13 +41,13 @@ int main() {
   file = fopen("insertion_sort/traces", "a");
   srand((unsigned) time(&t));
   int j;
-  for (size_t i = 0; i < 150; i++) {
-    num = rand() % 1500;
+  for (size_t i = 0; i < 1000; i++) {
+    num = rand() % 7000;
     int arr[num];
     for (j = 0; j < num; j++) {
-        arr[j] = rand()%1000;
+        arr[j] = rand()%10000;
     }
-    qsort(arr, num, sizeof(int), cmpfunc);
+    // qsort(arr, num, sizeof(int), cmpfunc);
     insertion_sort(arr, num, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;
