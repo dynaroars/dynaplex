@@ -9,7 +9,7 @@ def master_theorem(a, b, k, p=0):
     assert(isinstance(k, int)), k
     assert(isinstance(p, int)), p
 
-    c = math.log(b,a) if a is not 1 else 0
+    c = math.log(a,b) if b is not 1 else 0
     if a > b**k:
         complexity = "n^{}".format(c)
     elif a == b**k:
@@ -31,11 +31,12 @@ def recurrence(a, b, fn):
     '''T(n) = T(n-a) + T(n-b) + fn'''
     assert(isinstance(a, int)), a
     assert(isinstance(b, int)), b
+    assert(a!=0 or b!=0), "Invalid recurrence relation"
 
     if a != 0 and b != 0:
         complexity = "2^n"
     elif a == 1 and b == 0:
-        complexity = "n{}".format(fn) #fix to output a polynomial
+        complexity = "n*{}".format(fn) #fix to output a polynomial
 
     return complexity
 
@@ -54,5 +55,5 @@ if __name__ == '__main__':
         a = int(input("a = "))
         b = int(input("b = "))
         fn = input("fn = ")
-        complexity = master_theorem(a, b, fn)
+        complexity = recurrence(a, b, fn)
     print("Complexity is O({})".format(complexity))
