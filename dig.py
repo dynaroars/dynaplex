@@ -37,18 +37,19 @@ def logs_regression(sizes, counters):
     #if nlog_r2 < 0.75 and log_r2 < 0.75:
     #    return None
     if log_r2 > nlog_r2:
-        return "log", log_r2, nlog_model
+        return "log", log_r2, log_model, 
     else:
-        return "nlog", nlog_r2, log_model
+        return "nlog", nlog_r2, nlog_model
 
 def func(x, a, b):
     return a *numpy.log(x) + b
 
-def poly_regression(sizes, counters, maxdeg, plotting=False):
+def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
     assert(len(sizes)==len(counters)), "Invalid traces"
-    #assert(maxsize>0), "maxinput <= 0"
     assert(maxdeg>=1), "maxdeg<1"
-
+    start_time = time.time()
+    k = 0  #n^k(logn)^p
+    p = 0
     x, y = sizes, counters
     maxsize = max(sizes)
     models = []
@@ -72,70 +73,86 @@ def poly_regression(sizes, counters, maxdeg, plotting=False):
     for model in tmp:
         order = model.order
         high_order_coe  = model[order]
-        if not(high_order_coe < (1.0/maxsize) ): #make sure the heuristics work
+        if not(high_order_coe < (1.0/maxsize)): #make sure the heuristics work
             models.append(model)
 
-    assert(len(models)>0), "Heuristics eliminated all candidate models"
+    #assert(len(models)>0), "Heuristics eliminated all candidate models"
+    if(len(models)<1):
+        complexity = "1"
+        print("Analysis complete in {} seconds\nComplexity is O({})".format(time.time()-start_time, complexity))
+        return complexity, k, p
 
     #Calculate r2_scores
     for model in models:
         r_square = r2_score(y, mymodel(x))
         r2_scores.append(r_square)
-    if plotting: #for debug purpose
-        print("Models after applying Heuristics ", models)
-        print(r2_scores)
+    #if plotting: #for debug purpose
+    print("Models after applying Heuristics ", models)
+    print("r2_scores ", r2_scores)
     highest_r2 = max(r2_scores)
     #pick the highest order model if there are multiple max r2
     if r2_scores.count(highest_r2)>1:
-        r2_scores.reverse()
-        models.reverse()
-
-    index = r2_scores.index(highest_r2)
-    #complexity = models[index].order
+        #r2_scores.reverse()
+        #models.reverse()
+        max_r = 0
+        index = 0
+        t = 0
+        for i, j in zip(r2_scores, models):
+            if(i == highest_r2):
+                if(j[j.order] >= max_r):
+                    max_r = j[j.order]
+                    index = t
+            t = t + 1
+    else:
+        index = r2_scores.index(highest_r2)
     logarithmic, score, log_model = logs_regression(sizes, counters)
 
     if highest_r2 > score:
         complexity = "n^{}".format(models[index].order)
+        k = models[index].order
     else:
         complexity = "{} n".format(logarithmic)
+        p = 1
+        k = 1 if logarithmic == "nlog" else 0
 
-    if highest_r2 < 0.2 and score < 0.2: #regression gives a bad model
+    if highest_r2 < 0.4 and score < 0.4: #regression gives a bad model
         complexity = "1"
+        k = 0
+        p = 0
 
+    seconds = time.time()-start_time
+    if not r:
+        print("Analysis complete in {} seconds\nComplexity is O({})".format(seconds, complexity))
+    else:
+        print("Analysis complete in {} seconds".format(seconds))
     if plotting:
         x = numpy.linspace(1, maxsize*1.5, maxsize*10)
         y = func(x, log_model(0), log_model(1))
         yn = y + 0.2*numpy.random.normal(size=len(x))
-        popt, pcov = curve_fit(func, x, yn)
+        #popt, pcov = curve_fit(func, x, yn)
         #plt.plot(x, func(x, *popt), c=(random.random(), random.random(), random.random()), label="log")
-        #plt.plot(myline, mymodel(myline), c=(random.random(), random.random(), random.random()), label="{}-D polynomial".format(i))
+        plt.plot(myline, mymodel(myline), c=(random.random(), random.random(), random.random()), label="{}-D polynomial".format(i))
         plt.xlabel('Input size')
         plt.ylabel('Instruction Counter', rotation=90)
         plt.legend(loc='upper left')
         plt.grid()
         plt.show()
 
-    return complexity
+    return complexity, k, p
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog="dig.py")
     parser.add_argument('-trace', help="path/to/traceFile")
-    #parser.add_argument('-maxsize', help="maximum size of input")
     parser.add_argument('-maxdeg', help="maximum deg of polynomial")
-    parser.add_argument('-plot', help="True to display plots of regression polynomial")
+    parser.add_argument('-plot', action='store_true', help="To display plots of polynomial regression")
+    parser.add_argument('-r', action='store_true', help="recursive program")
     args = parser.parse_args()
     trace_file = Path(args.trace)
-    assert(path.exists(trace_file)), "Trace file doesn't exist"
-    #maxsize = int(args.maxsize)
+    assert(path.exists(trace_file)), "{} doesn't exist".format(trace_file)
     maxdeg = int(args.maxdeg)
-    plot = args.plot
-    if plot=="True":
-        plot = True
-    else:
-        plot = False
     sizes, counters = read_traces(trace_file)
-    start_time = time.time()
-    complexity = poly_regression(sizes, counters, maxdeg, plot)
-    seconds = time.time()-start_time
-    print("Analysis complete in {} seconds\nComplexity is O({})".format(seconds, complexity))
+    complexity, k, p = poly_regression(sizes, counters, maxdeg, args.plot, args.r)
+    if(args.r):
+        print("Polynomial relation: ", complexity)
+        print("k={} p={}".format(k, p))
