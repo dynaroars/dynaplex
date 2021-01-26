@@ -15,13 +15,14 @@ def random_list(size):
 # T(n) = T(n-1) + n
 def bubble_sort(arr, n, depth, file):
     with open(file, 'a') as f:
-        print("{};1;{}".format(depth, n), file=f)
+        print("{};{}".format(depth, n), file=f)
 
     global counter
     if n==1:
         return arr
 
     for i in range(n-1):
+        #counter = counter + 1
         if arr[i]>arr[i+1]:
             counter = counter + 1
             arr[i], arr[i+1] = arr[i+1], arr[i]
@@ -32,7 +33,7 @@ def bubble_sort(arr, n, depth, file):
 # T(n) = T(n-1) + n
 def insertion_sort(arr,n, depth, file):
     with open(file, 'a') as f:
-        print("{};1;{}".format(depth, n), file=f)
+        print("{};{}".format(depth, n), file=f)
 
     global counter
 
@@ -52,7 +53,7 @@ def insertion_sort(arr,n, depth, file):
 #T(n) = T(n-1) + O(log n)
 def heapify(arr, n, i, depth, file):
     with open(file, 'a') as f:
-        print("{};1;{}".format(depth, n-i), file=f)
+        print("{};{}".format(depth, n-i), file=f)
 
     global counter
 
@@ -97,8 +98,8 @@ def partition(arr,low,high):
     global counter
 
     for j in range(low , high):
-        counter = counter + 1
         if arr[j] <= pivot:
+            counter = counter + 1
             i = i+1
             arr[i],arr[j] = arr[j],arr[i]
 
@@ -108,10 +109,10 @@ def partition(arr,low,high):
 #recursive quicksort
 #T(n) = T(n-1) + n
 def quickSort(arr, low, high, depth, file):
-
+    global counter
     if low < high:
         with open(file, 'a') as f:
-            print("{};1;{}".format(depth, (high-low)), file=f)
+            print("{};{}".format(depth, (high-low)), file=f) 
         pi = partition(arr,low,high)
         quickSort(arr, low, pi-1, depth+1, file)
         quickSort(arr, pi+1, high, depth+1, file)
@@ -119,7 +120,7 @@ def quickSort(arr, low, high, depth, file):
 def merge_sort(myList, depth, file):
     global counter
     with open(file, 'a') as f:
-        print("{};2;{}".format(depth, len(myList)), file=f)
+        print("{};{}".format(depth, len(myList)), file=f)
     if len(myList) > 1:
         # counter = counter + 1
         mid = len(myList) // 2
@@ -170,11 +171,11 @@ def merge_sort(myList, depth, file):
 # Return minimum index
 def minIndex( a , i , j, depth, file):
     global counter
-    counter = counter + 1
     with open(file, 'a') as f:
-        print("{};1;{}".format(depth, j-i), file=f)
+        print("{};{}".format(depth, j-i), file=f)
 
     if i == j:
+        counter = counter + 1
         return i
 
     # Find minimum of remaining elements
@@ -191,7 +192,7 @@ def selection_sort(a, n, index, depth, file):
     global counter
     counter = counter + 1
     with open(file, 'a') as f:
-        print("{};1;{}".format(depth, n-index), file=f)
+        print("{};{}".format(depth, n-index), file=f)
 
     # Return when starting and
     # size are same
@@ -217,7 +218,7 @@ def selection_sort(a, n, index, depth, file):
 def main():
     global counter
     counter = 0
-    size = random.randint(1,1000)
+    size = random.randint(1, 500)
     arr = random_list(size)
     depth = 0
 
@@ -231,18 +232,18 @@ def main():
     with open("./insertion_sort/traces", 'a') as f:
         print("{};{}".format(size, counter), file=f)
     counter = 0
-
+    
     path = "./bubble_sort"
     try:
         os.mkdir(path)
     except OSError as error:
         pass
     file = "./bubble_sort/output-{}".format(size)
-    bubble_sort(arr, size, depth, file)
+    bubble_sort(sorted(arr, reverse=True), size, depth, file)
     with open("./bubble_sort/traces", 'a') as f:
         print("{};{}".format(size, counter), file=f)
     counter = 0
-
+    
     path = "./heap_sort"
     try:
         os.mkdir(path)
@@ -253,7 +254,7 @@ def main():
     with open("./heap_sort/traces", 'a') as f:
         print("{};{}".format(size, counter), file=f)
     counter = 0
-
+    
     path = "./quick_sort"
     try:
         os.mkdir(path)
@@ -271,7 +272,7 @@ def main():
     except OSError as error:
        pass
     file = "./merge_sort/output-{}".format(size)
-    merge_sort(sorted(arr), depth, file)
+    merge_sort(arr, depth, file)
     with open("./merge_sort/traces", 'a') as f:
        print("{};{}".format(size, counter), file=f)
     counter = 0
@@ -289,5 +290,6 @@ def main():
 
 
 if __name__ == '__main__':
-    for i in range(100):
-        main()
+    for i in range(200):
+       main()
+    #main()
