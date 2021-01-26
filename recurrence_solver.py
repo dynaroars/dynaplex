@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import math
 import sys
+import argparse
+
 def master_theorem(a, b, k, p=0):
     '''T(n) = a T(n/b) + (n^k(logn)^p)'''
 
@@ -14,7 +16,7 @@ def master_theorem(a, b, k, p=0):
         complexity = "n^{}".format(c)
     elif a == b**k:
         if p > -1:
-            complexity = "n^{} (logn)^{}".format(c, p+1)
+            complexity = "n^{} (logn)^{}".format(c, p+1) if p!=0 else "n^{} logn".format(c)
         elif p == -1:
             complexity = "n^{} log(logn)".format(c)
         elif p < -1:
@@ -27,7 +29,7 @@ def master_theorem(a, b, k, p=0):
 
     return complexity
 
-def recurrence(a, b, fn):
+def recurrence(a, b, k, p):
     '''T(n) = T(n-a) + T(n-b) + fn'''
     assert(isinstance(a, int)), a
     assert(isinstance(b, int)), b
@@ -36,24 +38,32 @@ def recurrence(a, b, fn):
     if a != 0 and b != 0:
         complexity = "2^n"
     elif a == 1 and b == 0:
-        complexity = "n*{}".format(fn) #fix to output a polynomial
+        if p==0:
+            complexity = "n^{}".format(k+1) 
+        else:
+            complexity = "n^{}(logn)^{}".format(k+1, p) 
 
     return complexity
 
 if __name__ == '__main__':
-    print("choose format:")
-    format = int(input("1) T(n) = a T(n/b) + (n^k(logn)^p)\n2) T(n) = T(n-a) + T(n-b) + fn\n")) #fix to use argument parser
-    assert(format == 1 or format == 2), "unsupported recurrence format"
+    parser = argparse.ArgumentParser(prog="recurrence_solver.py")
+    parser.add_argument('-format', help="1: T(n) = a T(n/b) + n^k(logn)^p\n2: T(n) = a T(n-b) + n^k(logn)^p\n3: T(n) = T(n/a) + T(n/b) + fn")
+    parser.add_argument('-a')
+    parser.add_argument('-b')
+    parser.add_argument('-k')
+    parser.add_argument('-p')
+    args = parser.parse_args()
+    fmt = int(args.format)
+    a = int(args.a)
+    b = int(args.b)
+    k = int(args.k)
+    p = int(args.p)
 
-    if format == 1:
-        a = int(input("a = "))
-        b = int(input("b = "))
-        k = int(input("k = "))
-        p = int(input("p = "))
+    if fmt == 1:
         complexity = master_theorem(a, b, k, p)
-    else:
-        a = int(input("a = "))
-        b = int(input("b = "))
-        fn = input("fn = ")
-        complexity = recurrence(a, b, fn)
+    elif fmt == 2:
+        complexity = recurrence(a, b, k, p)
+    elif fmt == 3: # T(n) = T(n/a) + T(n/b) + fn
+        complexity = master_theorem(1, a, k, p) if a<b else masther_theorem(1, b, k, p)
+
     print("Complexity is O({})".format(complexity))
