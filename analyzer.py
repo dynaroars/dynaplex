@@ -12,13 +12,26 @@ from sklearn.cluster import KMeans
 import math
 import time
 import argparse
+import subprocess as sp
 
 class RecRel:
     ''' a structure storing the final results of recurrence relation '''
-    def __init__(self, a, coef, diff):
+    def __init__(self, a, b, k, p, fmt):
         self.a = a
-        self.coef = coef
-        self.diff = diff
+        self.b = b
+        self.k = k
+        self.p = p
+        self.format = fmt
+
+    def __str__(self):
+        if self.format == 1:
+            return "T(n) = {} T(n/{}) + (n^{}(logn)^{})".format(self.a, self.b, self.k, self.p)
+        elif self.format == 2:
+            if self.b==0:
+                return "T(n) = T(n-{}) + (n^{}(logn)^{})".format(self.a, self.k, self.p)
+            else:
+                return "T(n) = T(n-{}) + T(n-{}) + (n^{}(logn)^{})".format(self.a, self.b, self.k, self.p)
+
 
 class Node:
     ''' node of a parsing tree '''
@@ -26,16 +39,21 @@ class Node:
         self.d = d
         self.val = val
 
+
+def vcmd(cmd, inp=None, shell=True):
+    proc = sp.Popen(cmd,shell=shell,stdin=sp.PIPE,
+                    stdout=sp.PIPE,stderr=sp.PIPE)
+    return proc.communicate(input=inp)
+
 def read_logs(filename):
     ''' reads traces from a file and returns calculated coeficients and diffs'''
-    # print(filename)
     with open(filename) as file:
         lines = file.readlines()
-        num_rec_calls = get_num_rec_calls(lines)
+        num_rec_calls = get_num_rec_calls(lines, filename)
         queue, coefs, diffs = [], [], []
         prev  = Node(-1, 0.0)
         for i, line in enumerate(lines):
-            cur = get_cur_node(line)
+            cur = get_cur_node(line, filename)
             # find the bottom of the branch
             if (prev.d <= cur.d and len(lines) - 1 != i):
                 prev = cur
@@ -44,6 +62,7 @@ def read_logs(filename):
             # calculate coefs for the current branch
             coefs, diffs = calc_coefs(queue, coefs, diffs, num_rec_calls)
             queue.append(cur)
+            # print(cur.d, cur.val)
             prev = cur
     file.close()
     return coefs, diffs, num_rec_calls
@@ -64,7 +83,7 @@ def calc_coefs(queue, coefs, diffs, num_rec_calls):
 
     for i in range(num_rec_calls-1, -1, -1):
         child = queue.pop()
-        if child.val != float(0) and child.val != float(1):
+        if child.val != float(0): #and child.val != float(1) check this
             coefs[i].append(parent.val / child.val)
             diffs[i].append(parent.val - child.val)
 
@@ -84,16 +103,15 @@ def calc_coefs(queue, coefs, diffs, num_rec_calls):
         calc_coefs(queue, coefs, diffs, num_rec_calls)
     return coefs, diffs
 
-def get_cur_node(line: str):
+def get_cur_node(line: str, filename):
     ''' builds and returns a Node that fed by the parsed string from traces '''
 
-    # each line has the following format: depth;a;n. TODO: derive 'a' using a static analysis tool
     m = line.rstrip('\n').split(';')
-    # print(m)
+    assert(len(m)==2), "bad traces in file {}".format(filename)
     m = [int(m[0]), m[1]]
     return Node(m[0], float(m[1]))
 
-def get_num_rec_calls(lines: list):
+def get_num_rec_calls(lines: list, filename):
     ''' returns the number of recursive calls that a function does.
     Basically, it is a number of branches each parent node has'''
 
@@ -101,7 +119,7 @@ def get_num_rec_calls(lines: list):
     prev = Node(-1, 0.0)
     for i, line in enumerate(lines):
         # print(line)
-        cur = get_cur_node(line)
+        cur = get_cur_node(line, filename)
         if cur.d < prev.d:
             return nums
         if (prev.d <= cur.d and len(lines) - 1 > i):
@@ -118,16 +136,17 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog="analyzer")
     parser.add_argument('-trace', help="path/to/traceFile")
     parser.add_argument('-maxdeg', default=5, help="maximum deg of polynomial")
+    parser.add_argument('-plot', action='store_true', help="To display plots of polynomial regression")
     args = parser.parse_args()
     dir_name = args.trace
     maxdeg = int(args.maxdeg)
     num_rec_calls = 0
 
     filenames = [f for f in listdir(dir_name) if f.startswith('output')]
+    assert(len(filenames)>0), "Traces for recursive programs should be in file prefixed \"output-\""
     final_coefs, final_diffs = [], []
     start_time = time.time()
     for filename in filenames:
-        # print("analyzing a file:{}".format(filename))
         coefs, diffs, num_rec_calls = read_logs(dir_name + "/" + filename)
         if len(final_coefs) == 0:
             final_coefs = coefs
@@ -142,7 +161,8 @@ if __name__ == '__main__':
 
     x = [i for i,v in enumerate(final_coefs[0])]
     rec_relations = []
-
+    # print(final_coefs)
+    # print(final_diffs)
     for i,coefs in enumerate(final_coefs):
         data = np.array([x, coefs])
         df = pd.DataFrame(list(zip(x, coefs)), columns=['node ids', 'coefs'])
@@ -157,27 +177,57 @@ if __name__ == '__main__':
 
         med_diff = statistics.median(final_diffs[i])
         format = "diff" if all(math.isclose(final_diffs[i][0], x, rel_tol=1e-3) or x <= 0.0 for x in final_diffs[i]) else "coef"
-        if(med_diff>3):
-            format = "coef" # I haven't seen a program with T(n) = T(n-a)+f(n) where a>2
-        rec_relations.append(RecRel(1, regr.intercept_[0], med_diff))
+        rec_relations.append((regr.intercept_[0], med_diff))
 
-    seconds = time.time() - start_time
+    #seconds = time.time() - start_time
 
-    # with open("{}/analysis".format(dir_name)) as f:
-    print("Time: ", seconds)
-    #print("Time: ", seconds, file=f)
     for i in range(len(final_coefs)):
-        print("diff {} regr {}".format(rec_relations[i].diff, rec_relations[i].coef))
-        coef = rec_relations[i].coef
+        print("diff {} coef {}".format(rec_relations[i][1], rec_relations[i][0]))
+        coef = rec_relations[i][0]
         if format == "diff" or int(round(coef))==1:
-            res = abs(int(round(rec_relations[i].diff))) #some recursion size increase with depth instead of decreasing (ex: recursive_loop)
-            #print("Format: 2", file=f)
-            #print("a: {}".format(str(res)), file=f)
-            #print("b: {}".format(str(res)), file=f)
-            print(str(rec_relations[i].a) + "*T(n-" + str(res) + ")")
+            format = "diff"
+            res = abs(int(round(rec_relations[i][1])))
+            print("T(n-" + str(res) + ")")
         else:
             res = int(round(coef))
-            #print("Format: 1", file=f)
-            #print("a: {}".format(str(rec_relations[i].a)), file=f)
-            #print("b: {}".format(str(res)), file=f)
-            print(str(rec_relations[i].a) + "*T(n/" + str(res) + ")")
+            print("T(n/" + str(res) + ")")
+    
+    #Calculating polynomial relations
+    print("Computing polynomial relations")
+    cmd = "../dig.py -trace {}/traces -maxdeg 5 -r".format(dir_name)
+    print("Command: ", cmd)
+    out, err = vcmd(cmd)
+    #assert not err, "Failed:\n{}".format(err)
+    out = str(out).split('\\n')
+    for i in out:
+        print(i)
+    k = int(out[len(out)-2].split(' ')[0].split('=')[1])
+    p = int(out[len(out)-2].split(' ')[1].split('=')[1])
+
+    #assume format is same for all branches of recursion tree
+    if(format == "coef"):
+        format = 1
+        a = len(rec_relations)
+        b = res
+        relation = RecRel(a, b, k, p, 1)
+    else:
+        format = 2
+        if len(rec_relations) == 1:
+            a = res
+            b = 0
+            relation = RecRel(a, b, k, p, 2)
+        else:
+            a = int(rec_relations[0][1])
+            b = int(rec_relations[1][1])
+            relation = RecRel(a, b, k, p, 2)
+    
+    print(relation)
+
+    print("Solving the recurrence relation")
+    cmd = "../recurrence_solver.py -format {} -a {} -b {} -k {} -p {}".format(format, a, b, k, p)
+    print("Command: ", cmd)
+    out, err = vcmd(cmd)
+    assert not err, "Failed to solve the recurrence relation\n{}".format(err)
+    seconds = time.time() - start_time
+    print("Analysis complete in {:5.3f} seconds".format(seconds))
+    print(str(out))
