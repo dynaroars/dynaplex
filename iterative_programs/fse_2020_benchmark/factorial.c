@@ -31,7 +31,7 @@ int main() {
   file = fopen("factorial/traces", "a");
   srand((unsigned) time(&t));
 
-  for (size_t i = 0; i < 150; i++) {
+  for (size_t i = 0; i < 1000; i++) {
     num = rand() % 20;
     k = rand() % 20;
     factorial(num, &counter);
