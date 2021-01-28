@@ -194,7 +194,7 @@ if __name__ == '__main__':
     
     #Calculating polynomial relations
     print("Computing polynomial relations")
-    cmd = "../dig.py -trace {}/traces -maxdeg 5 -r".format(dir_name)
+    cmd = "../dig.py -trace {}/traces -maxdeg 5 -r -plot".format(dir_name)
     print("Command: ", cmd)
     out, err = vcmd(cmd)
     #assert not err, "Failed:\n{}".format(err)

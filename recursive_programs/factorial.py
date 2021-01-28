@@ -7,7 +7,7 @@ counter = 0
 def factorial(n, depth, file):
     global counter
     with open(file, 'a') as f:
-        print("{};1;{}".format(depth, n), file=f)
+        print("{};{}".format(depth, n), file=f)
     if n==0:
         counter = counter + 1
         return 1
@@ -18,7 +18,7 @@ def permutations(n, k, depth, file):
     global counter
     counter = counter + 1
     with open(file, 'a') as f:
-        print("{};1;{}".format(depth, n), file=f)
+        print("{};{}".format(depth, n), file=f)
     return factorial(n, depth+1, file)/factorial(n-k, depth+1, file)
 
 if __name__ == '__main__':

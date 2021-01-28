@@ -10,12 +10,12 @@ def karatsuba(x, y, depth, file):
     global counter
 
     with open(file, 'a') as f:
-        print("{};3;{}".format(depth, min(len(str(x)),len(str(y)))), file=f)
+        print("{};{}".format(depth, min(len(str(x)),len(str(y)))), file=f)
 
+    counter = counter + 1
     if len(str(x)) == 1 or len(str(y)) == 1:
         return x*y
     else:
-        counter = counter + 1
         n = max(len(str(x)),len(str(y)))
         nby2 = n / 2
 
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     for i in range (2000):
         x = random.randint(1, 990000000000000000000000)
         y = random.randint(1, 990000000000000000000000)
-        size = len(str(y))
+        size = min(len(str(x)),len(str(y)))
         depth = 0
         path = "./karatsuba"
         try:

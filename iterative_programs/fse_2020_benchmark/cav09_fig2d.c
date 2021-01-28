@@ -31,7 +31,7 @@ int mainQ(int n, int m, int *counter){
 
 int main() {
   int counter = 0;
-  int num;
+  int n, m;
   time_t t;
 
   opendir("cav09_fig2d");
@@ -43,10 +43,11 @@ int main() {
   file = fopen("cav09_fig2d/traces", "a");
   srand((unsigned) time(&t));
 
-  for (size_t i = 0; i < 150; i++) {
-    num = 1 + rand() % 100;
-    mainQ(num+10, num, &counter);
-    fprintf(file, "%d;%d\n", num, counter);
+  for (size_t i = 0; i < 1000; i++) {
+    n = 1 + rand() % 10000;
+    m = 1 + rand() % 10000;
+    mainQ(n, m, &counter);
+    fprintf(file, "%d;%d\n", n+m, counter);
     counter = 0;
 
   }

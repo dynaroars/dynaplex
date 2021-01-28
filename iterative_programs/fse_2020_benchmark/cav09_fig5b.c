@@ -25,7 +25,7 @@ int mainQ(int a, int n, int *counter){
 
 int main() {
   int counter = 0;
-  int num;
+  int a, n, size;
   time_t t;
 
   opendir("cav09_fig5b");
@@ -37,10 +37,12 @@ int main() {
   file = fopen("cav09_fig5b/traces", "a");
   srand((unsigned) time(&t));
 
-  for (size_t i = 0; i < 150; i++) {
-    num = rand() % 100;
-    mainQ(-num*num*num, num, &counter);
-    fprintf(file, "%d;%d\n", num, counter);
+  for (size_t i = 0; i < 1000; i++) {
+    n = rand() % 10000;
+    a = 0-(rand() % 10000); //WCET happens when a < 0 and n > 0
+    size = n + abs(a);
+    mainQ(a, n, &counter);
+    fprintf(file, "%d;%d\n", size, counter);
     counter = 0;
 
   }

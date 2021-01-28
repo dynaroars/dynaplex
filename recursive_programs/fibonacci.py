@@ -8,15 +8,15 @@ counter = 0
 def fibonacci(n, depth, file):
     global counter
     with open(file, 'a') as f:
-        print("{};2;{}".format(depth, n), file=f)
+        print("{};{}".format(depth, n), file=f)
+    counter = counter + 1
     if n<2:
-        counter = counter + 1
         return n
     else:
         return fibonacci(n-2, depth+1, file) + fibonacci(n-1, depth+1, file)
 
 if __name__ == '__main__':
-    for i in range(70):
+    for i in range(40):
         n = random.randint(1,20)
         depth = 0
 

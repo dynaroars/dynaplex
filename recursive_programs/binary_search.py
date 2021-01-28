@@ -8,14 +8,14 @@ counter = 0
 def random_list(size):
     list = []
     for i in range(size):
-        list.append(random.randint(-100, 100))
-    return list
+        list.append(random.randint(-10000, 10000))
+    return sorted(list)
 
 def binary_search(arr, low, high, x, depth, file):
     global counter
     counter = counter + 1
     with open(file, 'a') as f:
-        print("{};1;{}".format(depth, high-low), file=f)
+        print("{};{}".format(depth, high-low), file=f)
     if high >= low:
 
         mid = (high + low) // 2
@@ -35,7 +35,7 @@ def binary_search(arr, low, high, x, depth, file):
 def main():
     global counter
     # counter = 0
-    size = random.randint(1,500)
+    size = random.randint(1,10000)
     arr = random_list(size)
     depth = 0
 
@@ -51,4 +51,5 @@ def main():
     counter = 0
 
 if __name__ == '__main__':
-    main()
+    for i in range(1000):
+        main()

@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#define MAXTEMPSIZE 50000
+#define MAXTEMPSIZE 1000
 
 void mergesort(int arr[], int n, int *counter) {
   int temp[MAXTEMPSIZE];
@@ -54,8 +54,52 @@ void mergesort(int arr[], int n, int *counter) {
   }
 }
 
-int cmpfunc (const void * a, const void * b) {
-   return ( *(int*)a - *(int*)b );
+
+int join(int arr[], int left[], int right[],
+        int l, int m, int r)
+{
+    int i; // Used in second loop
+    for (i = 0; i <= m - l; i++)
+        arr[i] = left[i];
+
+    for (int j = 0; j < r - m; j++)
+        arr[i + j] = right[j];
+}
+
+// Function to store alternate elemets in left
+// and right subarray
+int split(int arr[], int left[], int right[],
+        int l, int m, int r)
+{
+    for (int i = 0; i <= m - l; i++)
+        left[i] = arr[i * 2];
+
+    for (int i = 0; i < r - m; i++)
+        right[i] = arr[i * 2 + 1];
+}
+
+// Function to generate Worst Case of Merge Sort
+int generateWorstCase(int arr[], int l, int r)
+{
+    if (l < r)
+    {
+        int m = l + (r - l) / 2;
+
+        // create two auxiliary arrays
+        int left[m - l + 1];
+        int right[r - m];
+
+        // Store alternate array elements in left
+        // and right subarray
+        split(arr, left, right, l, m, r);
+
+        // Recurse first and second halves
+        generateWorstCase(left, l, m);
+        generateWorstCase(right, m + 1, r);
+
+        // join left and right subarray
+        join(arr, left, right, l, m, r);
+    }
 }
 
 int main(int argc, char * argv[]) {
@@ -72,14 +116,14 @@ int main(int argc, char * argv[]) {
   file = fopen("mergesort/traces", "a");
   srand((unsigned) time(&t));
   int j;
-  for (size_t i = 0; i < 1000; i++) {
-    num = rand() % 50000;
+  for (size_t i = 0; i < 100; i++) {
+    num = rand() % MAXTEMPSIZE;
     int arr[num];
     for (j = 0; j < num; j++) {
-        arr[j] = rand()%150000;
+        arr[j] = rand()%3000;
     }
 
-    //qsort(arr, num, sizeof(int), cmpfunc); //worst-case for mergesort is random list
+    generateWorstCase(arr, 0, sizeof(arr) / sizeof(arr[0])); 
     mergesort(arr, num, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;

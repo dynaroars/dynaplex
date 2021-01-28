@@ -99,7 +99,7 @@ def strassen(x, y, n, depth, file):
     # base case: 1x1 matrix
     global counter
     with open(file, 'a') as f:
-        print("{};7;{}".format(depth, n), file=f)
+        print("{};{}".format(depth, n), file=f)
 
     if n == 1:
         z = [[0]]
@@ -154,7 +154,7 @@ def strassen(x, y, n, depth, file):
 
 if __name__ == '__main__':
     for i in range(50):
-        size = 2 ** random.randint(1, 6)
+        size = 2 ** random.randint(1, 5)
         depth = 0
         x = random_matrix(size)
         y = random_matrix(size)

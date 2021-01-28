@@ -15,7 +15,7 @@
 //     *b = t;
 // }
 
-#define MAXSTACKSIZE 150
+#define MAXSTACKSIZE 1000
 
 void quickSortIterative(int arr[], int l, int h, int *counter)
 {
@@ -77,7 +77,7 @@ void quickSortIterative(int arr[], int l, int h, int *counter)
 }
 
 int cmpfunc (const void * a, const void * b) {
-   return ( *(int*)a - *(int*)b );
+   return ( *(int*)b - *(int*)a );
 }
 
 int main() {
@@ -94,13 +94,13 @@ int main() {
   file = fopen("quicksort/traces", "a");
   srand((unsigned) time(&t));
   int j;
-  for (size_t i = 0; i < 1000; i++) {
-    num = rand() % 7000;
+  for (size_t i = 0; i < 100; i++) {
+    num = rand() % 1000;
     int arr[num];
     for (j = 0; j < num; j++) {
-        arr[j] = rand()%15000;
+        arr[j] = rand()%3000;
     }
-    // qsort(arr, num, sizeof(int), cmpfunc);
+    qsort(arr, num, sizeof(int), cmpfunc);
     quickSortIterative(arr, 0, num-1, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;

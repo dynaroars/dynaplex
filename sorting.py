@@ -8,7 +8,7 @@ counter = 0
 def random_list(size):
     list = []
     for i in range(size):
-        list.append(random.randint(-100, 100))
+        list.append(random.randint(-10000, 10000))
     return list
 
 # Recursive Bubble Sort
@@ -218,7 +218,7 @@ def selection_sort(a, n, index, depth, file):
 def main():
     global counter
     counter = 0
-    size = random.randint(1, 500)
+    size = random.randint(1, 1000)
     arr = random_list(size)
     depth = 0
 
@@ -290,6 +290,6 @@ def main():
 
 
 if __name__ == '__main__':
-    for i in range(200):
+    for i in range(100):
        main()
     #main()

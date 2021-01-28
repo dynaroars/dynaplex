@@ -72,11 +72,13 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
     models = []
     for model in tmp:
         order = model.order
-        high_order_coe  = model[order]
-        if not(high_order_coe < (1.0/maxsize)): #make sure the heuristics work
+        high_order_coe = model[order]
+        print("heuristics", abs(model[0]), order, maxsize)
+        if not(high_order_coe < (1.0/maxsize)) and abs(model[0]) < maxsize: #make sure the heuristics work
             models.append(model)
 
-    #assert(len(models)>0), "Heuristics eliminated all candidate models"
+    if not r:
+        assert(len(models)>0), "Heuristics eliminated all candidate models"
     if(len(models)<1):
         complexity = "1"
         print("Analysis complete in {} seconds\nComplexity is O({})".format(time.time()-start_time, complexity))
@@ -110,6 +112,7 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
     if highest_r2 > score:
         complexity = "n^{}".format(models[index].order)
         k = models[index].order
+        assert(models[index][order] < math.pow(maxsize, models[index].order))
     else:
         complexity = "{} n".format(logarithmic)
         p = 1

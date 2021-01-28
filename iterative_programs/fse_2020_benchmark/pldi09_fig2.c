@@ -45,7 +45,7 @@ int mainQ(int M, int N, int P, int *counter){
 
 int main() {
   int counter = 0;
-  int num;
+  int n, m, p;
   time_t t;
 
   opendir("pldi09_fig2");
@@ -57,10 +57,12 @@ int main() {
   file = fopen("pldi09_fig2/traces", "a");
   srand((unsigned) time(&t));
 
-  for (size_t i = 0; i < 1500; i++) {
-    num = 1 + rand() % 1000;
-    mainQ(num, num+1000, num%500, &counter);
-    fprintf(file, "%d;%d\n", num+1000, counter);
+  for (size_t i = 0; i < 1000; i++) {
+    n = 1 + rand() % 10000;
+    m = rand() % 10000;
+    p = rand() % 100;
+    mainQ(n, m, p, &counter);
+    fprintf(file, "%d;%d\n", n, counter);
     counter = 0;
 
   }

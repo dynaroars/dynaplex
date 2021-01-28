@@ -5,8 +5,8 @@ make clean -C iterative_programs/fse_2020_benchmark && make -C iterative_program
 for file in iterative_programs/fse_2020_benchmark/*; do
 	if [[ $file == *.o ]]
 	then
-		echo $file
+		echo $file;
+		./$file
 	fi
 done;
 
-./$file

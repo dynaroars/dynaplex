@@ -12,21 +12,17 @@ except NameError:
 def fac(n, depth, file):
     global counter
     with open(file, 'a') as f:
-        print("{};1;{}".format(depth, len(str(n))), file=f)
-
-    step = lambda x: 1 + (x<<2) - ((x>>1)<<1)
-    maxq = long(floor(sqrt(n)))
-    d = 1
-    q = 2 if n % 2 == 0 else 3
-    while q <= maxq and n % q != 0:
-        q = step(d)
-        d += 1
-        counter = counter + 1
-    return [q] + fac(n // q, depth+1, file) if q <= maxq else [n]
+        print("{};{}".format(depth, n), file=f)
+    
+    if n==1:
+        return
+    for i in range(n):
+        fac(n-1, depth+1, file)
+    fac(n-1, depth+1, file)
 
 if __name__ == '__main__':
-    for i in range(500):
-        n = random.randint(1, 100000000000000)
+    for i in range(10):
+        n = random.randint(1, 10)
         path = "./decomposition"
         try:
             os.mkdir(path)

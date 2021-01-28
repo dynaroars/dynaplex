@@ -51,9 +51,9 @@ int main() {
   file = fopen("popl09_fig2_1/traces", "a");
   srand((unsigned) time(&t));
 
-  for (size_t i = 0; i < 150; i++) {
-    num = rand() % 100;
-    mainQ(num%11, num%9, num, num, &counter);
+  for (size_t i = 0; i < 1000; i++) {
+    num = rand() % 10000;
+    mainQ(0, 0, num, num, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;
 

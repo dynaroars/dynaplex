@@ -31,7 +31,7 @@ int comparator(const void *p, const void *q)
 
 int main() {
   int counter = 0;
-  int num, term;
+  int num, res, term;
   time_t t;
 
   opendir("binary_search");
@@ -43,18 +43,18 @@ int main() {
   file = fopen("binary_search/traces", "a");
   srand((unsigned) time(&t));
   int j;
-  for (size_t i = 0; i < 1500; i++) {
-    num = rand() % 100000;
+  for (size_t i = 0; i < 1000; i++) {
+    num = rand() % 10000;
     int arr[num];
     for (j = 0; j < num; j++) {
-        arr[j] = rand()%20000;
+        arr[j] = rand()%30000;
     }
-    term = rand()%59000;
+    term = rand()%50000;
     qsort((void*)arr, num, sizeof(arr[0]), comparator); //input has to be sorted for binary search
-    term = binary_search(term, arr, num, &counter);
+    res = binary_search(term, arr, num, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;
   }
   fclose(file);
-  return term;
+  return 0;
 }

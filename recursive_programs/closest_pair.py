@@ -30,7 +30,7 @@ def closest_point_problem(points, depth, file):
 def find_min(start, end, point, heap, visited_index, depth, file):
     global counter
     with open(file, 'a') as f:
-        print("{};2;{}".format(depth, len(point[start:end + 1])), file=f)
+        print("{};{}".format(depth, len(point[start:end + 1])), file=f)
     if len(point[start:end + 1]) & 1:
         mid = start + ((len(point[start:end + 1]) + 1) >> 1)
         counter = counter + 1

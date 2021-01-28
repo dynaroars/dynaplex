@@ -8,7 +8,7 @@ def hanoi(n , source, destination, auxiliary, depth, file):
     global counter
     counter = counter + 1
     with open(file, 'a') as f:
-        print("{};2;{}".format(depth, n), file=f)
+        print("{};{}".format(depth, n), file=f)
 
     if n==1:
         return
