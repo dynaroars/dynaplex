@@ -37,7 +37,7 @@ def logs_regression(sizes, counters):
     #if nlog_r2 < 0.75 and log_r2 < 0.75:
     #    return None
     if log_r2 > nlog_r2:
-        return "log", log_r2, log_model, 
+        return "log", log_r2, log_model,
     else:
         return "nlog", nlog_r2, nlog_model
 
@@ -73,12 +73,12 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
     for model in tmp:
         order = model.order
         high_order_coe = model[order]
-        print("heuristics", abs(model[0]), order, maxsize)
-        if not(high_order_coe < (1.0/maxsize)) and abs(model[0]) < maxsize: #make sure the heuristics work
+        # print("heuristics", abs(model[0]), order, maxsize)
+        if not(high_order_coe < (1.0/maxsize)): #make sure the heuristics work
             models.append(model)
 
-    if not r:
-        assert(len(models)>0), "Heuristics eliminated all candidate models"
+    # if not r:
+    #     assert(len(models)>0), "Heuristics eliminated all candidate models"
     if(len(models)<1):
         complexity = "1"
         print("Analysis complete in {} seconds\nComplexity is O({})".format(time.time()-start_time, complexity))
@@ -86,7 +86,7 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
 
     #Calculate r2_scores
     for model in models:
-        r_square = r2_score(y, mymodel(x))
+        r_square = r2_score(y, model(x))
         r2_scores.append(r_square)
     #if plotting: #for debug purpose
     print("Models after applying Heuristics ", models)
@@ -129,12 +129,6 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
     else:
         print("Analysis complete in {} seconds".format(seconds))
     if plotting:
-        x = numpy.linspace(1, maxsize*1.5, maxsize*10)
-        y = func(x, log_model(0), log_model(1))
-        yn = y + 0.2*numpy.random.normal(size=len(x))
-        #popt, pcov = curve_fit(func, x, yn)
-        #plt.plot(x, func(x, *popt), c=(random.random(), random.random(), random.random()), label="log")
-        plt.plot(myline, mymodel(myline), c=(random.random(), random.random(), random.random()), label="{}-D polynomial".format(i))
         plt.xlabel('Input size')
         plt.ylabel('Instruction Counter', rotation=90)
         plt.legend(loc='upper left')
