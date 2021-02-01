@@ -29,20 +29,23 @@ def master_theorem(a, b, k, p=0):
 
     return complexity
 
-def recurrence(a, b, k, p):
+def recurrence(a, b, k, p, rec_call):
     '''T(n) = T(n-a) + T(n-b) + fn'''
     assert(isinstance(a, int)), a
     assert(isinstance(b, int)), b
     assert(a!=0 or b!=0), "Invalid recurrence relation"
 
-    if a != 0 and b != 0:
+    if rec_call > 2:
+        complexity = "{}^n".format(rec_call)
+    elif a != 0 and b != 0:
         complexity = "2^n"
     elif a == 1 and b == 0:
         if p==0:
             complexity = "n^{}".format(k+1) 
         else:
-            complexity = "n^{}(logn)^{}".format(k+1, p) 
-
+            complexity = "n^{}(logn)^{}".format(k+1, p)
+    else:
+        assert false, "failed to solve this recurrence relation"
     return complexity
 
 if __name__ == '__main__':
@@ -52,17 +55,19 @@ if __name__ == '__main__':
     parser.add_argument('-b')
     parser.add_argument('-k')
     parser.add_argument('-p')
+    parser.add_argument('-rec_call')
     args = parser.parse_args()
     fmt = int(args.format)
     a = int(args.a)
     b = int(args.b)
     k = int(args.k)
     p = int(args.p)
+    rec_call = int(args.rec_call)
 
     if fmt == 1:
         complexity = master_theorem(a, b, k, p)
     elif fmt == 2:
-        complexity = recurrence(a, b, k, p)
+        complexity = recurrence(a, b, k, p, rec_call)
     elif fmt == 3: # T(n) = T(n/a) + T(n/b) + fn
         complexity = master_theorem(1, a, k, p) if a<b else masther_theorem(1, b, k, p)
 
