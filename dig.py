@@ -58,9 +58,10 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
         plt.scatter(x, y)
         myline = numpy.linspace(1, maxsize*1.5, maxsize*10)
 
-    for i in range(1, maxdeg+1):
+    for i in range(0, maxdeg+1):
         mymodel = numpy.poly1d(numpy.polyfit(x, y, i))
         models.append(mymodel)
+        print(mymodel)
         if plotting:
             plt.plot(myline, mymodel(myline), c=(random.random(), random.random(), random.random()), label="{}-D polynomial".format(i))
 
@@ -77,8 +78,9 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
         if not(high_order_coe < (1.0/maxsize)): #make sure the heuristics work
             models.append(model)
 
-    # if not r:
-    #     assert(len(models)>0), "Heuristics eliminated all candidate models"
+    if not r:
+       assert(len(models)>0), "Heuristics eliminated all candidate models"
+
     if(len(models)<1):
         complexity = "1"
         print("Analysis complete in {} seconds\nComplexity is O({})".format(time.time()-start_time, complexity))
@@ -93,20 +95,21 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
     print("r2_scores ", r2_scores)
     highest_r2 = max(r2_scores)
     #pick the highest order model if there are multiple max r2
-    if r2_scores.count(highest_r2)>1:
-        #r2_scores.reverse()
-        #models.reverse()
-        max_r = 0
-        index = 0
-        t = 0
-        for i, j in zip(r2_scores, models):
-            if(i == highest_r2):
-                if(j[j.order] >= max_r):
-                    max_r = j[j.order]
-                    index = t
-            t = t + 1
-    else:
-        index = r2_scores.index(highest_r2)
+    #if r2_scores.count(highest_r2)>1:
+    #    #r2_scores.reverse()
+    #    #models.reverse()
+    #    max_r = 0
+    #    index = 0
+    #    t = 0
+    #    for i, j in zip(r2_scores, models):
+    #        if(i == highest_r2):
+    #            if(j[j.order] >= max_r):
+    #                max_r = j[j.order]
+    #                index = t
+    #        t = t + 1
+    #else:
+
+    index = r2_scores.index(highest_r2)
     logarithmic, score, log_model = logs_regression(sizes, counters)
 
     if highest_r2 > score:
@@ -118,10 +121,14 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
         p = 1
         k = 1 if logarithmic == "nlog" else 0
 
-    if highest_r2 < 0.4 and score < 0.4: #regression gives a bad model
-        complexity = "1"
-        k = 0
-        p = 0
+    #if highest_r2 < 0.5 and score < 0.5: #regression gives a bad model
+    #    if not r:
+    #        print("Heuristics eliminated all models with R_squared < 0.45")
+    #        complexity = "-"
+    #    else:
+    #        complexity = "1"
+    #    k = 0
+    #    p = 0
 
     seconds = time.time()-start_time
     if not r:
