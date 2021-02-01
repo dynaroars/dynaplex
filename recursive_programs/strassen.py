@@ -16,25 +16,17 @@ def random_matrix(size):
         list = []
     return lists
 
-def new_matrix(r, c):
+def new_matrix(r, c, depth):
     """Create a new matrix filled with zeros."""
     matrix = [[0 for row in range(r)] for col in range(c)]
+    if depth==0:
+        global counter
+        counter = counter + r*c
     return matrix
 
 
-def direct_multiply(x, y):
-    if len(x[0]) != len(y):
-        return "Multiplication is not possible!"
-    else:
-        p_matrix = new_matrix(len(x), len(y[0]))
-        for i in range(len(x)):
-            for j in range(len(y[0])):
-                for k in range(len(y)):
-                    p_matrix[i][j] += x[i][k] * y[k][j]
-    return p_matrix
 
-
-def split(matrix):
+def split(matrix, depth):
     """Split matrix into quarters."""
     a = b = c = d = matrix
     global counter
@@ -44,11 +36,13 @@ def split(matrix):
         b = b[:len(b)//2]
         c = c[len(c)//2:]
         d = d[len(d)//2:]
-        counter = counter + 1
+        if depth==0:
+            counter = counter + 1
 
     while len(a[0]) > len(matrix[0])//2:
         for i in range(len(a[0])//2):
-            counter = counter + 1
+            if depth==0:
+                counter = counter + 1
             a[i] = a[i][:len(a[i])//2]
             b[i] = b[i][len(b[i])//2:]
             c[i] = c[i][:len(c[i])//2]
@@ -63,7 +57,7 @@ def split(matrix):
 
 
 
-def add_matrix(a, b):
+def add_matrix(a, b, depth):
     global counter
 
     if type(a) == int:
@@ -74,12 +68,13 @@ def add_matrix(a, b):
             c = []
             for j in range(len(a[0])):
                 c.append(a[i][j] + b[i][j])
-                counter = counter + 1
+                if depth==0:
+                    counter = counter + 1
             d.append(c)
     return d
 
 
-def subtract_matrix(a, b):
+def subtract_matrix(a, b, depth):
     global counter
 
     if type(a) == int:
@@ -90,7 +85,8 @@ def subtract_matrix(a, b):
             c = []
             for j in range(len(a[0])):
                 c.append(a[i][j] - b[i][j])
-                counter = counter + 1
+                if depth==0:
+                    counter = counter + 1
             d.append(c)
     return d
 
@@ -104,56 +100,58 @@ def strassen(x, y, n, depth, file):
     if n == 1:
         z = [[0]]
         z[0][0] = x[0][0] * y[0][0]
-        counter = counter + 1
+        if depth==0:
+            counter = counter + 1
         return z
     else:
         # split matrices into quarters
-        a, b, c, d = split(x)
-        e, f, g, h = split(y)
+        a, b, c, d = split(x, depth)
+        e, f, g, h = split(y, depth)
 
         # p1 = a*(f-h)
-        p1 = strassen(a, subtract_matrix(f, h), n/2, depth+1, file)
+        p1 = strassen(a, subtract_matrix(f, h, depth), n/2, depth+1, file)
 
         # p2 = (a+b)*h
-        p2 = strassen(add_matrix(a, b), h, n/2, depth+1, file)
+        p2 = strassen(add_matrix(a, b, depth), h, n/2, depth+1, file)
 
         # p3 = (c+d)*e
-        p3 = strassen(add_matrix(c, d), e, n/2, depth+1, file)
+        p3 = strassen(add_matrix(c, d, depth), e, n/2, depth+1, file)
 
         # p4 = d*(g-e)
-        p4 = strassen(d, subtract_matrix(g, e), n/2, depth+1, file)
+        p4 = strassen(d, subtract_matrix(g, e, depth), n/2, depth+1, file)
 
         # p5 = (a+d)*(e+h)
-        p5 = strassen(add_matrix(a, d), add_matrix(e, h), n/2, depth+1, file)
+        p5 = strassen(add_matrix(a, d, depth), add_matrix(e, h, depth), n/2, depth+1, file)
 
         # p6 = (b-d)*(g+h)
-        p6 = strassen(subtract_matrix(b, d), add_matrix(g, h), n/2, depth+1, file)
+        p6 = strassen(subtract_matrix(b, d, depth), add_matrix(g, h, depth), n/2, depth+1, file)
 
         # p7 = (a-c)*(e+f)
-        p7 = strassen(subtract_matrix(a, c), add_matrix(e, f), n/2, depth+1, file)
+        p7 = strassen(subtract_matrix(a, c, depth), add_matrix(e, f, depth), n/2, depth+1, file)
 
-        z11 = add_matrix(subtract_matrix(add_matrix(p5, p4), p2), p6)
+        z11 = add_matrix(subtract_matrix(add_matrix(p5, p4, depth), p2, depth), p6, depth)
 
-        z12 = add_matrix(p1, p2)
+        z12 = add_matrix(p1, p2, depth)
 
-        z21 = add_matrix(p3, p4)
+        z21 = add_matrix(p3, p4, depth)
 
-        z22 = add_matrix(subtract_matrix(subtract_matrix(p5, p3), p7), p1)
+        z22 = add_matrix(subtract_matrix(subtract_matrix(p5, p3, depth), p7, depth), p1, depth)
 
-        z = new_matrix(len(z11)*2, len(z11)*2)
+        z = new_matrix(len(z11)*2, len(z11)*2, depth)
         for i in range(len(z11)):
             for j in range(len(z11)):
                 z[i][j] = z11[i][j]
                 z[i][j+len(z11)] = z12[i][j]
                 z[i+len(z11)][j] = z21[i][j]
                 z[i+len(z11)][j+len(z11)] = z22[i][j]
-                counter = counter + 1
+                if depth==0:
+                    counter = counter + 1
 
         return z
 
 
 if __name__ == '__main__':
-    for i in range(50):
+    for i in range(100):
         size = 2 ** random.randint(1, 5)
         depth = 0
         x = random_matrix(size)

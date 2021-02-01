@@ -13,11 +13,11 @@ def random_list(size):
 
 
 def merge_sort(myList, depth, file):
-    global counter
+
     with open(file, 'a') as f:
         print("{};{}".format(depth, len(myList)), file=f)
     if len(myList) > 1:
-        # counter = counter + 1
+
         mid = len(myList) // 2
         left = myList[:mid]
         right = myList[mid:]
@@ -34,7 +34,9 @@ def merge_sort(myList, depth, file):
         k = 0
 
         while i < len(left) and j < len(right):
-            counter = counter + 1
+            if depth==0:
+                global counter
+                counter = counter + 1
             if left[i] < right[j]:
               # The value from the left half has been used
               myList[k] = left[i]
@@ -48,13 +50,15 @@ def merge_sort(myList, depth, file):
 
         # For all the remaining values
         while i < len(left):
-            counter = counter + 1
+            if depth==0:
+                counter = counter + 1
             myList[k] = left[i]
             i += 1
             k += 1
 
         while j < len(right):
-            counter = counter + 1
+            if depth==0:
+                counter = counter + 1
             myList[k]=right[j]
             j += 1
             k += 1
@@ -64,7 +68,7 @@ def merge_sort(myList, depth, file):
 def main():
     global counter
     counter = 0
-    size = random.randint(1, 1000)
+    size = random.randint(1, 500)
     arr = random_list(size)
     depth = 0
     path = "./merge_sort"

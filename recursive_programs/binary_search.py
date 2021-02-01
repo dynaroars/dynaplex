@@ -12,8 +12,9 @@ def random_list(size):
     return sorted(list)
 
 def binary_search(arr, low, high, x, depth, file):
-    global counter
-    counter = counter + 1
+    if depth==0:
+        global counter
+        counter = counter + 1
     with open(file, 'a') as f:
         print("{};{}".format(depth, high-low), file=f)
     if high >= low:
@@ -35,7 +36,7 @@ def binary_search(arr, low, high, x, depth, file):
 def main():
     global counter
     # counter = 0
-    size = random.randint(1,10000)
+    size = random.randint(1,500)
     arr = random_list(size)
     depth = 0
 
@@ -45,11 +46,11 @@ def main():
     except OSError as error:
         pass
     file = "./binary_search/output-{}".format(size)
-    binary_search(arr, 0, size-1, arr[random.randint(0,size-1)], depth, file)
+    binary_search(arr, 0, size-1, random.randint(0,size-1), depth, file)
     with open("./binary_search/traces", 'a') as f:
         print("{};{}".format(size, counter), file=f)
     counter = 0
 
 if __name__ == '__main__':
-    for i in range(1000):
+    for i in range(100):
         main()

@@ -17,7 +17,6 @@ def insertion_sort(arr,n, depth, file):
     with open(file, 'a') as f:
         print("{};{}".format(depth, n), file=f)
 
-    global counter
 
     if n<=1:
         return
@@ -25,7 +24,9 @@ def insertion_sort(arr,n, depth, file):
     last = arr[n-1]
     j = n-2
     while (j>=0 and arr[j]>last):
-        counter = counter + 1
+        if depth==0:
+            global counter
+            counter = counter + 1 
         arr[j+1] = arr[j]
         j = j-1
     arr[j+1]=last

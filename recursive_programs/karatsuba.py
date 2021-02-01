@@ -7,12 +7,13 @@ counter = 0
 
 def karatsuba(x, y, depth, file):
     """Function to multiply 2 numbers in a more efficient manner than the grade school algorithm"""
-    global counter
+    if depth==0:
+        global counter
+        counter = counter + 1
 
     with open(file, 'a') as f:
         print("{};{}".format(depth, min(len(str(x)),len(str(y)))), file=f)
 
-    counter = counter + 1
     if len(str(x)) == 1 or len(str(y)) == 1:
         return x*y
     else:
@@ -33,7 +34,7 @@ def karatsuba(x, y, depth, file):
         return prod
 
 if __name__ == '__main__':
-    for i in range (2000):
+    for i in range (100):
         x = random.randint(1, 990000000000000000000000)
         y = random.randint(1, 990000000000000000000000)
         size = min(len(str(x)),len(str(y)))

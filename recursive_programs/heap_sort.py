@@ -17,7 +17,9 @@ def heapify(arr, n, i, depth, file):
     with open(file, 'a') as f:
         print("{};{}".format(depth, n-i), file=f)
 
-    global counter
+    if depth==0:
+        global counter
+        counter = counter+1
 
     largest = i
     l = 2 * i + 1
@@ -25,31 +27,29 @@ def heapify(arr, n, i, depth, file):
 
     if l < n and arr[i] < arr[l]:
         largest = l
-        counter = counter + 1
 
     if r < n and arr[largest] < arr[r]:
         largest = r
-        counter = counter + 1
 
     if largest != i:
         arr[i],arr[largest] = arr[largest],arr[i] # swap
-        counter = counter + 1
 
         heapify(arr, n, largest, depth+1, file)
 
 
 def heapSort(arr, depth, file):
     n = len(arr)
-
     global counter
 
     for i in range(n//2 - 1, -1, -1):
-        counter = counter + 1
+        if depth==0:
+            counter = counter + 1
         heapify(arr, n, i, depth, file)
         depth = depth+1
 
     for i in range(n-1, 0, -1):
-        counter = counter + 1
+        if depth==0:
+            counter = counter + 1
         arr[i], arr[0] = arr[0], arr[i] # swap
         heapify(arr, i, 0, depth, file)
         depth = depth+1
@@ -59,7 +59,7 @@ def heapSort(arr, depth, file):
 def main():
     global counter
     counter = 0
-    size = random.randint(1, 1000)
+    size = random.randint(1, 500)
     arr = random_list(size)
     depth = 0
 

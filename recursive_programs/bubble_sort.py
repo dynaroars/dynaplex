@@ -17,14 +17,15 @@ def bubble_sort(arr, n, depth, file):
     with open(file, 'a') as f:
         print("{};{}".format(depth, n), file=f)
 
-    global counter
     if n==1:
         return arr
 
     for i in range(n-1):
-        #counter = counter + 1
+    
         if arr[i]>arr[i+1]:
-            counter = counter + 1
+            if depth == 0:
+                global counter
+                counter = counter + 1
             arr[i], arr[i+1] = arr[i+1], arr[i]
 
     return bubble_sort(arr, n-1, depth+1, file)
@@ -52,6 +53,6 @@ def main():
     
 
 if __name__ == '__main__':
-    for i in range(70):
+    for i in range(100):
        main()
     #main()

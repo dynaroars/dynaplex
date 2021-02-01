@@ -13,12 +13,13 @@ def random_list(size):
 
 # Return minimum index
 def minIndex( a , i , j, depth, file):
-    global counter
+    if depth==0:
+        global counter
+        counter = counter + 1
     with open(file, 'a') as f:
         print("{};{}".format(depth, j-i), file=f)
 
     if i == j:
-        counter = counter + 1
         return i
 
     # Find minimum of remaining elements
@@ -32,8 +33,9 @@ def minIndex( a , i , j, depth, file):
 # size of a[] and index is index of
 # starting element.
 def selection_sort(a, n, index, depth, file):
-    global counter
-    counter = counter + 1
+    if depth==0:
+        global counter
+        counter = counter + 1
     with open(file, 'a') as f:
         print("{};{}".format(depth, n-index), file=f)
 
@@ -78,6 +80,6 @@ def main():
 
 
 if __name__ == '__main__':
-    for i in range(70):
+    for i in range(100):
        main()
     #main()

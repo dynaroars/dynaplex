@@ -12,16 +12,18 @@ def random_list(size):
     return list
 
 
-def partition(arr,low,high):
+def partition(arr,low,high, depth):
     i = ( low-1 )
+
     pivot = arr[high]
-    global counter
 
     for j in range(low , high):
         if arr[j] <= pivot:
-            counter = counter + 1
             i = i+1
             arr[i],arr[j] = arr[j],arr[i]
+            if depth==0:
+                global counter
+                counter = counter + 1
 
     arr[i+1],arr[high] = arr[high],arr[i+1]
     return ( i+1 )
@@ -29,11 +31,14 @@ def partition(arr,low,high):
 #recursive quicksort
 #T(n) = T(n-1) + n
 def quickSort(arr, low, high, depth, file):
-    global counter
+    if depth==0:
+        global counter
+        counter = counter + 1
+
     if low < high:
         with open(file, 'a') as f:
             print("{};{}".format(depth, (high-low)), file=f) 
-        pi = partition(arr,low,high)
+        pi = partition(arr,low,high,depth)
         quickSort(arr, low, pi-1, depth+1, file)
         quickSort(arr, pi+1, high, depth+1, file)
 
@@ -41,7 +46,7 @@ def quickSort(arr, low, high, depth, file):
 def main():
     global counter
     counter = 0
-    size = random.randint(1, 1000)
+    size = random.randint(1, 500)
     arr = random_list(size)
     depth = 0
     

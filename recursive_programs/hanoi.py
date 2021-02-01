@@ -6,7 +6,8 @@ counter = 0
 
 def hanoi(n , source, destination, auxiliary, depth, file):
     global counter
-    counter = counter + 1
+    if depth==0:
+        counter = counter + 1
     with open(file, 'a') as f:
         print("{};{}".format(depth, n), file=f)
 
@@ -16,8 +17,8 @@ def hanoi(n , source, destination, auxiliary, depth, file):
     hanoi(n-1, auxiliary, destination, source, depth+1, file)
 
 if __name__ == '__main__':
-    for i in range(14):
-        n = random.randint(2,15)
+    for i in range(10):
+        n = random.randint(2,20)
         depth = 0
         path = "./hanoi"
         try:

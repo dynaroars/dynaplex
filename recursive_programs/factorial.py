@@ -5,18 +5,21 @@ import os
 
 counter = 0
 def factorial(n, depth, file):
-    global counter
+    if depth==0:
+        global counter
+        counter = counter + 1
+
     with open(file, 'a') as f:
         print("{};{}".format(depth, n), file=f)
     if n==0:
-        counter = counter + 1
         return 1
     else:
         return n * factorial(n-1, depth+1, file)
 
 def permutations(n, k, depth, file):
-    global counter
-    counter = counter + 1
+    if depth==0:
+        global counter
+        counter = counter + 1
     with open(file, 'a') as f:
         print("{};{}".format(depth, n), file=f)
     return factorial(n, depth+1, file)/factorial(n-k, depth+1, file)
