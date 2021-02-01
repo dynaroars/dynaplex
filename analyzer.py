@@ -161,8 +161,8 @@ if __name__ == '__main__':
 
     x = [i for i,v in enumerate(final_coefs[0])]
     rec_relations = []
-    # print(final_coefs)
-    # print(final_diffs)
+    #print(final_coefs)
+    #print(final_diffs)
     for i,coefs in enumerate(final_coefs):
         data = np.array([x, coefs])
         df = pd.DataFrame(list(zip(x, coefs)), columns=['node ids', 'coefs'])
@@ -194,7 +194,7 @@ if __name__ == '__main__':
     
     #Calculating polynomial relations
     print("Computing polynomial relations")
-    cmd = "../dig.py -trace {}/traces -maxdeg 5 -r -plot".format(dir_name)
+    cmd = "../dig.py -trace {}/traces -maxdeg 5 -r".format(dir_name)
     print("Command: ", cmd)
     out, err = vcmd(cmd)
     #assert not err, "Failed:\n{}".format(err)
@@ -224,7 +224,7 @@ if __name__ == '__main__':
     print(relation)
 
     print("Solving the recurrence relation")
-    cmd = "../recurrence_solver.py -format {} -a {} -b {} -k {} -p {}".format(format, a, b, k, p)
+    cmd = "../recurrence_solver.py -format {} -a {} -b {} -k {} -p {} -rec_call {}".format(format, a, b, k, p, len(rec_relations))
     print("Command: ", cmd)
     out, err = vcmd(cmd)
     assert not err, "Failed to solve the recurrence relation\n{}".format(err)
