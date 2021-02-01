@@ -37,9 +37,9 @@ int main() {
   file = fopen("cav09_fig5b/traces", "a");
   srand((unsigned) time(&t));
 
-  for (size_t i = 0; i < 1000; i++) {
-    n = rand() % 10000;
-    a = 0-(rand() % 10000); //WCET happens when a < 0 and n > 0
+  for (size_t i = 0; i < 100; i++) {
+    n = rand() % 500;
+    a = 0-(rand() % 500); //WCET happens when a < 0 and n > 0
     size = n + abs(a);
     mainQ(a, n, &counter);
     fprintf(file, "%d;%d\n", size, counter);

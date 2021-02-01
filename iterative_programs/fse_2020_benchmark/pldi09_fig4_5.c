@@ -51,8 +51,8 @@ int main() {
   srand((unsigned) time(&t));
 
   for (size_t i = 0; i < 100; i++) {
-    num = 1 + rand() % 10000;
-    mainQ(num, num, 1-rand()%1, &counter);
+    num = 1 + rand() % 500;
+    mainQ(num, 1, 1, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;
 

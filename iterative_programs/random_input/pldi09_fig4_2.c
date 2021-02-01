@@ -42,9 +42,9 @@ int main() {
   file = fopen("pldi09_fig4_2/traces", "a");
   srand((unsigned) time(&t));
 
-  for (size_t i = 0; i < 1000; i++) {
-    num = rand() % 10000;
-    mainQ(num, rand()%10000, &counter);
+  for (size_t i = 0; i < 100; i++) {
+    num = rand() % 500;
+    mainQ(num, rand()%500, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;
 

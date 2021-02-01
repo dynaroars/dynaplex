@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#define MAXTEMPSIZE 1000
+#define MAXTEMPSIZE 500
 
 void mergesort(int arr[], int n, int *counter) {
   int temp[MAXTEMPSIZE];
@@ -76,7 +76,7 @@ int main(int argc, char * argv[]) {
     num = rand() % MAXTEMPSIZE;
     int arr[num];
     for (j = 0; j < num; j++) {
-        arr[j] = rand()%30000;
+        arr[j] = rand()%3000;
     }
 
     mergesort(arr, num, &counter);

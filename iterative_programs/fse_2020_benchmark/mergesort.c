@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#define MAXTEMPSIZE 1000
+#define MAXTEMPSIZE 500
 
 void mergesort(int arr[], int n, int *counter) {
   int temp[MAXTEMPSIZE];

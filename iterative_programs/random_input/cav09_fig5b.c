@@ -37,9 +37,9 @@ int main() {
   file = fopen("cav09_fig5b/traces", "a");
   srand((unsigned) time(&t));
 
-  for (size_t i = 0; i < 1000; i++) {
-    n = rand() % 10000;
-    mainQ(rand()%10000, n, &counter);
+  for (size_t i = 0; i < 100; i++) {
+    n = rand() % 500;
+    mainQ(rand()%500, n, &counter);
     fprintf(file, "%d;%d\n", n, counter);
     counter = 0;
 

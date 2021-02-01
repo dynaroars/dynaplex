@@ -42,7 +42,7 @@ int main() {
   srand((unsigned) time(&t));
   int j;
   for (size_t i = 0; i < 100; i++) {
-    num = rand() % 1000;
+    num = rand() % 500;
     int arr[num];
     for (j = 0; j < num; j++) {
         arr[j] = rand()%3000;

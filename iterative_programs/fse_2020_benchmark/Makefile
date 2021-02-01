@@ -1,5 +1,5 @@
 CXX = gcc
-CXX_FLAGS = -Wall
+CXX_FLAGS = -Wall -lm
 
 all: binary_search bubblesort cav09_fig1a cav09_fig1d cav09_fig2d cav09_fig3a cav09_fig5b factorial fibonacci hanoi heapsort insertion_sort mergesort popl09_fig4_4 popl09_fig2_1 popl09_fig2_2 popl09_fig3_4 popl09_fig4_1 popl09_fig4_2 popl09_fig4_3 quicksort selectionsort pldi09_ex6 pldi09_fig4_4 pldi09_fig4_5 pldi09_fig2 pldi09_fig4_1 pldi09_fig4_2 pldi09_fig4_3
 

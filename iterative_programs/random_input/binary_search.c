@@ -43,14 +43,14 @@ int main() {
   file = fopen("binary_search/traces", "a");
   srand((unsigned) time(&t));
   int j;
-  for (size_t i = 0; i < 1000; i++) {
-    num = rand() % 10000;
+  for (size_t i = 0; i < 100; i++) {
+    num = rand() % 500;
     int arr[num];
     for (j = 0; j < num; j++) {
-        arr[j] = rand()%30000;
+        arr[j] = rand()%3000;
     }
 	
-    res = rand() % 50000;
+    res = rand() % 500;
     qsort((void*)arr, num, sizeof(arr[0]), comparator); //input has to be sorted for binary search
     res = binary_search(res, arr, num, &counter);
     fprintf(file, "%d;%d\n", num, counter);

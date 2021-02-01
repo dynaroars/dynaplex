@@ -37,8 +37,8 @@ int main() {
   file = fopen("fibonacci/traces", "a");
 
   srand((unsigned) time(&t));
-  for (size_t i = 0; i < 1000; i++) {
-    num = rand() % 50;
+  for (size_t i = 0; i < 20; i++) {
+    num = rand() % 10;
     term = fib(num, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;

@@ -164,10 +164,10 @@ int main()
 
   struct Stack *src, *dest, *aux;
 
-  for (size_t i = 0; i < 100; i++) {
+  for (size_t i = 0; i < 10; i++) {
     // Create three stacks of size 'num_of_disks'
     // to hold the disks
-    num_of_disks = rand()%30;
+    num_of_disks = rand()%20;
     src = createStack(num_of_disks);
     aux = createStack(num_of_disks);
     dest = createStack(num_of_disks);

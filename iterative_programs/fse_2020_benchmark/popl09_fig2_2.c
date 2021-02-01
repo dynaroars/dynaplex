@@ -47,8 +47,8 @@ int main() {
   file = fopen("popl09_fig2_2/traces", "a");
   srand((unsigned) time(&t));
 
-  for (size_t i = 0; i < 1000; i++) {
-    num = rand() % 10000;
+  for (size_t i = 0; i < 100; i++) {
+    num = rand() % 500;
     mainQ(0, 0, num, &counter);
     fprintf(file, "%d;%d\n", num, counter);
     counter = 0;
