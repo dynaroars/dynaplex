@@ -35,7 +35,7 @@ class RecRel:
 
 class Node:
     ''' node of a parsing tree '''
-    def __init__(self, d: int, val: float):
+    def __init__(self, d, val):
         self.d = d
         self.val = val
 
@@ -177,6 +177,7 @@ if __name__ == '__main__':
 
         med_diff = statistics.median(final_diffs[i])
         format = "diff" if all(math.isclose(final_diffs[i][0], x, rel_tol=1e-3) or x <= 0.0 for x in final_diffs[i]) else "coef"
+        # assert int(math.floor(statistics.mean(final_coefs[i]))) == int(regr.intercept_[0]) or int(math.ceil(statistics.mean(final_coefs[i]))) == int(regr.intercept_[0]), "Failed: Inconsistent recursive calls"
         rec_relations.append((regr.intercept_[0], med_diff))
 
     #seconds = time.time() - start_time
@@ -191,10 +192,10 @@ if __name__ == '__main__':
         else:
             res = int(round(coef))
             print("T(n/" + str(res) + ")")
-    
+
     #Calculating polynomial relations
     print("Computing polynomial relations")
-    cmd = "../dig.py -trace {}/traces -maxdeg 5 -r".format(dir_name)
+    cmd = "../../dig.py -trace {}/traces -maxdeg 5 -r".format(dir_name)
     print("Command: ", cmd)
     out, err = vcmd(cmd)
     #assert not err, "Failed:\n{}".format(err)
@@ -220,11 +221,11 @@ if __name__ == '__main__':
             a = int(rec_relations[0][1])
             b = int(rec_relations[1][1])
             relation = RecRel(a, b, k, p, 2)
-    
+
     print(relation)
 
     print("Solving the recurrence relation")
-    cmd = "../recurrence_solver.py -format {} -a {} -b {} -k {} -p {} -rec_call {}".format(format, a, b, k, p, len(rec_relations))
+    cmd = "../../recurrence_solver.py -format {} -a {} -b {} -k {} -p {} -rec_call {}".format(format, a, b, k, p, len(rec_relations))
     print("Command: ", cmd)
     out, err = vcmd(cmd)
     assert not err, "Failed to solve the recurrence relation\n{}".format(err)

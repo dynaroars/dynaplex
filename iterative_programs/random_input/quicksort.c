@@ -18,26 +18,26 @@
 
 
 /* This function is same in both iterative and recursive*/
-int partition(int arr[], int l, int h, int *counter) 
-{ 
-    int x = arr[h]; 
-    int i = (l - 1); 
-  
-    for (int j = l; j <= h - 1; j++) { 
-        if (arr[j] <= x) { 
+int partition(int arr[], int l, int h, int *counter)
+{
+    int x = arr[h];
+    int i = (l - 1);
+
+    for (int j = l; j <= h - 1; j++) {
+        if (arr[j] <= x) {
 	    *counter = *counter + 1;
-	    i++; 
-            swap(&arr[i], &arr[j]); 
-        } 
-    } 
-    swap(&arr[i + 1], &arr[h]); 
-    return (i + 1); 
-} 
+	    i++;
+            swap(&arr[i], &arr[j]);
+        }
+    }
+    swap(&arr[i + 1], &arr[h]);
+    return (i + 1);
+}
 
 void quickSortIterative(int arr[], int l, int h, int *counter)
 {
     // Create an auxiliary stack
-    int stack[h-l+1];
+    int stack[h-l+10];
 
     // initialize top of stack
     int top = -1;
@@ -59,17 +59,17 @@ void quickSortIterative(int arr[], int l, int h, int *counter)
         //int x = arr[h];
         //int i = (l - 1);
 
-        if (p - 1 > l) { 
-            stack[++top] = l; 
-            stack[++top] = p - 1; 
+        if (p - 1 > l) {
+            stack[++top] = l;
+            stack[++top] = p - 1;
         }
-	
-	// If there are elements on right side of pivot, 
-        // then push right side to stack 
-        if (p + 1 < h) { 
-            stack[++top] = p + 1; 
-            stack[++top] = h; 
-        } 
+
+	// If there are elements on right side of pivot,
+        // then push right side to stack
+        if (p + 1 < h) {
+            stack[++top] = p + 1;
+            stack[++top] = h;
+        }
 
     }
 }

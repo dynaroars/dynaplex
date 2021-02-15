@@ -18,7 +18,7 @@ def hanoi(n , source, destination, auxiliary, depth, file):
 
 if __name__ == '__main__':
     for i in range(10):
-        n = random.randint(2,20)
+        n = random.randint(5,20)
         depth = 0
         path = "./hanoi"
         try:

@@ -16,14 +16,6 @@ def factorial(n, depth, file):
     else:
         return n * factorial(n-1, depth+1, file)
 
-def permutations(n, k, depth, file):
-    if depth==0:
-        global counter
-        counter = counter + 1
-    with open(file, 'a') as f:
-        print("{};{}".format(depth, n), file=f)
-    return factorial(n, depth+1, file)/factorial(n-k, depth+1, file)
-
 if __name__ == '__main__':
     for i in range(100):
         n = random.randint(2,20)
@@ -36,18 +28,5 @@ if __name__ == '__main__':
         file = "./factorial/output-{}".format(n)
         factorial(n, depth, file)
         with open("./factorial/traces", 'a') as f:
-            print("{};{}".format(n, counter), file=f)
-        counter = 0
-
-        k = random.randint(0,10)
-        depth = 0
-        path = "./permutations"
-        try:
-            os.mkdir(path)
-        except OSError as error:
-            pass
-        file = "./permutations/output-{}".format(n)
-        factorial(n, depth, file)
-        with open("./permutations/traces", 'a') as f:
             print("{};{}".format(n, counter), file=f)
         counter = 0

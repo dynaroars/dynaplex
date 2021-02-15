@@ -27,19 +27,32 @@ def read_traces(filename):
 
 def logs_regression(sizes, counters):
     nlogs = [c*math.log(c, 2) if c is not 0 else 0 for c in sizes] #arbitrary make log(0,2) = 0
-    nlog_model = numpy.poly1d(numpy.polyfit(nlogs, counters, 1))
-    nlog_r2 = r2_score(counters, nlog_model(nlogs))
     logs = [math.log(c, 2) if c is not 0  else 0 for c in sizes] #arbitrary make log(0,2) = 0
-    log_model = numpy.poly1d(numpy.polyfit(logs, counters, 1))
-    log_r2 = r2_score(counters, log_model(logs))
-    print("nlog: {}, r2_score {}".format(nlog_model, nlog_r2))
+
+    x_logs, y_logs = logs[:int((len(logs)+1)*.80)], counters[:int((len(counters)+1)*.80)]
+    test_xlog, test_counters = logs[int((len(logs)+1)*.80):], counters[int((len(sizes)+1)*.80):]
+
+    x_nlogs, y_nlogs = nlogs[:int((len(nlogs)+1)*.80)], counters[:int((len(counters)+1)*.80)]
+    test_xnlog, test_counters = nlogs[int((len(nlogs)+1)*.80):], counters[int((len(sizes)+1)*.80):]
+
+    nlog_model = numpy.poly1d(numpy.polyfit(x_nlogs, y_nlogs, 1))
+    log_model = numpy.poly1d(numpy.polyfit(y_logs, y_logs, 1))
+
+    nlog_r2 = r2_score(test_counters, nlog_model(test_xnlog))
+    log_r2 = r2_score(test_counters, log_model(test_xlog))
+
+    # print("nlog: {}, r2_score {}".format(nlog_model, nlog_r2))
     print("log: {}, r2_score {}".format(log_model, log_r2))
-    #if nlog_r2 < 0.75 and log_r2 < 0.75:
-    #    return None
-    if log_r2 > nlog_r2:
-        return "log", log_r2, log_model,
+
+    # if log_r2 > nlog_r2:
+    if log_model[log_model.order] < (1.0/max(x_logs)) or math.isclose(log_r2, 0.0, rel_tol=0.01):
+        return "log", -1, log_model
     else:
-        return "nlog", nlog_r2, nlog_model
+        return "log", log_r2, log_model,
+    # else:
+    #     if nlog_model[nlog_model.order] < (1.0/max(x_nlogs)):
+    #         return "nlog", -1, log_model
+    #     return "nlog", nlog_r2, nlog_model
 
 def func(x, a, b):
     return a *numpy.log(x) + b
@@ -50,7 +63,13 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
     start_time = time.time()
     k = 0  #n^k(logn)^p
     p = 0
-    x, y = sizes, counters
+    if(all(counters)==counters[0]):
+        complexity = "1"
+        print("Analysis complete in {} seconds".format(time.time()-start_time))
+        return complexity, k, p
+
+    x, y = sizes[:int((len(sizes)+1)*.80)], counters[:int((len(sizes)+1)*.80)]
+    test_sizes, test_counters = sizes[int((len(sizes)+1)*.80):], counters[int((len(sizes)+1)*.80):]
     maxsize = max(sizes)
     models = []
     r2_scores = []
@@ -58,6 +77,7 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
         plt.scatter(x, y)
         myline = numpy.linspace(1, maxsize*1.5, maxsize*10)
 
+    print("models before applying heuristics")
     for i in range(0, maxdeg+1):
         mymodel = numpy.poly1d(numpy.polyfit(x, y, i))
         models.append(mymodel)
@@ -66,9 +86,6 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
             plt.plot(myline, mymodel(myline), c=(random.random(), random.random(), random.random()), label="{}-D polynomial".format(i))
 
     #discard models where the coe of the highest order is less than 1/maxinput
-    if plotting: #for debug purpose
-        print("Models before applying Heuristics ", models)
-
     tmp = models
     models = []
     for model in tmp:
@@ -78,57 +95,35 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
         if not(high_order_coe < (1.0/maxsize)): #make sure the heuristics work
             models.append(model)
 
-    if not r:
-       assert(len(models)>0), "Heuristics eliminated all candidate models"
-
-    if(len(models)<1):
-        complexity = "1"
-        print("Analysis complete in {} seconds\nComplexity is O({})".format(time.time()-start_time, complexity))
-        return complexity, k, p
+    assert(len(models)>0), "Heuristics eliminated all candidate models"
 
     #Calculate r2_scores
     for model in models:
-        r_square = r2_score(y, model(x))
+        r_square = r2_score(test_counters, model(test_sizes))
         r2_scores.append(r_square)
-    #if plotting: #for debug purpose
+
     print("Models after applying Heuristics ", models)
     print("r2_scores ", r2_scores)
-    highest_r2 = max(r2_scores)
-    #pick the highest order model if there are multiple max r2
-    #if r2_scores.count(highest_r2)>1:
-    #    #r2_scores.reverse()
-    #    #models.reverse()
-    #    max_r = 0
-    #    index = 0
-    #    t = 0
-    #    for i, j in zip(r2_scores, models):
-    #        if(i == highest_r2):
-    #            if(j[j.order] >= max_r):
-    #                max_r = j[j.order]
-    #                index = t
-    #        t = t + 1
-    #else:
 
+    highest_r2 = max(r2_scores)
     index = r2_scores.index(highest_r2)
+
     logarithmic, score, log_model = logs_regression(sizes, counters)
 
-    if highest_r2 > score:
+    if highest_r2 >= score and highest_r2 > 0.0:
         complexity = "n^{}".format(models[index].order)
         k = models[index].order
-        assert(models[index][order] < math.pow(maxsize, models[index].order))
+        p = 0
+        #assert(models[index][order] < math.pow(maxsize, models[index].order))
     else:
         complexity = "{} n".format(logarithmic)
         p = 1
         k = 1 if logarithmic == "nlog" else 0
 
-    #if highest_r2 < 0.5 and score < 0.5: #regression gives a bad model
-    #    if not r:
-    #        print("Heuristics eliminated all models with R_squared < 0.45")
-    #        complexity = "-"
-    #    else:
-    #        complexity = "1"
-    #    k = 0
-    #    p = 0
+    assert(highest_r2 > 0 or score > 0), "Negative R-square. Collect more traces"
+
+    #if highest_r2 < 0.4 and score < 0.4: #regression gives a bad model
+
 
     seconds = time.time()-start_time
     if not r:

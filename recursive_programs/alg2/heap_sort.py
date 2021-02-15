@@ -17,9 +17,8 @@ def heapify(arr, n, i, depth, file):
     with open(file, 'a') as f:
         print("{};{}".format(depth, n-i), file=f)
 
-    if depth==0:
-        global counter
-        counter = counter+1
+    global counter
+    counter = counter+1
 
     largest = i
     l = 2 * i + 1
@@ -42,17 +41,13 @@ def heapSort(arr, depth, file):
     global counter
 
     for i in range(n//2 - 1, -1, -1):
-        if depth==0:
-            counter = counter + 1
-        heapify(arr, n, i, depth, file)
-        depth = depth+1
+        counter = counter + 1
+        heapify(arr, n, i, depth+1, file)
 
     for i in range(n-1, 0, -1):
-        if depth==0:
-            counter = counter + 1
+        counter = counter + 1
         arr[i], arr[0] = arr[0], arr[i] # swap
-        heapify(arr, i, 0, depth, file)
-        depth = depth+1
+        heapify(arr, i, 0, depth+1, file)
 
 
 # Driver collect traces
@@ -73,7 +68,7 @@ def main():
     with open("./heap_sort/traces", 'a') as f:
         print("{};{}".format(size, counter), file=f)
     counter = 0
-    
+
 if __name__ == '__main__':
     for i in range(100):
        main()

@@ -11,7 +11,7 @@ def fibonacci(n, depth, file):
         counter = counter + 1
     with open(file, 'a') as f:
         print("{};{}".format(depth, n), file=f)
-    
+
     if n<2:
         return n
     else:
@@ -19,7 +19,7 @@ def fibonacci(n, depth, file):
 
 if __name__ == '__main__':
     for i in range(10):
-        n = random.randint(1,20)
+        n = random.randint(3,20)
         depth = 0
 
         path = "./fibonacci"

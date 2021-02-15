@@ -20,7 +20,8 @@ def closest_point_problem(points, depth, file):
     heap = []
     pt = namedtuple('pt', 'x y')
     for i in range(len(points)):
-        counter = counter + 1
+        if depth==0:
+            counter = counter + 1
         point.append(pt(points[i][0], points[i][1]))
     point = sorted(point, key=get_key)
     visited_index = []
@@ -28,21 +29,20 @@ def closest_point_problem(points, depth, file):
     # print(hq.heappop(heap))
 
 def find_min(start, end, point, heap, visited_index, depth, file):
-    global counter
+    if depth==0:
+        global counter
+        counter = counter + 1
     with open(file, 'a') as f:
         print("{};{}".format(depth, len(point[start:end + 1])), file=f)
     if len(point[start:end + 1]) & 1:
         mid = start + ((len(point[start:end + 1]) + 1) >> 1)
-        counter = counter + 1
     else:
-        counter = counter + 1
         mid = start + (len(point[start:end + 1]) >> 1)
         if start in visited_index:
             start = start + 1
         if end in visited_index:
             end = end - 1
     if len(point[start:end + 1]) > 3:
-        counter = counter + 1
         if start < mid - 1:
             distance1 = m.sqrt((point[start].x - point[start + 1].x) ** 2 + (point[start].y - point[start + 1].y) ** 2)
             distance2 = m.sqrt((point[mid].x - point[mid - 1].x) ** 2 + (point[mid].y - point[mid - 1].y) ** 2)

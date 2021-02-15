@@ -25,7 +25,7 @@ def ball_bins3(xlen, depth, file):
 def main():
 
     global counter
-    xlen = random.randint(1,10)
+    xlen = random.randint(2,10)
     depth = 0
 
     path = "./ball_bins3"
