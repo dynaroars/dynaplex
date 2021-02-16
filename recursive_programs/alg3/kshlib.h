@@ -46,8 +46,8 @@ struct RecTrace {
     }
 };
 
-void OpCnt() {
-    (*opCnt)++;
+void OpCnt(ll inc = 1) {
+    (*opCnt) += inc;
 }
 
 template<class T>

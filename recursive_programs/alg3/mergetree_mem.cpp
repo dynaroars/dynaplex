@@ -32,7 +32,8 @@ void build_tree(int x, int L, int R) {
 }
 
 void visit_mem(int x, int L, int R) {
-    RecTrace _t(sz(tree[x]));
+    RecTrace _t(R-L+1);
+    OpCnt(sz(tree[x]));
     if (L == R) return;
     int m = (L + R) / 2;
     visit_mem(2*x  , L  , m);
