@@ -9,7 +9,7 @@ void f(int k) {
     REP(i,3) {
         OpCnt();
         a[k] = i;
-        if(a[i] == 0 && a[i+1] == 1 && a[i+2] == 2)
+        if(a[k] == 0 && a[k+1] == 1 && a[k+2] == 2)
             continue;
         f(k-1);
     }
