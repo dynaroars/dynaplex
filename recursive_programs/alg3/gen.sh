@@ -7,3 +7,4 @@ N=100
 ./gen_traces.sh "mergetree_mem" $N 10 1000
 ./gen_traces.sh "powbin" $N 0 1000000000000000000
 ./gen_traces.sh "pancakesort" $N 10 1000
+./gen_traces.sh "quickselect" $N 10 1000

@@ -5,7 +5,8 @@ all: rand.exe \
 	mergetree_query.exe \
 	mergetree_mem.exe \
 	powbin.exe \
-	pancakesort.exe
+	pancakesort.exe \
+	quickselect.exe
 
 %.exe: %.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@
