@@ -52,3 +52,8 @@ void OpCnt(ll inc = 1) {
 
 template<class T>
 inline int sz(const T& v) { return int(v.size()); }
+
+template<class T>
+void rand_arr(T *arr, int sz, T from, T to) {
+    REP(i,sz) arr[i] = rnd.next(from, to);
+}

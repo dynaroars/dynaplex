@@ -6,7 +6,9 @@ all: rand.exe \
 	mergetree_mem.exe \
 	powbin.exe \
 	pancakesort.exe \
-	quickselect.exe
+	quickselect.exe \
+	permutation_index.exe \
+	permutation_gen.exe
 
 %.exe: %.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@
