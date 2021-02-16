@@ -4,7 +4,8 @@ all: rand.exe \
 	mergetree_build.exe \
 	mergetree_query.exe \
 	mergetree_mem.exe \
-	powbin.exe
+	powbin.exe \
+	pancakesort.exe
 
 %.exe: %.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@
