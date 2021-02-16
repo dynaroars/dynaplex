@@ -10,3 +10,6 @@ all: rand.exe \
 
 clean:
 	rm *.exe
+
+clean_traces:
+	rm -rf traces_*
