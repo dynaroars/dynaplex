@@ -11,7 +11,7 @@ def master_theorem(a, b, k, p=0):
     assert(isinstance(k, int)), k
     assert(isinstance(p, int)), p
 
-    c = math.log(a,b) if b is not 1 else 0
+    c = math.log(a,b) if b != 1 else 0
     if a > b**k:
         complexity = "n^{}".format(c)
     elif a == b**k:
