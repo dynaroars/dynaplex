@@ -8,7 +8,8 @@ all: rand.exe \
 	pancakesort.exe \
 	quickselect.exe \
 	permutation_index.exe \
-	permutation_gen.exe
+	permutation_gen.exe \
+	tenary_012.exe
 
 %.exe: %.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@
