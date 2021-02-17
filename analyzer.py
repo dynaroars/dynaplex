@@ -137,6 +137,7 @@ if __name__ == '__main__':
     parser.add_argument('-trace', help="path/to/traceFile")
     parser.add_argument('-maxdeg', default=5, help="maximum deg of polynomial")
     parser.add_argument('-plot', action='store_true', help="To display plots of polynomial regression")
+    parser.add_argument('-nlog', action='store_true', help="Turn on n log regression")
     args = parser.parse_args()
     dir_name = args.trace
     maxdeg = int(args.maxdeg)
@@ -195,7 +196,8 @@ if __name__ == '__main__':
 
     #Calculating polynomial relations
     print("Computing polynomial relations")
-    cmd = "../../dig.py -trace {}/traces -maxdeg 5 -r".format(dir_name)
+    nlog_flag = "-nlog" if args.nlog else ""
+    cmd = "../../dig.py -trace {}/traces -maxdeg 5 -r {}".format(dir_name, nlog_flag)
     print("Command: ", cmd)
     out, err = vcmd(cmd)
     #assert not err, "Failed:\n{}".format(err)

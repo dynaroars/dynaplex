@@ -21,11 +21,11 @@ def read_traces(filename):
     for line in lines:
         size, counter = line.split(';')
         sizes.append(int(size))
-        counters.append(int(counter.strip()))
+        counters.append(int(float(counter.strip())))
 
     return sizes, counters
 
-def logs_regression(sizes, counters):
+def logs_regression(sizes, counters, nlog_flag=False):
     nlogs = [c*math.log(c, 2) if c is not 0 else 0 for c in sizes] #arbitrary make log(0,2) = 0
     logs = [math.log(c, 2) if c is not 0  else 0 for c in sizes] #arbitrary make log(0,2) = 0
 
@@ -41,23 +41,33 @@ def logs_regression(sizes, counters):
     nlog_r2 = r2_score(test_counters, nlog_model(test_xnlog))
     log_r2 = r2_score(test_counters, log_model(test_xlog))
 
-    # print("nlog: {}, r2_score {}".format(nlog_model, nlog_r2))
     print("log: {}, r2_score {}".format(log_model, log_r2))
 
-    # if log_r2 > nlog_r2:
-    if log_model[log_model.order] < (1.0/max(x_logs)) or math.isclose(log_r2, 0.0, rel_tol=0.01):
-        return "log", -1, log_model
-    else:
-        return "log", log_r2, log_model,
-    # else:
-    #     if nlog_model[nlog_model.order] < (1.0/max(x_nlogs)):
-    #         return "nlog", -1, log_model
-    #     return "nlog", nlog_r2, nlog_model
+    if (log_r2 < nlog_r2) and nlog_flag:
+        print("nlog: {}, r2_score {}".format(nlog_model, nlog_r2))
+        if nlog_model[nlog_model.order] < (1.0/max(x_nlogs)) or math.isclose(nlog_r2, 0.0, rel_tol=0.01):
+            return "nlog", -1, nlog_model
+        else:
+            return "nlog", nlog_r2, nlog_model
+
+    elif log_r2 > nlog_r2 or not nlog_flag:
+        if log_model[log_model.order] < (1.0/max(x_logs)) or math.isclose(log_r2, 0.0, rel_tol=0.01):
+            return "log", -1, log_model
+        else:
+            return "log", log_r2, log_model
+    return "log", -1, log_model
 
 def func(x, a, b):
     return a *numpy.log(x) + b
 
-def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
+def log_plot(model, sizes, log):
+    l = []
+    for s in sizes:
+        val = model[0]*numpy.log(s) + model[1] if log=="log" else s*model[0]*numpy.log(s) + model[1]
+        l.append(val)
+    return l
+
+def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=False):
     assert(len(sizes)==len(counters)), "Invalid traces"
     assert(maxdeg>=1), "maxdeg<1"
     start_time = time.time()
@@ -74,12 +84,12 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
     models = []
     r2_scores = []
     if plotting:
-        plt.scatter(x, y)
+        plt.scatter(sizes, counters)
         myline = numpy.linspace(1, maxsize*1.5, maxsize*10)
 
     print("models before applying heuristics")
     for i in range(0, maxdeg+1):
-        mymodel = numpy.poly1d(numpy.polyfit(x, y, i))
+        mymodel = numpy.poly1d(numpy.polyfit(sizes, counters, i))
         models.append(mymodel)
         print(mymodel)
         if plotting:
@@ -108,7 +118,7 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
     highest_r2 = max(r2_scores)
     index = r2_scores.index(highest_r2)
 
-    logarithmic, score, log_model = logs_regression(sizes, counters)
+    logarithmic, score, log_model = logs_regression(sizes, counters, nlog_flag)
 
     if highest_r2 >= score and highest_r2 > 0.0:
         complexity = "n^{}".format(models[index].order)
@@ -131,6 +141,7 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
     else:
         print("Analysis complete in {} seconds".format(seconds))
     if plotting:
+        plt.plot(myline, log_plot(log_model, myline, logarithmic), c=(random.random(), random.random(), random.random()), label="{}".format(logarithmic))
         plt.xlabel('Input size')
         plt.ylabel('Instruction Counter', rotation=90)
         plt.legend(loc='upper left')
@@ -146,12 +157,13 @@ if __name__ == '__main__':
     parser.add_argument('-maxdeg', help="maximum deg of polynomial")
     parser.add_argument('-plot', action='store_true', help="To display plots of polynomial regression")
     parser.add_argument('-r', action='store_true', help="recursive program")
+    parser.add_argument('-nlog', action='store_true', help="Turn on n log regression")
     args = parser.parse_args()
     trace_file = Path(args.trace)
     assert(path.exists(trace_file)), "{} doesn't exist".format(trace_file)
     maxdeg = int(args.maxdeg)
     sizes, counters = read_traces(trace_file)
-    complexity, k, p = poly_regression(sizes, counters, maxdeg, args.plot, args.r)
+    complexity, k, p = poly_regression(sizes, counters, maxdeg, args.plot, args.r, args.nlog)
     if(args.r):
         print("Polynomial relation: ", complexity)
         print("k={} p={}".format(k, p))
