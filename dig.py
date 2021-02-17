@@ -63,7 +63,7 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False):
     start_time = time.time()
     k = 0  #n^k(logn)^p
     p = 0
-    if(all(counters)==counters[0]):
+    if(len(set(counters)) == 1):
         complexity = "1"
         print("Analysis complete in {} seconds".format(time.time()-start_time))
         return complexity, k, p
