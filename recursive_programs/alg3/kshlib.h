@@ -19,6 +19,8 @@ void sizcnt(ll siz, ll cnt) {
     cerr << siz << ';' << cnt << '\n';
 }
 
+bool traceOn = true;
+
 int curRecDep = 0;
 ll *opCnt = nullptr;
 bool countOpAtRootOnly = true;
@@ -30,6 +32,8 @@ struct RecTrace {
     int _dep = 0;
 
     RecTrace(ll siz) : _size(siz) {
+        if(!traceOn) return;
+
         _dep = ++curRecDep;
         _bakOpCnt = opCnt;
         opCnt = &_opCnt;
@@ -37,6 +41,8 @@ struct RecTrace {
         depsiz(curRecDep, siz);
     }
     ~RecTrace() {
+        if(!traceOn) return;
+
         opCnt = _bakOpCnt;
         curRecDep--;
 
@@ -47,6 +53,7 @@ struct RecTrace {
 };
 
 void OpCnt(ll inc = 1) {
+    if(!traceOn) return;
     (*opCnt) += inc;
 }
 

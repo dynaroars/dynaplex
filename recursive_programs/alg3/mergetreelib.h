@@ -12,6 +12,7 @@ vi merge(const vi &a, const vi &b) {
     vi r;
     int i = 0, j = 0;
     while(i < sz(a) || j < sz(b)) {
+        OpCnt();
         int va = (i < sz(a) ? a[i] : INT_MAX);
         int vb = (j < sz(b) ? b[j] : INT_MAX);
         if(va < vb) r.push_back(va), i++;
@@ -21,6 +22,7 @@ vi merge(const vi &a, const vi &b) {
 }
 
 void build_tree(int x, int L, int R) {
+    RecTrace _t(R-L+1);
     if (L == R) {
         tree[x].push_back(a[L]);
         return;
