@@ -13,13 +13,7 @@ mkdir -p "$ADIR"
 ../../analyzer.py -trace $TDIR 2>&1 | tee $AOUT
 
 SEED=$(cat $TDIR/_seed)
-printf "SEED=$SEED\t " >> $RES
-cat $AOUT \
-    | grep "b'Complexity is " \
-    | sed -n -e 's/^b'"'"'Complexity is \(.*\)\\n'"'"'$/\1/p' \
-    >> $RES
+complexity=$(grep "b'Complexity is " $AOUT | sed -n -e 's/^b'"'"'Complexity is \(.*\)\\n'"'"'$/\1/p')
+formula=$(grep "T(n) = " $AOUT)
 
-printf "SEED=$SEED\t " >> $RES
-cat $AOUT \
-    | grep "T(n) = " \
-    >> $RES
+echo -e "SEED=$SEED \t\t $complexity \t\t\t $formula" >> $RES
