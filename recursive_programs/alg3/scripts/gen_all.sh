@@ -13,5 +13,5 @@ echo "GenAll - seed='${GEN_SEED:-}'"
 ./scripts/gen_traces.sh "quickselect" $N 1 500
 ./scripts/gen_traces.sh "permutation_index" $N 1 500
 ./scripts/gen_traces.sh "permutation_gen" 10 1 20
-./scripts/gen_traces.sh "tenary_012" 12 1 12
+./scripts/gen_traces.sh "tenary_012" 10 1 12
 ./scripts/gen_traces.sh "convexhull" $N 1 500
