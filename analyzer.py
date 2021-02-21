@@ -208,6 +208,7 @@ if __name__ == '__main__':
 
     seconds = time.time() - start_time
 
+    recurrence = "T(n) ="
     for i in range(len(final_coefs)):
         print("diff {} coef {}".format(rec_relations[i][1], rec_relations[i][0]))
         coef = rec_relations[i][0]
@@ -215,9 +216,11 @@ if __name__ == '__main__':
             format = "diff"
             res = abs(int(round(rec_relations[i][1])))
             print("T(n-" + str(res) + ")")
+            recurrence = "{} T(n-{}) + ".format(recurrence, str(res))
         else:
             res = int(round(coef))
             print("T(n/" + str(res) + ")")
+            recurrence = "{} T(n/{}) + ".format(recurrence, str(res))
 
     #Calculating polynomial relations
     print("Computing polynomial relations")
@@ -249,11 +252,12 @@ if __name__ == '__main__':
             b = int(round(rec_relations[1][1]))
             relation = RecRel(a, b, k, p, 2)
 
-    # print(relation)
+    recurrence = "{} (n^{}(logn)^{})".format(recurrence, k, p)
+    print(recurrence)
 
     print("Solving the recurrence relation")
     cmd = "../../recurrence_solver.py -format {} -a {} -b {} -k {} -p {} -rec_call {}".format(format, a, b, k, p, len(rec_relations))
-    print("Command: ", cmd)
+    # print("Command: ", cmd)
     out, err = vcmd(cmd)
     assert not err, "Failed to solve the recurrence relation\n{}".format(err)
     seconds = time.time() - start_time
