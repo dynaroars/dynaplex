@@ -23,6 +23,8 @@ def closest_point_problem(points, depth, file):
         if depth==0:
             counter = counter + 1
         point.append(pt(points[i][0], points[i][1]))
+    if depth==0:
+        counter = counter + len(points)*m.log2(len(points))
     point = sorted(point, key=get_key)
     visited_index = []
     find_min(0, len(point) - 1, point, heap, visited_index, depth, file)

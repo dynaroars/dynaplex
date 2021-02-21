@@ -11,6 +11,6 @@ done;
 
 for d in ./*; do
   if [ -d "$d" ]; then
-    echo -e "\n\n\nRunning${d}" && ../../dig.py -trace "${d}/traces" -maxdeg 5 
+    echo -e "\n\n\nRunning${d}" && ../../dig.py -trace "${d}/traces" -maxdeg 5 -nlog
   fi
 done

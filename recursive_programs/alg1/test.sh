@@ -11,6 +11,6 @@ done;
 
 for d in ./*; do
   if [ -d "$d" ]; then
-    echo -$d; ../../analyzer.py -trace $d ; echo -e "\n\n\n"
+    echo -$d; ../../analyzer.py -trace $d -nlog; echo -e "\n\n\n"
   fi
 done
