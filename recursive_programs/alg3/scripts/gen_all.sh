@@ -7,6 +7,7 @@ echo "GenAll - seed='${GEN_SEED:-}'"
 
 ./scripts/gen_traces.sh "mergetree_build" $N 1 500
 ./scripts/gen_traces.sh "mergetree_mem" $N 1 500
+./scripts/gen_traces.sh "mergetree_query" $N 1 500
 ./scripts/gen_traces.sh "powbin" $N 0 1000000000000000000
 ./scripts/gen_traces.sh "pancakesort" $N 1 500
 ./scripts/gen_traces.sh "quickselect" $N 1 500
