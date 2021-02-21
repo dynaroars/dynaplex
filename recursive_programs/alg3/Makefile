@@ -1,4 +1,4 @@
-CXXFLAGS += -Wall -Wextra -Wpedantic -std=c++14 -fsanitize=address -D_GLIBCXX_DEBUG
+CXXFLAGS += -Wall -Wextra -Wpedantic -std=c++14 -fsanitize=address -D_GLIBCXX_DEBUG -O2
 
 all: rand.exe \
 	mergetree_build.exe \
@@ -19,4 +19,5 @@ clean:
 	rm *.exe
 
 clean_traces:
-	rm -rf traces_*
+	rm -rf traces/
+	rm -rf res/

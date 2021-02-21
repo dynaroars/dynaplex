@@ -6,10 +6,14 @@ N=$2
 FROM=$3
 TO=$4
 
-SEED=${GEN_SEED:-ksh04061999}
+SEED=${GEN_SEED:-ksh040699}
 
-DIR="traces_${NAME}/"
+DIR="traces/${NAME}/"
+rm -rf $DIR
 mkdir -p $DIR
+echo "$SEED" > $DIR/_seed
+
+echo "GenTraces - $NAME - seed='$SEED'"
 
 if [[ ${GEN_SEQUENTIAL:-} == 1 ]]; then
     N=$((TO - FROM + 1))
