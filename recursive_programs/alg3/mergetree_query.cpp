@@ -56,7 +56,7 @@ int query(int x, int L, int R, int u, int v, int k) {
 
 int main(int argc, char *argv[]) {
     registerGen(argc, argv, 1);
-    countOpAtRootOnly = false;
+    //countOpAtRootOnly = false;
 
     n = atoi(argv[1]);
     FOR(i,1,n) a[i] = rnd.next(0, int(1e6));
