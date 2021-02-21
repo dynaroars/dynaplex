@@ -1,2 +1,3 @@
-traces_*/
+traces/
+res/
 *.exe

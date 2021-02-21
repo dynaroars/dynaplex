@@ -19,4 +19,5 @@ clean:
 	rm *.exe
 
 clean_traces:
-	rm -rf traces_*
+	rm -rf traces/
+	rm -rf res/
