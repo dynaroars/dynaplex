@@ -3,7 +3,7 @@ set -euo pipefail
 
 ./scripts/analyze_traces.sh "mergetree_build"
 ./scripts/analyze_traces.sh "mergetree_mem"
-#./scripts/analyze_traces.sh "mergetree_query"
+./scripts/analyze_traces.sh "mergetree_query"
 ./scripts/analyze_traces.sh "powbin"
 ./scripts/analyze_traces.sh "pancakesort"
 ./scripts/analyze_traces.sh "quickselect"

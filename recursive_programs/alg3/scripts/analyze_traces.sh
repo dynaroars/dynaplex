@@ -10,7 +10,7 @@ TDIR=traces/$NAME/
 mkdir -p "$ADIR"
 
 
-../../analyzer.py -trace $TDIR 2>&1 | tee $AOUT
+OMP_NUM_THREADS=16 ../../analyzer.py -trace $TDIR 2>&1 | tee $AOUT
 
 SEED=$(cat $TDIR/_seed)
 complexity=$(grep "b'Complexity is " $AOUT | sed -n -e 's/^b'"'"'Complexity is \(.*\)\\n'"'"'$/\1/p')
