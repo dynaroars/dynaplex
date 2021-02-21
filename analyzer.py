@@ -9,6 +9,7 @@ from sklearn import preprocessing, svm
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.cluster import KMeans
+from sklearn.metrics import r2_score
 import math
 import time
 import argparse
@@ -160,33 +161,57 @@ if __name__ == '__main__':
         for i, diff in enumerate(diffs):
             final_diffs[i].extend([d for d in diff])
 
-    x = [i for i,v in enumerate(final_coefs[0])]
+
     rec_relations = []
     #print(final_coefs)
     #print(final_diffs)
+
     for i,coefs in enumerate(final_coefs):
-        data = np.array([x, coefs])
-        df = pd.DataFrame(list(zip(x, coefs)), columns=['node ids', 'coefs'])
+        x = [i for i in range(len(coefs))]
+        # xx, coe, dif = x[:int((len(x)+1)*.80)], coefs[:int((len(coefs)+1)*.80)], final_diffs[i][:int((len(x)+1)*.80)]
+        # xtest, coetest, diftest = x[int((len(x)+1)*.80):], coefs[int((len(x)+1)*.80):], final_diffs[i][int((len(x)+1)*.80):]
+        coe_array = np.c_[x, coefs]
+        dif_array = np.c_[x, final_diffs[i]]
 
-        X = np.array(df['node ids']).reshape(-1, 1)
-        y = np.array(df['coefs']).reshape(-1, 1)
+        coe_kmeans = KMeans(n_clusters=1, random_state=0).fit(coe_array)
+        dif_kmeans = KMeans(n_clusters=1, random_state=0).fit(dif_array)
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
-        regr = LinearRegression()
+        coef = coe_kmeans.cluster_centers_[0][1]
+        difs = dif_kmeans.cluster_centers_[0][1]
 
-        regr.fit(X_train, y_train)
+        coe_score = coe_kmeans.score(coe_array)
+        dif_score = dif_kmeans.score(dif_array)
 
-        med_diff = statistics.median(final_diffs[i])
-        format = "diff" if all(math.isclose(final_diffs[i][0], x, rel_tol=1e-3) or x <= 0.0 for x in final_diffs[i]) else "coef"
-        # assert int(math.floor(statistics.mean(final_coefs[i]))) == int(regr.intercept_[0]) or int(math.ceil(statistics.mean(final_coefs[i]))) == int(regr.intercept_[0]), "Failed: Inconsistent recursive calls"
-        rec_relations.append((regr.intercept_[0], med_diff))
+        # print("rsquared: coef {} diff {}".format(coe_score, dif_score))
+        rec_relations.append((coef, difs))
+        if coe_score >= dif_score:
+            format = "coef"
+        else:
+            format = "diff"
 
-    #seconds = time.time() - start_time
+    # x = [i for i,v in enumerate(final_coefs[0])]
+    # for i,coefs in enumerate(final_coefs):
+    #     data = np.array([x, coefs])
+    #     df = pd.DataFrame(list(zip(x, coefs)), columns=['node ids', 'coefs'])
+    #
+    #     X = np.array(df['node ids']).reshape(-1, 1)
+    #     y = np.array(df['coefs']).reshape(-1, 1)
+    #
+    #     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
+    #     regr = LinearRegression()
+    #
+    #     regr.fit(X_train, y_train)
+    #
+    #     med_diff = statistics.median(final_diffs[i])
+    #     format = "diff" if all(math.isclose(final_diffs[i][0], x, rel_tol=1e-3) or x <= 0.0 for x in final_diffs[i]) else "coef"
+    #     rec_relations.append((regr.intercept_[0], med_diff))
+
+    seconds = time.time() - start_time
 
     for i in range(len(final_coefs)):
         print("diff {} coef {}".format(rec_relations[i][1], rec_relations[i][0]))
         coef = rec_relations[i][0]
-        if format == "diff" or int(round(coef))==1:
+        if format == "diff" or int(round(coef))==1: #can't have T(n) = aT(n/1) + f(n)
             format = "diff"
             res = abs(int(round(rec_relations[i][1])))
             print("T(n-" + str(res) + ")")
@@ -220,11 +245,11 @@ if __name__ == '__main__':
             b = 0
             relation = RecRel(a, b, k, p, 2)
         else:
-            a = int(rec_relations[0][1])
-            b = int(rec_relations[1][1])
+            a = int(round(rec_relations[0][1]))
+            b = int(round(rec_relations[1][1]))
             relation = RecRel(a, b, k, p, 2)
 
-    print(relation)
+    # print(relation)
 
     print("Solving the recurrence relation")
     cmd = "../../recurrence_solver.py -format {} -a {} -b {} -k {} -p {} -rec_call {}".format(format, a, b, k, p, len(rec_relations))
