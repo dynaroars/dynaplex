@@ -60,12 +60,9 @@ def logs_regression(sizes, counters, nlog_flag=False):
 def func(x, a, b):
     return a *numpy.log(x) + b
 
-def log_plot(model, sizes, log):
-    l = []
-    for s in sizes:
-        val = model[0]*numpy.log(s) + model[1] if log=="log" else s*model[0]*numpy.log(s) + model[1]
-        l.append(val)
-    return l
+# def log_plot(model, sizes, log):
+#     l = [model[1]*s*math.log(s, 2)+ model[0] for s in sizes] if log=="nlog" else [model[1]*math.log(s, 2)+model[0] for s in sizes]
+#     return l
 
 def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=False):
     assert(len(sizes)==len(counters)), "Invalid traces"
@@ -92,6 +89,7 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=
         mymodel = numpy.poly1d(numpy.polyfit(sizes, counters, i))
         models.append(mymodel)
         print(mymodel)
+
         if plotting:
             plt.plot(myline, mymodel(myline), c=(random.random(), random.random(), random.random()), label="{}-D polynomial".format(i))
 
@@ -119,8 +117,8 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=
     index = r2_scores.index(highest_r2)
 
     logarithmic, score, log_model = logs_regression(sizes, counters, nlog_flag)
-
-    if highest_r2 >= score and highest_r2 > 0.0:
+    print(score)
+    if highest_r2 >= score and highest_r2 >= 0.0:
         complexity = "n^{}".format(models[index].order)
         k = models[index].order
         p = 0
@@ -130,7 +128,7 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=
         p = 1
         k = 1 if logarithmic == "nlog" else 0
 
-    assert(highest_r2 > 0 or score > 0), "Negative R-square. Collect more traces"
+    assert(highest_r2 >= 0 or score >= 0), "Negative R-square. Collect more traces"
 
     #if highest_r2 < 0.4 and score < 0.4: #regression gives a bad model
 
@@ -141,11 +139,13 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=
     else:
         print("Analysis complete in {} seconds".format(seconds))
     if plotting:
-        plt.plot(myline, log_plot(log_model, myline, logarithmic), c=(random.random(), random.random(), random.random()), label="{}".format(logarithmic))
+        l = [log_model[1]*s*math.log(s, 2)+ log_model[0] for s in myline] if logarithmic=="nlog" else [log_model[1]*math.log(s, 2)+log_model[0] for s in myline]
+        plt.plot(myline, l, c=(random.random(), random.random(), random.random()), label="{}".format(logarithmic))
         plt.xlabel('Input size')
         plt.ylabel('Instruction Counter', rotation=90)
         plt.legend(loc='upper left')
         plt.grid()
+        # plt.title("Merge Sort Search ")
         plt.show()
 
     return complexity, k, p
