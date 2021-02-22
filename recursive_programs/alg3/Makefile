@@ -10,6 +10,7 @@ all: rand.exe \
 	permutation_index.exe \
 	permutation_gen.exe \
 	tenary_012.exe \
+	balanced_ternary.exe \
 	convexhull.exe
 
 %.exe: %.cpp

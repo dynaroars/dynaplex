@@ -11,3 +11,4 @@ set -euo pipefail
 ./scripts/analyze_traces.sh "permutation_gen"
 ./scripts/analyze_traces.sh "tenary_012"
 ./scripts/analyze_traces.sh "convexhull"
+./scripts/analyze_traces.sh "balanced_ternary"
