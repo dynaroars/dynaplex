@@ -14,6 +14,7 @@ import math
 import time
 import argparse
 import subprocess as sp
+import settings
 
 class RecRel:
     ''' a structure storing the final results of recurrence relation '''
@@ -51,6 +52,7 @@ def read_logs(filename):
     with open(filename) as file:
         lines = file.readlines()
         num_rec_calls = get_num_rec_calls(lines, filename)
+        # print(num_rec_calls)
         queue, coefs, diffs = [], [], []
         prev  = Node(-1, 0.0)
         for i, line in enumerate(lines):
@@ -154,8 +156,11 @@ if __name__ == '__main__':
             final_coefs = coefs
             final_diffs = diffs
 
-        if len(final_coefs) != len(coefs):
-            continue
+        if len(final_coefs) < len(coefs):
+            for i in range(len(coefs)-len(final_coefs)):
+                final_coefs.append([])
+                final_diffs.append([])
+            # continue
         for i, coef in enumerate(coefs):
             final_coefs[i].extend([c for c in coef])
         for i, diff in enumerate(diffs):
@@ -163,48 +168,51 @@ if __name__ == '__main__':
 
 
     rec_relations = []
-    #print(final_coefs)
-    #print(final_diffs)
+    # print(final_coefs)
+    # print(final_diffs)
 
-    for i,coefs in enumerate(final_coefs):
-        x = [i for i in range(len(coefs))]
-        # xx, coe, dif = x[:int((len(x)+1)*.80)], coefs[:int((len(coefs)+1)*.80)], final_diffs[i][:int((len(x)+1)*.80)]
-        # xtest, coetest, diftest = x[int((len(x)+1)*.80):], coefs[int((len(x)+1)*.80):], final_diffs[i][int((len(x)+1)*.80):]
-        coe_array = np.c_[x, coefs]
-        dif_array = np.c_[x, final_diffs[i]]
-
-        coe_kmeans = KMeans(n_clusters=1, random_state=0).fit(coe_array)
-        dif_kmeans = KMeans(n_clusters=1, random_state=0).fit(dif_array)
-
-        coef = coe_kmeans.cluster_centers_[0][1]
-        difs = dif_kmeans.cluster_centers_[0][1]
-
-        coe_score = coe_kmeans.score(coe_array)
-        dif_score = dif_kmeans.score(dif_array)
-
-        # print("rsquared: coef {} diff {}".format(coe_score, dif_score))
-        rec_relations.append((coef, difs))
-        if coe_score >= dif_score:
-            format = "coef"
-        else:
-            format = "diff"
-
-    # x = [i for i,v in enumerate(final_coefs[0])]
+    #using kmeans and score as selection heuristics
     # for i,coefs in enumerate(final_coefs):
-    #     data = np.array([x, coefs])
-    #     df = pd.DataFrame(list(zip(x, coefs)), columns=['node ids', 'coefs'])
+    #     x = [i for i in range(len(coefs))]
+    #     coe_array = np.c_[x, coefs]
+    #     dif_array = np.c_[x, final_diffs[i]]
     #
-    #     X = np.array(df['node ids']).reshape(-1, 1)
-    #     y = np.array(df['coefs']).reshape(-1, 1)
+    #     coe_kmeans = KMeans(n_clusters=1, random_state=0).fit(coe_array)
+    #     dif_kmeans = KMeans(n_clusters=1, random_state=0).fit(dif_array)
     #
-    #     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
-    #     regr = LinearRegression()
+    #     coef = coe_kmeans.cluster_centers_[0][1]
+    #     difs = dif_kmeans.cluster_centers_[0][1]
     #
-    #     regr.fit(X_train, y_train)
+    #     coe_score = coe_kmeans.score(coe_array)
+    #     dif_score = dif_kmeans.score(dif_array)
     #
-    #     med_diff = statistics.median(final_diffs[i])
-    #     format = "diff" if all(math.isclose(final_diffs[i][0], x, rel_tol=1e-3) or x <= 0.0 for x in final_diffs[i]) else "coef"
-    #     rec_relations.append((regr.intercept_[0], med_diff))
+    #     print("rsquared: coef {} diff {}".format(coe_score, dif_score))
+    #     rec_relations.append((coef, difs))
+    #     if coe_score >= dif_score:
+    #         format = "coef"
+    #     else:
+    #         format = "diff"
+
+    #Using frequency in diffs as heuristics
+    x = [i for i,v in enumerate(final_coefs[0])]
+    for i,coefs in enumerate(final_coefs):
+        data = np.array([x, coefs])
+        df = pd.DataFrame(list(zip(x, coefs)), columns=['node ids', 'coefs'])
+
+        X = np.array(df['node ids']).reshape(-1, 1)
+        y = np.array(df['coefs']).reshape(-1, 1)
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
+        regr = LinearRegression()
+
+        regr.fit(X_train, y_train)
+
+        med_diff = statistics.median(final_diffs[i])
+        most_freq = max(set(final_diffs[i]), key = final_diffs[i].count)
+        frequency = final_diffs[i].count(most_freq)
+        format = "diff" if frequency/len(final_diffs[i]) >= settings.min_freq else "coef"
+        # format = "diff" if all(math.isclose(final_diffs[i][0], x, rel_tol=1e-3) or x <= 0.0 for x in final_diffs[i]) else "coef"
+        rec_relations.append((regr.intercept_[0], med_diff))
 
     seconds = time.time() - start_time
 
@@ -225,7 +233,7 @@ if __name__ == '__main__':
     #Calculating polynomial relations
     print("Computing polynomial relations")
     nlog_flag = "-nlog" if args.nlog else ""
-    cmd = "../../dig.py -trace {}/traces -maxdeg 5 -r {}".format(dir_name, nlog_flag)
+    cmd = "{}/dig.py -trace {}/traces -maxdeg {} -r {}".format(settings.path_to_src, dir_name, settings.maxdeg, nlog_flag)
     print("Command: ", cmd)
     out, err = vcmd(cmd)
     #assert not err, "Failed:\n{}".format(err)
@@ -256,7 +264,7 @@ if __name__ == '__main__':
     print(recurrence)
 
     print("Solving the recurrence relation")
-    cmd = "../../recurrence_solver.py -format {} -a {} -b {} -k {} -p {} -rec_call {}".format(format, a, b, k, p, len(rec_relations))
+    cmd = "{}/recurrence_solver.py -format {} -a {} -b {} -k {} -p {} -rec_call {}".format(settings.path_to_src, format, a, b, k, p, len(rec_relations))
     # print("Command: ", cmd)
     out, err = vcmd(cmd)
     assert not err, "Failed to solve the recurrence relation\n{}".format(err)
