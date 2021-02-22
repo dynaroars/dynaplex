@@ -4,8 +4,8 @@ const int N = 100;
 int a[N] = {};
 
 void f(int k) {
-    RecTrace _t(k);
     if (k == 0) return;
+    RecTrace _t(k);
     REP(i,3) {
         OpCnt();
         a[k] = i;
