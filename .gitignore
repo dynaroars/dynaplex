@@ -11,3 +11,5 @@ build/
 *.o
 test
 *logs/
+
+__pycache__/

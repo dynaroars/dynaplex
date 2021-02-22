@@ -4,14 +4,14 @@ const int N = 100;
 int a[N] = {};
 
 void f(int k) {
-    if (k == 0) return;
     RecTrace _t(k);
     REP(i,3) {
         OpCnt();
         a[k] = i;
         if(a[k] == 0 && a[k+1] == 1 && a[k+2] == 2)
             continue;
-        f(k-1);
+        if(k-1 > 0)
+            f(k-1);
     }
 }
 
