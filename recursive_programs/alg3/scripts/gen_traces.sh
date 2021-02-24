@@ -11,9 +11,16 @@ SEED=${GEN_SEED:-ksh040699}
 DIR="traces/${NAME}/"
 rm -rf $DIR
 mkdir -p $DIR
-echo "$SEED" > $DIR/_seed
 
-echo "GenTraces - $NAME - seed='$SEED'"
+OPTS=
+if [[ $TOTAL_OPS == 1 ]]; then
+    OPTS='--total-ops'
+fi
+
+echo "$SEED" > $DIR/_seed
+echo "$OPTS" > $DIR/_opts
+
+echo "GenTraces - $NAME - opts='$OPTS' seed='$SEED'"
 
 if [[ ${GEN_SEQUENTIAL:-} == 1 ]]; then
     N=$((TO - FROM + 1))
@@ -29,5 +36,5 @@ for v in $VALUES; do
     idx=$((idx + 1))
 
     echo "$NAME $idx v=$v"
-    "./${NAME}.exe" $v $SEED 1>$FOUT 2>>$FTRACE
+    "./${NAME}.exe" $v $OPTS $SEED 1>$FOUT 2>>$FTRACE
 done
