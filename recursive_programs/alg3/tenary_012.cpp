@@ -17,7 +17,7 @@ void f(int k) {
 
 int main(int argc, char *argv[])
 {
-    registerGen(argc, argv, 1);
+    ksh_init(argc, argv);
 
     int n = atoi(argv[1]);
     f(n);

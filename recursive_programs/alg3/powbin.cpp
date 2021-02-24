@@ -9,7 +9,7 @@ ull mypow(ull a, ull b) {
 }
 
 int main(int argc, char *argv[]) {
-    registerGen(argc, argv, 1);
+    ksh_init(argc, argv);
 
     ll n = atoll(argv[1]);
     mypow(3, n);

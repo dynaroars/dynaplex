@@ -23,7 +23,9 @@ bool traceOn = true;
 
 int curRecDep = 0;
 ll *opCnt = nullptr;
-bool countOpAtRootOnly = true;
+ll totalOp = 0;
+bool countOpAtAllDepths = false;
+bool countTotalOpOnly = false;
 
 struct RecTrace {
     ll _size = 0;
@@ -46,7 +48,9 @@ struct RecTrace {
         opCnt = _bakOpCnt;
         curRecDep--;
 
-        if (!countOpAtRootOnly || _dep == 1) {
+        if (countTotalOpOnly) {
+            if (_dep == 1) sizcnt(_size, totalOp);
+        } else if (countOpAtAllDepths || _dep == 1) {
             sizcnt(_size, _opCnt);
         }
     }
@@ -54,6 +58,8 @@ struct RecTrace {
 
 void OpCnt(ll inc = 1) {
     if(!traceOn) return;
+
+    totalOp += inc;
     (*opCnt) += inc;
 }
 
@@ -63,4 +69,13 @@ inline int sz(const T& v) { return int(v.size()); }
 template<class T>
 void rand_arr(T *arr, int sz, T from, T to) {
     REP(i,sz) arr[i] = rnd.next(from, to);
+}
+
+void ksh_init(int argc, char *argv[]) {
+    registerGen(argc, argv, 1);
+    FOR(i,1,argc-1) {
+        if(strcasecmp(argv[i], "--total-ops") == 0) {
+            countTotalOpOnly = true;
+        }
+    }
 }

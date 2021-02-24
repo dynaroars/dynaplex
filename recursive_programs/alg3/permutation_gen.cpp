@@ -26,7 +26,7 @@ vi gen_perm(int sz, ull idx) {
 }
 
 int main(int argc, char *argv[]) {
-    registerGen(argc, argv, 1);
+    ksh_init(argc, argv);
 
     int n = atoi(argv[1]);
     ull fac = 1;

@@ -244,7 +244,7 @@ vector<pair<int, int>> divide(vector<pair<int, int>> a)
 // Driver code
 int main(int argc, char *argv[])
 {
-	registerGen(argc, argv, 1);
+	ksh_init(argc, argv);
 
 	const int V = 10000;
 	int n = atoi(argv[1]);

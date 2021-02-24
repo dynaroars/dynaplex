@@ -23,7 +23,7 @@ ull perm_index(int *a, int sz) {
 
 int main(int argc, char *argv[])
 {
-    registerGen(argc, argv, 1);
+    ksh_init(argc, argv);
 
     int n = atoi(argv[1]);
     vi a = rnd.perm(n);

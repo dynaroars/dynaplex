@@ -59,7 +59,7 @@ int kthSmallest(int arr[], int l, int r, int k)
 
 int main(int argc, char *argv[])
 {
-    registerGen(argc, argv, 1);
+    ksh_init(argc, argv);
 
     n = atoi(argv[1]);
     FOR(i, 1, n)
