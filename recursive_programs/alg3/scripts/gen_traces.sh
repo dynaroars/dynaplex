@@ -13,7 +13,7 @@ rm -rf $DIR
 mkdir -p $DIR
 
 OPTS=
-if [[ $TOTAL_OPS == 1 ]]; then
+if [[ ${TOTAL_OPS:-} == 1 ]]; then
     OPTS='--total-ops'
 fi
 

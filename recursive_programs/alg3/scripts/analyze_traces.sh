@@ -13,7 +13,7 @@ SEED=$(cat $TDIR/_seed)
 OPTS=$(cat $TDIR/_opts)
 
 echo "### Analyze $TDIR"
-if [[ $TOTAL_OPS == 1 ]]; then
+if [[ ${TOTAL_OPS:-} == 1 ]]; then
 
     (/usr/bin/time -f 'total_time: %e' \
     ../../dig.py -trace $TDIR/traces -maxdeg 5 -r 2>&1 | tee $AOUT) || true
