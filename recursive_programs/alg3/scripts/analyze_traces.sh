@@ -16,10 +16,10 @@ echo "### Analyze $TDIR"
 if [[ ${TOTAL_OPS:-} == 1 ]]; then
 
     (/usr/bin/time -f 'total_time: %e' \
-    ../../dig.py -trace $TDIR/traces -maxdeg 5 -r 2>&1 | tee $AOUT) || true
+    ../../dig.py -trace $TDIR/traces -maxdeg 5 -nlog 2>&1 | tee $AOUT) || true
 
-    if grep "Polynomial relation:  " $AOUT; then
-        complexity=$(grep "Polynomial relation:  " $AOUT | sed -n -e 's/^Polynomial relation:  \(.*\)$/\1/p')
+    if grep "Complexity is " $AOUT; then
+        complexity=$(grep "Complexity is " $AOUT | sed -n -e 's/^Complexity is \(.*\)$/\1/p')
     else
         complexity="error"
     fi
