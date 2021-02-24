@@ -27,6 +27,13 @@ ll totalOp = 0;
 bool countOpAtAllDepths = false;
 bool countTotalOpOnly = false;
 
+void OpCnt(ll inc = 1) {
+    if(!traceOn) return;
+
+    totalOp += inc;
+    (*opCnt) += inc;
+}
+
 struct RecTrace {
     ll _size = 0;
     ll _opCnt = 0;
@@ -39,6 +46,7 @@ struct RecTrace {
         _dep = ++curRecDep;
         _bakOpCnt = opCnt;
         opCnt = &_opCnt;
+        if (countTotalOpOnly) OpCnt(1);
 
         depsiz(curRecDep, siz);
     }
@@ -55,13 +63,6 @@ struct RecTrace {
         }
     }
 };
-
-void OpCnt(ll inc = 1) {
-    if(!traceOn) return;
-
-    totalOp += inc;
-    (*opCnt) += inc;
-}
 
 template<class T>
 inline int sz(const T& v) { return int(v.size()); }
