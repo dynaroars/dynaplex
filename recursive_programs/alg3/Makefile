@@ -11,7 +11,8 @@ all: rand.exe \
 	permutation_gen.exe \
 	tenary_012.exe \
 	balanced_ternary.exe \
-	convexhull.exe
+	convexhull.exe \
+	perf_test.exe
 
 %.exe: %.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@
