@@ -13,11 +13,6 @@ int CDECL bit_count(long x)
 ** The loop will execute once for each bit of x set, this is in average
 ** twice as fast as the shift/test method.
 */
-FILE *fp;
-int myInt = 5;
-fp = fopen("Output.txt", "w");// "w" means that we are going to write on this file
-fprintf(fp, "This is being written in the file. This is an int variable: %d", myInt);
-fclose(fp);
         if (x) do
               n++;
         while (0 != (x = x&(x-1)));
