@@ -1,9 +1,15 @@
 OCAMLOPT = ocamlopt
 
-all:  kth.exe complete_btree.exe compress.exe gcd.exe insert.exe remove.exe
+all:  kth.exe truth_table.exe totient.exe prime.exe compress.exe gcd.exe remove.exe
 
-complete_btree.exe:
-	$(OCAMLOPT) -o $@ complete_btree.ml
+truth_table.exe:
+	$(OCAMLOPT) -o $@ truth_table.ml
+
+totient.exe:
+	$(OCAMLOPT) -o $@ totient.ml
+
+prime.exe:
+	$(OCAMLOPT) -o $@ prime.ml
 
 compress.exe:
 	$(OCAMLOPT) -o $@ compress.ml
@@ -11,13 +17,10 @@ compress.exe:
 gcd.exe:
 	$(OCAMLOPT) -o $@ gcd.ml
 
-insert.exe:
-	$(OCAMLOPT) -o $@ insert.ml
-
 kth.exe:
 	$(OCAMLOPT) -o $@ kth.ml
 
 remove.exe:
 	$(OCAMLOPT) -o $@ remove.ml
 clean:
-	rm -rf *.c* *.d* *.exe kth complete_btree compress gcd insert remove
+	rm -rf *.cm* *.o *.exe kth truth_table prime totient compress gcd  remove
