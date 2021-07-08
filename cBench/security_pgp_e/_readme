@@ -1,1 +1,0 @@
-instead of -ofast we use -o3 otherwise crashing
