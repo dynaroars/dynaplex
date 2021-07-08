@@ -8,9 +8,9 @@ import random
 import numpy
 import math
 import time
+import settings
 from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
 
 def read_traces(filename):
     ''' reads traces from a file. format "size;counter"'''
@@ -60,9 +60,9 @@ def logs_regression(sizes, counters, nlog_flag=False):
 def func(x, a, b):
     return a *numpy.log(x) + b
 
-# def log_plot(model, sizes, log):
-#     l = [model[1]*s*math.log(s, 2)+ model[0] for s in sizes] if log=="nlog" else [model[1]*math.log(s, 2)+model[0] for s in sizes]
-#     return l
+def log_plot(model, sizes, log):
+    l = [model[1]*s*math.log(s, 2)+ model[0] for s in sizes] if log=="nlog" else [model[1]*math.log(s, 2)+model[0] for s in sizes]
+    return l
 
 def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=False):
     assert(len(sizes)==len(counters)), "Invalid traces"
@@ -72,7 +72,8 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=
     p = 0
     if(len(set(counters)) == 1):
         complexity = "1"
-        print("Analysis complete in {} seconds".format(time.time()-start_time))
+        if not r:
+            print("Analysis complete in {} seconds\nComplexity is O({})".format(time.time()-start_time, complexity))
         return complexity, k, p
 
     x, y = sizes[:int((len(sizes)+1)*.80)], counters[:int((len(sizes)+1)*.80)]
@@ -82,7 +83,7 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=
     r2_scores = []
     if plotting:
         plt.scatter(sizes, counters)
-        myline = numpy.linspace(1, maxsize*1.5, maxsize*10)
+        myline = numpy.linspace(1, maxsize, maxsize)
 
     print("models before applying heuristics")
     for i in range(0, maxdeg+1):
@@ -99,8 +100,7 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=
     for model in tmp:
         order = model.order
         high_order_coe = model[order]
-        # print("heuristics", abs(model[0]), order, maxsize)
-        if not(high_order_coe < (1.0/maxsize)): #make sure the heuristics work
+        if not(high_order_coe < (1.0/maxsize)): #heuristics can be improved 
             models.append(model)
 
     assert(len(models)>0), "Heuristics eliminated all candidate models"
@@ -128,10 +128,6 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=
         p = 1
         k = 1 if logarithmic == "nlog" else 0
 
-    assert(highest_r2 >= 0 or score >= 0), "Negative R-square. Collect more traces"
-
-    #if highest_r2 < 0.4 and score < 0.4: #regression gives a bad model
-
 
     seconds = time.time()-start_time
     if not r:
@@ -139,13 +135,12 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=
     else:
         print("Analysis complete in {} seconds".format(seconds))
     if plotting:
-        l = [log_model[1]*s*math.log(s, 2)+ log_model[0] for s in myline] if logarithmic=="nlog" else [log_model[1]*math.log(s, 2)+log_model[0] for s in myline]
         plt.plot(myline, l, c=(random.random(), random.random(), random.random()), label="{}".format(logarithmic))
         plt.xlabel('Input size')
         plt.ylabel('Instruction Counter', rotation=90)
         plt.legend(loc='upper left')
         plt.grid()
-        # plt.title("Merge Sort Search ")
+        #plt.title("Strassen")
         plt.show()
 
     return complexity, k, p
@@ -163,7 +158,7 @@ if __name__ == '__main__':
     assert(path.exists(trace_file)), "{} doesn't exist".format(trace_file)
     maxdeg = int(args.maxdeg)
     sizes, counters = read_traces(trace_file)
-    complexity, k, p = poly_regression(sizes, counters, maxdeg, args.plot, args.r, args.nlog)
+    complexity, k, p = poly_regression(sizes, counters, maxdeg, args.plot, args.r, settings.nlog)
     if(args.r):
         print("Polynomial relation: ", complexity)
         print("k={} p={}".format(k, p))
