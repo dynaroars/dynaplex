@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
 '''Recurrence complexity analyzer '''
 import statistics
-from os import listdir, path
+from os import listdir
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.cluster import KMeans
-import math
 import time
 import argparse
 import subprocess as sp
 import settings
+import sys
+sys.setrecursionlimit(4000)
 
 class RecRel:
-    ''' a structure storing the final results of recurrence relation '''
+    '''T(n) = a T(n/b) + (n^k(logn)^p)'''
+    '''T(n) = T(n-a) + T(n-b) + (n^k(logn)^p)'''
     def __init__(self, a, b, k, p, fmt):
         self.a = a
         self.b = b
@@ -34,7 +35,7 @@ class RecRel:
 
 
 class Node:
-    ''' node of a parsing tree '''
+    ''' node of execution traces/tree '''
     def __init__(self, d, val):
         self.d = d
         self.val = val
@@ -50,9 +51,9 @@ def read_logs(filename):
     with open(filename) as file:
         lines = file.readlines()
         num_rec_calls = get_num_rec_calls(lines, filename)
-        # print(num_rec_calls)
         queue, coefs, diffs = [], [], []
         prev  = Node(-1, 0.0)
+
         for i, line in enumerate(lines):
             cur = get_cur_node(line, filename)
             # find the bottom of the branch
@@ -63,7 +64,6 @@ def read_logs(filename):
             # calculate coefs for the current branch
             coefs, diffs = calc_coefs(queue, coefs, diffs, num_rec_calls)
             queue.append(cur)
-            # print(cur.d, cur.val)
             prev = cur
     file.close()
     return coefs, diffs, num_rec_calls
@@ -84,7 +84,7 @@ def calc_coefs(queue, coefs, diffs, num_rec_calls):
 
     for i in range(num_rec_calls-1, -1, -1):
         child = queue.pop()
-        if child.val != float(0): #and child.val != float(1) check this
+        if child.val != float(0) and child.val != float(1): #and child.val != float(1) check this
             coefs[i].append(parent.val / child.val)
             diffs[i].append(parent.val - child.val)
 
@@ -119,7 +119,6 @@ def get_num_rec_calls(lines: list, filename):
     max_depth, nums = 0, 1
     prev = Node(-1, 0.0)
     for i, line in enumerate(lines):
-        # print(line)
         cur = get_cur_node(line, filename)
         if cur.d < prev.d:
             return nums
@@ -166,8 +165,6 @@ if __name__ == '__main__':
 
 
     rec_relations = []
-    # print(final_coefs)
-    # print(final_diffs)
 
     #using kmeans and score as selection heuristics
     # for i,coefs in enumerate(final_coefs):
@@ -191,7 +188,7 @@ if __name__ == '__main__':
     #     else:
     #         format = "diff"
 
-    #Using frequency in diffs as heuristics
+    #Using frequency in diffs as format selection heuristics
     x = [i for i,v in enumerate(final_coefs[0])]
     for i,coefs in enumerate(final_coefs):
         data = np.array([x, coefs])
@@ -204,7 +201,7 @@ if __name__ == '__main__':
         regr = LinearRegression()
 
         regr.fit(X_train, y_train)
-
+        
         med_diff = statistics.median(final_diffs[i])
         most_freq = max(set(final_diffs[i]), key = final_diffs[i].count)
         frequency = final_diffs[i].count(most_freq)
@@ -215,6 +212,7 @@ if __name__ == '__main__':
     seconds = time.time() - start_time
 
     recurrence = "T(n) ="
+    res_coef = []
     for i in range(len(final_coefs)):
         print("diff {} coef {}".format(rec_relations[i][1], rec_relations[i][0]))
         coef = rec_relations[i][0]
@@ -225,6 +223,7 @@ if __name__ == '__main__':
             recurrence = "{} T(n-{}) + ".format(recurrence, str(res))
         else:
             res = int(round(coef))
+            res_coef.append(res)
             print("T(n/" + str(res) + ")")
             recurrence = "{} T(n/{}) + ".format(recurrence, str(res))
 
@@ -245,7 +244,7 @@ if __name__ == '__main__':
     if(format == "coef"):
         format = 1
         a = len(rec_relations)
-        b = res
+        b = min(res_coef)
         relation = RecRel(a, b, k, p, 1)
     else:
         format = 2
@@ -263,7 +262,6 @@ if __name__ == '__main__':
 
     print("Solving the recurrence relation")
     cmd = "{}/recurrence_solver.py -format {} -a {} -b {} -k {} -p {} -rec_call {}".format(settings.path_to_src, format, a, b, k, p, len(rec_relations))
-    # print("Command: ", cmd)
     out, err = vcmd(cmd)
     assert not err, "Failed to solve the recurrence relation\n{}".format(err)
     seconds = time.time() - start_time
