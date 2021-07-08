@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
+'''This program uses pattern matching techniques to overapproximate 
+closed form solution of a recurrence relation'''
+
 import math
-import sys
 import argparse
 
 def master_theorem(a, b, k, p=0):
@@ -39,9 +41,9 @@ def recurrence(a, b, k, p, rec_call):
         complexity = "{}^n".format(rec_call)
     elif a != 0 and b != 0:
         complexity = "2^n"
-    elif a == 1 and b == 0:
+    elif a != 0 and b == 0:
         if p==0:
-            complexity = "n^{}".format(k+1) 
+            complexity = "n^{}".format(k+1)
         else:
             complexity = "n^{}(logn)^{}".format(k+1, p)
     else:
