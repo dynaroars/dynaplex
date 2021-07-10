@@ -28,7 +28,7 @@ if [[ ${TOTAL_OPS:-} == 1 ]]; then
 else
 
     OMP_NUM_THREADS=16 \
-    /usr/bin/time -f 'total_time: %e' \
+    time -f 'total_time: %e' \
     ../../analyzer.py -trace $TDIR 2>&1 | tee $AOUT
 
     complexity=$(grep "b'Complexity is " $AOUT | sed -n -e 's/^b'"'"'Complexity is \(.*\)\\n'"'"'$/\1/p')
