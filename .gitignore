@@ -4,6 +4,7 @@ gradle
 gradlew
 gradlew.bat
 build/
+dockerfile
 
 # OCaml 
 *.cmi
