@@ -5,7 +5,7 @@ make clean
 for file in ./*; do
 	if [[ $file == *.py ]]
 	then
-		echo "Running " "$file" && time python ./$file
+		echo "Running " "$file" && time python3 ./$file
 	fi
 done;
 
