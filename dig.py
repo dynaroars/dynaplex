@@ -41,10 +41,10 @@ def logs_regression(sizes, counters, nlog_flag=False):
     nlog_r2 = r2_score(test_counters, nlog_model(test_xnlog))
     log_r2 = r2_score(test_counters, log_model(test_xlog))
 
-    print("log: {}, r2_score {}".format(log_model, log_r2))
+    #print("log: {}, r2_score {}".format(log_model, log_r2))
 
     if (log_r2 < nlog_r2) and nlog_flag:
-        print("nlog: {}, r2_score {}".format(nlog_model, nlog_r2))
+        #print("nlog: {}, r2_score {}".format(nlog_model, nlog_r2))
         if nlog_model[nlog_model.order] < (1.0/max(x_nlogs)) or math.isclose(nlog_r2, 0.0, rel_tol=0.01):
             return "nlog", -1, nlog_model
         else:
@@ -110,14 +110,15 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=
         r_square = r2_score(test_counters, model(test_sizes))
         r2_scores.append(r_square)
 
-    print("Models after applying Heuristics ", models)
-    print("r2_scores ", r2_scores)
+    print("Models after applying Heuristics ")
+    for m in models:
+        print(m)
 
     highest_r2 = max(r2_scores)
     index = r2_scores.index(highest_r2)
 
     logarithmic, score, log_model = logs_regression(sizes, counters, nlog_flag)
-    print(score)
+    
     if highest_r2 >= score and highest_r2 >= 0.0:
         complexity = "n^{}".format(models[index].order)
         k = models[index].order

@@ -213,8 +213,8 @@ if __name__ == '__main__':
 
     recurrence = "T(n) ="
     res_coef = []
+    print("Computing the recurrence relation")
     for i in range(len(final_coefs)):
-        print("diff {} coef {}".format(rec_relations[i][1], rec_relations[i][0]))
         coef = rec_relations[i][0]
         if format == "diff" or int(round(coef))==1: #can't have T(n) = aT(n/1) + f(n)
             format = "diff"
