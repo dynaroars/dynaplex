@@ -1,7 +1,5 @@
 #/bin/bash
 
-make clean && make
-
 for file in ./*; do
 	if [[ $file == *.exe ]]
 	then
