@@ -91,8 +91,8 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=
         models.append(mymodel)
         print(mymodel)
 
-        if plotting:
-            plt.plot(myline, mymodel(myline), c=(random.random(), random.random(), random.random()), label="{}-D polynomial".format(i))
+    # if plotting:
+    #     plt.plot(myline, mymodel(myline), c=(random.random(), random.random(), random.random()), label="{}-D polynomial".format(i))
 
     #discard models where the coe of the highest order is less than 1/maxinput
     tmp = models
@@ -100,7 +100,7 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=
     for model in tmp:
         order = model.order
         high_order_coe = model[order]
-        if not(high_order_coe < (1.0/maxsize)): #heuristics can be improved 
+        if not(high_order_coe < (1.0/maxsize)): #heuristics can be improved
             models.append(model)
 
     assert(len(models)>0), "Heuristics eliminated all candidate models"
@@ -118,7 +118,7 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=
     index = r2_scores.index(highest_r2)
 
     logarithmic, score, log_model = logs_regression(sizes, counters, nlog_flag)
-    
+
     if highest_r2 >= score and highest_r2 >= 0.0:
         complexity = "n^{}".format(models[index].order)
         k = models[index].order
@@ -136,13 +136,14 @@ def poly_regression(sizes, counters, maxdeg, plotting=False, r=False, nlog_flag=
     else:
         print("Analysis complete in {} seconds".format(seconds))
     if plotting:
-        plt.plot(myline, l, c=(random.random(), random.random(), random.random()), label="{}".format(logarithmic))
+        #plt.plot(myline, l, c=(random.random(), random.random(), random.random()), label="{}".format(logarithmic))
         plt.xlabel('Input size')
         plt.ylabel('Instruction Counter', rotation=90)
         plt.legend(loc='upper left')
         plt.grid()
         #plt.title("Strassen")
-        plt.show()
+        #plt.show()
+        plt.savefig('fig.png')
 
     return complexity, k, p
 
