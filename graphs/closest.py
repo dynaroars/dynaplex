@@ -8,14 +8,13 @@ import os
 counter = 0
 
 def clst_pair (i, j):
-    if depth==0:
-        global counter
-        counter += 1
+    global counter
+    counter += 1
     assert i <= j
     if(i <= j-3):
         k = i + (j-i+1)//2 -1
-        clst_pair(i, k, file)
-        clst_pair(k+1, j, file)
+        clst_pair(i, k)
+        clst_pair(k+1, j)
         fetch_and_scan(i, j)
     else:
         pass
@@ -80,21 +79,19 @@ if __name__ == '__main__':
         i = random.randint(1, 500)
         j = random.randint(i, 500)
         assert i<=j
-        #depth != 0 because this is preprocessing before cls_pair is called
+
         copy(i, j, i, j)
         copy(i, j, i, j)
         mergesort(i, j)
         mergesort(i, j)
 
-        depth = 0
         path = "./closest"
 
         try:
             os.mkdir(path)
         except OSError as error:
             pass
-        file = "./closest/output-{}-{}".format(i, j)
-        clst_pair(i, j, file, depth)
+        clst_pair(i, j)
         with open("./closest/traces", 'a') as f:
             print("{};{}".format((j-i), counter), file=f)
         counter = 0
