@@ -13,28 +13,15 @@ SEED=$(cat $TDIR/_seed)
 OPTS=$(cat $TDIR/_opts)
 
 echo "### Analyze $TDIR"
-if [[ ${TOTAL_OPS:-} == 1 ]]; then
 
-    (/usr/bin/time -f 'total_time: %e' \
-    ../../dig.py -trace $TDIR/traces -maxdeg 5 -nlog 2>&1 | tee $AOUT) || true
+OMP_NUM_THREADS=16 \
+time -f 'total_time: %e' \
+python3 -W ignore ../../analyzer.py -trace $TDIR 2>&1 | tee $AOUT
 
-    if grep "Complexity is " $AOUT; then
-        complexity=$(grep "Complexity is " $AOUT | sed -n -e 's/^Complexity is \(.*\)$/\1/p')
-    else
-        complexity="error"
-    fi
-    formula="poly"
+complexity=$(grep "b'Complexity is " $AOUT | sed -n -e 's/^b'"'"'Complexity is \(.*\)\\n'"'"'$/\1/p')
+formula=$(grep "T(n) = " $AOUT)
 
-else
 
-    OMP_NUM_THREADS=16 \
-    time -f 'total_time: %e' \
-    ../../analyzer.py -trace $TDIR 2>&1 | tee $AOUT
-
-    complexity=$(grep "b'Complexity is " $AOUT | sed -n -e 's/^b'"'"'Complexity is \(.*\)\\n'"'"'$/\1/p')
-    formula=$(grep "T(n) = " $AOUT)
-
-fi
 
 time=$(grep "total_time: " $AOUT | sed -n -e 's/^total_time: \(.*\)$/\1/p')
 
