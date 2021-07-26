@@ -1,6 +1,6 @@
 OCAMLOPT = ocamlopt
 
-all:  kth.exe truth_table.exe totient.exe prime.exe compress.exe gcd.exe remove.exe
+all: truth_table.exe totient.exe prime.exe compress.exe gcd.exe
 
 truth_table.exe:
 	$(OCAMLOPT) -o $@ truth_table.ml
@@ -17,10 +17,5 @@ compress.exe:
 gcd.exe:
 	$(OCAMLOPT) -o $@ gcd.ml
 
-kth.exe:
-	$(OCAMLOPT) -o $@ kth.ml
-
-remove.exe:
-	$(OCAMLOPT) -o $@ remove.ml
 clean:
-	rm -rf *.cm* *.o *.exe kth truth_table prime totient compress gcd  remove
+	rm -rf *.cm* *.o *.exe truth_table prime totient compress gcd
