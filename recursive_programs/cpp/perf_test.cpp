@@ -6,19 +6,20 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include <inttypes.h>
 
-static long
-perf_event_open(struct perf_event_attr *hw_event, pid_t pid,
-                int cpu, int group_fd, unsigned long flags)
-{
-    int ret;
+// static long
+// perf_event_open(struct perf_event_attr *hw_event, pid_t pid,
+//                 int cpu, int group_fd, unsigned long flags)
+// {
+//     int ret;
 
-    ret = syscall(__NR_perf_event_open, hw_event, pid, cpu,
-                    group_fd, flags);
-    return ret;
-}
+//     ret = syscall(__NR_perf_event_open, hw_event, pid, cpu,
+//                     group_fd, flags);
+//     return ret;
+// }
 
 int
 main(int argc, char **argv)
@@ -58,7 +59,8 @@ main(int argc, char **argv)
     sort(v.begin(), v.end());
 
     ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
-    read(fd, &count, sizeof(long long));
+    int ret = read(fd, &count, sizeof(count));
+    assert(ret == sizeof(count));
 
     printf("Used %lld instructions\n", count);
 

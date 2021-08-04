@@ -12,15 +12,17 @@ DIR="traces/${NAME}/"
 rm -rf $DIR
 mkdir -p $DIR
 
-OPTS=
-if [[ ${TOTAL_OPS:-} == 1 ]]; then
-    OPTS='--total-ops'
+SUDO=
+HAS_HW=0
+if [[ ${KSH_HW:-} == 1 ]]; then
+    SUDO='sudo KSH_HW=1 '
+    HAS_HW='1'
 fi
 
+GENINFO="gen_traces: name=$NAME seed=$SEED hw=$HAS_HW"
 echo "$SEED" > $DIR/_seed
-echo "$OPTS" > $DIR/_opts
-
-echo "GenTraces - $NAME - opts='$OPTS' seed='$SEED'"
+echo "$GENINFO" > $DIR/_opts
+echo "$GENINFO"
 
 if [[ ${GEN_SEQUENTIAL:-} == 1 ]]; then
     N=$((TO - FROM + 1))
@@ -36,5 +38,5 @@ for v in $VALUES; do
     idx=$((idx + 1))
 
     echo "$NAME $idx v=$v"
-    "./${NAME}.exe" $v $OPTS $SEED 1>$FOUT 2>>$FTRACE
+    ${SUDO}"./${NAME}.exe" $v $SEED 1>$FOUT 2>>$FTRACE
 done

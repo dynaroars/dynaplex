@@ -14,7 +14,7 @@ all: rand.exe \
 	convexhull.exe \
 	perf_test.exe
 
-%.exe: %.cpp
+%.exe: %.cpp kshlib.h
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 clean:
