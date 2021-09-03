@@ -86,11 +86,11 @@ if __name__ == '__main__':
         mergesort(i, j)
 
         path = "./closest"
-
         try:
             os.mkdir(path)
         except OSError as error:
             pass
+
         clst_pair(i, j)
         with open("./closest/traces", 'a') as f:
             print("{};{}".format((j-i), counter), file=f)
