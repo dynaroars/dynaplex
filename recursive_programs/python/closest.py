@@ -44,9 +44,6 @@ def fetch_and_scan(i, j, depth):
             p = p+1
 
 def mergesort(i,j, ):
-    # global counter
-    # if depth==0:
-    #     counter += 1
     assert(i<=j)
     if i <= j-1:
         k = i + (j-i+1)//2 -1
@@ -56,7 +53,6 @@ def mergesort(i,j, ):
 
 def merge(i, j, k):
     assert(i<=j)
-    # global counter
     m = i
     n = k+1
     l = i
@@ -64,25 +60,18 @@ def merge(i, j, k):
         m = m+1
         n = n+1
         l = l+1
-        # if depth==0:
-        #     counter += 1
     l = i
     while l<=j:
         l = l+1
-        # if depth==0:
-        #     counter += 1
 
 def copy(i, j, m, n):
     assert(i<=j and m<=n)
     k = i
     l = m
-    # global counter
     while k<=j and l<=n:
         k = k+1
         l = l+1
-        # if depth==0:
-        #     counter += 1
-
+        
 if __name__ == '__main__':
     for i in range(100):
         i = random.randint(1, 500)
