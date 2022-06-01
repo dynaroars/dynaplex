@@ -52,17 +52,20 @@ main(int argc, char **argv)
     }
 
     ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-    ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
+    // ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
 
     vector<int> v = rnd.distinct<int>(n, 1e9);
     shuffle(v.begin(), v.end());
+
+    ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
+
     sort(v.begin(), v.end());
 
     ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
     int ret = read(fd, &count, sizeof(count));
     assert(ret == sizeof(count));
 
-    printf("Used %lld instructions\n", count);
+    printf("n = %ld used %lld instructions\n", n, count);
 
     close(fd);
 }
