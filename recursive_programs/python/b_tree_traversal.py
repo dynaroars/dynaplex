@@ -101,7 +101,7 @@ def main():
     depth = 0
     root = Node(random.randint(-10,10))
     root.populate(random.randint(2,500))
-    siz = size(root)
+    size = size(root)
 
     path = "./postorder_bt"
     try:
