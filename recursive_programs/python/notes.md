@@ -17,3 +17,8 @@
        ast.Call(func, args, keywords) 
       Expr(expr value)
       BinOp(left, op, right)
+
+   task2: add import statements
+ > add import random 
+ know what type of node an import statement is. then look up its signature on ast website
+ use random.choice() function to generate a random fuction name.
