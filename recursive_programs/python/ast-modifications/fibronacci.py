@@ -41,6 +41,17 @@ def fibonacci(n):
     else:
         return fibonacci(n-2) + fibonacci(n-1)
 """
+"""
+Method 2: add import statements
+ > add import tracing, import random 
+ know what type of node an import statement is. then look up its signature on ast website
+ 
+Method 3: add trace statements
+ > on function entry: given size as the problem size 
+ function entry can be considered as appending at the beginning of stmt list
+    add tracing.trace(depth, size) and tracing.increment(depth)
+
+"""
     
 updated_code= Add_depth_argument(code, "fibonacci")
 print(updated_code)
