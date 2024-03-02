@@ -1,4 +1,4 @@
-//complexity is O(n^2) inferred by loopus
+//complexity is O(n) inferred by loopus
 
 typedef __typeof__(((int *) 0) - ((int *) 0)) ptrdiff_t;
 typedef __typeof__(sizeof(int)) size_t;
