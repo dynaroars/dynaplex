@@ -1,5 +1,21 @@
-#include <cstdio>
-typedef boolean(*jpeg_marker_parser_method) (j_decompress_ptr cinfo);
+#include <stdio.h>
+#include <jpeglib.h> // Include the appropriate header file
+typedef __typeof__(((int *) 0) - ((int *) 0)) ptrdiff_t;
+typedef __typeof__(sizeof(int)) size_t;
+typedef int wchar_t;
+typedef struct {
+    int quot;
+    int rem;
+} div_t;
+typedef struct {
+    long int quot;
+    long int rem;
+} ldiv_t;
+__extension__ typedef struct {
+    long long int quot;
+    long long int rem;
+} lldiv_t;
+typedef boolean (*jpeg_marker_parser_method)(j_decompress_ptr cinfo);
 extern struct jpeg_error_mgr *jpeg_std_error(struct jpeg_error_mgr *err);
 extern void jpeg_CreateCompress(j_compress_ptr cinfo, int version, size_t structsize);
 extern void jpeg_CreateDecompress(j_decompress_ptr cinfo, int version, size_t structsize);
