@@ -1,6 +1,7 @@
+#include "bzlib.h"
 //complexity is O(1) inferred by loopus
-typedef __typeof__(((int *) 0) - ((int *) 0)) ptrdiff_t;
-typedef __typeof__(sizeof(int)) size_t;
+typedef int ptrdiff_t;
+typedef unsigned int size_t;
 typedef int wchar_t;
 typedef struct {
     int quot;
@@ -10,10 +11,12 @@ typedef struct {
     long int quot;
     long int rem;
 } ldiv_t;
-__extension__ typedef struct {
+__extension__; typedef struct {
     long long int quot;
     long long int rem;
 } lldiv_t;
+#include "bzlib.h"
+
 extern int BZ2_bzCompressInit(bz_stream * strm, int blockSize100k, int verbosity, int workFactor);
 extern int BZ2_bzCompress(bz_stream * strm, int action);
 extern int BZ2_bzCompressEnd(bz_stream * strm);

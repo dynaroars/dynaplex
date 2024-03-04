@@ -1,10 +1,16 @@
-#include <stdio.h>
-#include <jpeglib.h> 
-//complexity is O(n) inferred by loopus
-__extension__ typedef struct {
-    long long int quot;
-    long long int rem;
-} lldiv_t;
+#include<stddef.h>
+//complexity is O(n) inffered by loopus
+typedef __typeof__(((int *) 0) - ((int *) 0)) ptrdiff_t;
+typedef __typeof__(sizeof(int)) size_t;
+typedef int wchar_t;
+typedef struct {
+    int quot;
+    int rem;
+} div_t;
+typedef struct {
+    long int quot;
+    long int rem;
+} ldiv_t;
 typedef unsigned char JSAMPLE;
 typedef short JCOEF;
 typedef unsigned char JOCTET;
@@ -272,7 +278,7 @@ struct jpeg_memory_mgr {
     void (*self_destruct) (j_common_ptr cinfo);
     long max_memory_to_use;
 };
-typedef boolean (*jpeg_marker_parser_method)(j_decompress_ptr cinfo);
+typedef boolean(*jpeg_marker_parser_method) (j_decompress_ptr cinfo);
 extern struct jpeg_error_mgr *jpeg_std_error(struct jpeg_error_mgr *err);
 extern void jpeg_CreateCompress(j_compress_ptr cinfo, int version, size_t structsize);
 extern void jpeg_CreateDecompress(j_decompress_ptr cinfo, int version, size_t structsize);
@@ -366,315 +372,106 @@ extern void end_progress_monitor(j_common_ptr cinfo);
 extern boolean keymatch(char *arg, const char *keyword, int minchars);
 extern FILE *read_stdin(void);
 extern FILE *write_stdout(void);
-enum { _ISupper = ((0) < 8 ? ((1 << (0)) << 8) : ((1 << (0)) >> 8)), _ISlower = ((1) < 8 ? ((1 << (1)) << 8) : ((1 << (1)) >> 8)), _ISalpha = ((2) < 8 ? ((1 << (2)) << 8) : ((1 << (2)) >> 8)), _ISdigit = ((3) < 8 ? ((1 << (3)) << 8) : ((1 << (3)) >> 8)), _ISxdigit = ((4) < 8 ? ((1 << (4)) << 8) : ((1 << (4)) >> 8)), _ISspace = ((5) < 8 ? ((1 << (5)) << 8) : ((1 << (5)) >> 8)), _ISprint = ((6) < 8 ? ((1 << (6)) << 8) : ((1 << (6)) >> 8)), _ISgraph = ((7) < 8 ? ((1 << (7)) << 8) : ((1 << (7)) >> 8)), _ISblank = ((8) < 8 ? ((1 << (8)) << 8) : ((1 << (8)) >> 8)), _IScntrl = ((9) < 8 ? ((1 << (9)) << 8) : ((1 << (9)) >> 8)), _ISpunct = ((10) < 8 ? ((1 << (10)) << 8) : ((1 << (10)) >> 8)), _ISalnum = ((11) < 8 ? ((1 << (11)) << 8) : ((1 << (11)) >> 8)) };
-extern __const unsigned short int **__ctype_b_loc(void) __attribute__ ((__nothrow__)) __attribute__ ((__const));
-extern __const __int32_t **__ctype_tolower_loc(void) __attribute__ ((__nothrow__)) __attribute__ ((__const));
-extern __const __int32_t **__ctype_toupper_loc(void) __attribute__ ((__nothrow__)) __attribute__ ((__const));
-extern int isalnum(int) __attribute__ ((__nothrow__));
-extern int isalpha(int) __attribute__ ((__nothrow__));
-extern int iscntrl(int) __attribute__ ((__nothrow__));
-extern int isdigit(int) __attribute__ ((__nothrow__));
-extern int islower(int) __attribute__ ((__nothrow__));
-extern int isgraph(int) __attribute__ ((__nothrow__));
-extern int isprint(int) __attribute__ ((__nothrow__));
-extern int ispunct(int) __attribute__ ((__nothrow__));
-extern int isspace(int) __attribute__ ((__nothrow__));
-extern int isupper(int) __attribute__ ((__nothrow__));
-extern int isxdigit(int) __attribute__ ((__nothrow__));
-extern int tolower(int __c) __attribute__ ((__nothrow__));
-extern int toupper(int __c) __attribute__ ((__nothrow__));
-extern int isblank(int) __attribute__ ((__nothrow__));
-extern int isascii(int __c) __attribute__ ((__nothrow__));
-extern int toascii(int __c) __attribute__ ((__nothrow__));
-extern int _toupper(int) __attribute__ ((__nothrow__));
-extern int _tolower(int) __attribute__ ((__nothrow__));
-extern int isalnum_l(int, __locale_t) __attribute__ ((__nothrow__));
-extern int isalpha_l(int, __locale_t) __attribute__ ((__nothrow__));
-extern int iscntrl_l(int, __locale_t) __attribute__ ((__nothrow__));
-extern int isdigit_l(int, __locale_t) __attribute__ ((__nothrow__));
-extern int islower_l(int, __locale_t) __attribute__ ((__nothrow__));
-extern int isgraph_l(int, __locale_t) __attribute__ ((__nothrow__));
-extern int isprint_l(int, __locale_t) __attribute__ ((__nothrow__));
-extern int ispunct_l(int, __locale_t) __attribute__ ((__nothrow__));
-extern int isspace_l(int, __locale_t) __attribute__ ((__nothrow__));
-extern int isupper_l(int, __locale_t) __attribute__ ((__nothrow__));
-extern int isxdigit_l(int, __locale_t) __attribute__ ((__nothrow__));
-extern int isblank_l(int, __locale_t) __attribute__ ((__nothrow__));
-extern int __tolower_l(int __c, __locale_t __l) __attribute__ ((__nothrow__));
-extern int tolower_l(int __c, __locale_t __l) __attribute__ ((__nothrow__));
-extern int __toupper_l(int __c, __locale_t __l) __attribute__ ((__nothrow__));
-extern int toupper_l(int __c, __locale_t __l) __attribute__ ((__nothrow__));
-static const char *const cdjpeg_message_table[] = { ((void *) 0), "Unsupported BMP colormap format", "Only 8- and 24-bit BMP files are supported", "Invalid BMP file: bad header length", "Invalid BMP file: biPlanes not equal to 1", "BMP output must be grayscale or RGB", "Sorry, compressed BMPs not yet supported", "Not a BMP file - does not start with BM", "%ux%u 24-bit BMP image", "%ux%u 8-bit colormapped BMP image", "%ux%u 24-bit OS2 BMP image", "%ux%u 8-bit colormapped OS2 BMP image", "GIF output got confused", "Bogus GIF codesize %d", "GIF output must be grayscale or RGB", "Too few images in GIF file", "Not a GIF file", "%ux%ux%d GIF image", "Warning: unexpected GIF version number '%c%c%c'", "Ignoring GIF extension block of type 0x%02x", "Caution: nonsquare pixels in input", "Corrupt data in GIF file", "Bogus char 0x%02x in GIF file, ignoring", "Premature end of GIF image", "Ran out of GIF bits", "PPM output must be grayscale or RGB", "Nonnumeric data in PPM file", "Not a PPM file", "%ux%u PGM image", "%ux%u text PGM image", "%ux%u PPM image", "%ux%u text PPM image", "Unsupported Targa colormap format", "Invalid or unsupported Targa file", "Targa output must be grayscale or RGB", "%ux%u RGB Targa image", "%ux%u grayscale Targa image", "%ux%u colormapped Targa image", "Color map file is invalid or of unsupported format", "Output file format cannot handle %d colormap entries", "ungetc failed", "Unrecognized input file format --- perhaps you need -targa", "Unsupported output file format", ((void *) 0) };
-typedef enum { FMT_BMP, FMT_GIF, FMT_OS2, FMT_PPM, FMT_RLE, FMT_TARGA, FMT_TIFF } IMAGE_FORMATS;
-static IMAGE_FORMATS requested_fmt;
-static const char *progname;
-static char *outfilename;
-static void usage(void)
+typedef struct {
+    struct djpeg_dest_struct pub;
+    char *iobuffer;
+    JSAMPROW pixrow;
+    size_t buffer_width;
+    JDIMENSION samples_per_row;
+} ppm_dest_struct;
+typedef ppm_dest_struct *ppm_dest_ptr;
+static void put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
 {
-    fprintf(stderr, "usage: %s [switches] ", progname);
-    fprintf(stderr, "[inputfile]\n");
-    fprintf(stderr, "Switches (names may be abbreviated):\n");
-    fprintf(stderr, "  -colors N      Reduce image to no more than N colors\n");
-    fprintf(stderr, "  -fast          Fast, low-quality processing\n");
-    fprintf(stderr, "  -grayscale     Force grayscale output\n");
-    fprintf(stderr, "  -scale M/N     Scale output image by fraction M/N, eg, 1/8\n");
-    fprintf(stderr, "  -bmp           Select BMP output format (Windows style)%s\n", (FMT_PPM == FMT_BMP ? " (default)" : ""));
-    fprintf(stderr, "  -gif           Select GIF output format%s\n", (FMT_PPM == FMT_GIF ? " (default)" : ""));
-    fprintf(stderr, "  -os2           Select BMP output format (OS/2 style)%s\n", (FMT_PPM == FMT_OS2 ? " (default)" : ""));
-    fprintf(stderr, "  -pnm           Select PBMPLUS (PPM/PGM) output format%s\n", (FMT_PPM == FMT_PPM ? " (default)" : ""));
-    fprintf(stderr, "  -targa         Select Targa output format%s\n", (FMT_PPM == FMT_TARGA ? " (default)" : ""));
-    fprintf(stderr, "Switches for advanced users:\n");
-    fprintf(stderr, "  -dct int       Use integer DCT method%s\n", (JDCT_ISLOW == JDCT_ISLOW ? " (default)" : ""));
-    fprintf(stderr, "  -dct fast      Use fast integer DCT (less accurate)%s\n", (JDCT_ISLOW == JDCT_IFAST ? " (default)" : ""));
-    fprintf(stderr, "  -dct float     Use floating-point DCT method%s\n", (JDCT_ISLOW == JDCT_FLOAT ? " (default)" : ""));
-    fprintf(stderr, "  -dither fs     Use F-S dithering (default)\n");
-    fprintf(stderr, "  -dither none   Don't use dithering in quantization\n");
-    fprintf(stderr, "  -dither ordered  Use ordered dither (medium speed, quality)\n");
-    fprintf(stderr, "  -map FILE      Map to colors used in named image file\n");
-    fprintf(stderr, "  -nosmooth      Don't use high-quality upsampling\n");
-    fprintf(stderr, "  -onepass       Use 1-pass quantization (fast, low quality)\n");
-    fprintf(stderr, "  -maxmemory N   Maximum memory to use (in kbytes)\n");
-    fprintf(stderr, "  -outfile name  Specify name for output file\n");
-    fprintf(stderr, "  -verbose  or  -debug   Emit debug output\n");
-    exit(1);
-} static int parse_switches(j_decompress_ptr cinfo, int argc, char **argv, int last_file_arg_seen, boolean for_real)
+    ppm_dest_ptr dest = (ppm_dest_ptr) dinfo;
+    (void) ((fwrite((const void *) (dest->iobuffer), 1, (dest->buffer_width), (dest->pub.output_file))));
+} static void copy_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
 {
-    int argn;
-    char *arg;
-    requested_fmt = FMT_PPM;
-    outfilename = ((void *) 0);
-    cinfo->err->trace_level = 0;
-    for (argn = 1; argn < argc; argn++) {
-	arg = argv[argn];
-	if (*arg != '-') {
-	    if (argn <= last_file_arg_seen) {
-		outfilename = ((void *) 0);
-		continue;
-	    }
-	    break;
-	}
-	arg++;
-	if (keymatch(arg, "bmp", 1)) {
-	    requested_fmt = FMT_BMP;
-	} else if (keymatch(arg, "colors", 1) || keymatch(arg, "colours", 1) || keymatch(arg, "quantize", 1) || keymatch(arg, "quantise", 1)) {
-	    int val;
-	    if (++argn >= argc)
-		usage();
-	    if (sscanf(argv[argn], "%d", &val) != 1)
-		usage();
-	    cinfo->desired_number_of_colors = val;
-	    cinfo->quantize_colors = 1;
-	} else if (keymatch(arg, "dct", 2)) {
-	    if (++argn >= argc)
-		usage();
-	    if (keymatch(argv[argn], "int", 1)) {
-		cinfo->dct_method = JDCT_ISLOW;
-	    } else if (keymatch(argv[argn], "fast", 2)) {
-		cinfo->dct_method = JDCT_IFAST;
-	    } else if (keymatch(argv[argn], "float", 2)) {
-		cinfo->dct_method = JDCT_FLOAT;
-	    } else
-		usage();
-	} else if (keymatch(arg, "dither", 2)) {
-	    if (++argn >= argc)
-		usage();
-	    if (keymatch(argv[argn], "fs", 2)) {
-		cinfo->dither_mode = JDITHER_FS;
-	    } else if (keymatch(argv[argn], "none", 2)) {
-		cinfo->dither_mode = JDITHER_NONE;
-	    } else if (keymatch(argv[argn], "ordered", 2)) {
-		cinfo->dither_mode = JDITHER_ORDERED;
-	    } else
-		usage();
-	} else if (keymatch(arg, "debug", 1) || keymatch(arg, "verbose", 1)) {
-	    static boolean printed_version = 0;
-	    if (!printed_version) {
-		fprintf(stderr, "Independent JPEG Group's DJPEG, version %s\n%s\n", "6a  7-Feb-96", "Copyright (C) 1996, Thomas G. Lane");
-		printed_version = 1;
-	    }
-	    cinfo->err->trace_level++;
-	} else if (keymatch(arg, "fast", 1)) {
-	    cinfo->two_pass_quantize = 0;
-	    cinfo->dither_mode = JDITHER_ORDERED;
-	    if (!cinfo->quantize_colors)
-		cinfo->desired_number_of_colors = 216;
-	    cinfo->dct_method = JDCT_IFAST;
-	    cinfo->do_fancy_upsampling = 0;
-	} else if (keymatch(arg, "gif", 1)) {
-	    requested_fmt = FMT_GIF;
-	} else if (keymatch(arg, "grayscale", 2) || keymatch(arg, "greyscale", 2)) {
-	    cinfo->out_color_space = JCS_GRAYSCALE;
-	} else if (keymatch(arg, "map", 3)) {
-	    if (++argn >= argc)
-		usage();
-	    if (for_real) {
-		FILE *mapfile;
-		if ((mapfile = fopen(argv[argn], "rb")) == ((void *) 0)) {
-		    fprintf(stderr, "%s: can't open %s\n", progname, argv[argn]);
-		    exit(1);
-		}
-		read_color_map(cinfo, mapfile);
-		fclose(mapfile);
-		cinfo->quantize_colors = 1;
-	    }
-	} else if (keymatch(arg, "maxmemory", 3)) {
-	    long lval;
-	    char ch = 'x';
-	    if (++argn >= argc)
-		usage();
-	    if (sscanf(argv[argn], "%ld%c", &lval, &ch) < 1)
-		usage();
-	    if (ch == 'm' || ch == 'M')
-		lval *= 1000L;
-	    cinfo->mem->max_memory_to_use = lval * 1000L;
-	} else if (keymatch(arg, "nosmooth", 3)) {
-	    cinfo->do_fancy_upsampling = 0;
-	} else if (keymatch(arg, "onepass", 3)) {
-	    cinfo->two_pass_quantize = 0;
-	} else if (keymatch(arg, "os2", 3)) {
-	    requested_fmt = FMT_OS2;
-	} else if (keymatch(arg, "outfile", 4)) {
-	    if (++argn >= argc)
-		usage();
-	    outfilename = argv[argn];
-	} else if (keymatch(arg, "pnm", 1) || keymatch(arg, "ppm", 1)) {
-	    requested_fmt = FMT_PPM;
-	} else if (keymatch(arg, "rle", 1)) {
-	    requested_fmt = FMT_RLE;
-	} else if (keymatch(arg, "scale", 1)) {
-	    if (++argn >= argc)
-		usage();
-	    if (sscanf(argv[argn], "%d/%d", &cinfo->scale_num, &cinfo->scale_denom) != 2)
-		usage();
-	} else if (keymatch(arg, "targa", 1)) {
-	    requested_fmt = FMT_TARGA;
-	} else {
-	    usage();
-	}
-    }
-    return argn;
-}
-
-static unsigned int jpeg_getc(j_decompress_ptr cinfo)
+    ppm_dest_ptr dest = (ppm_dest_ptr) dinfo;
+    register char *bufferptr;
+    register JSAMPROW ptr;
+    register JDIMENSION col;
+    ptr = dest->pub.buffer[0];
+    bufferptr = dest->iobuffer;
+    for (col = dest->samples_per_row; col > 0; col--) {
+	*bufferptr++ = (char) (((int) (*ptr++)));
+    } ; (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
+} static void put_demapped_rgb(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
 {
-    struct jpeg_source_mgr *datasrc = cinfo->src;
-    if (datasrc->bytes_in_buffer == 0) {
-	if (!(*datasrc->fill_input_buffer) (cinfo))
-	    ((cinfo)->err->msg_code = (JERR_CANT_SUSPEND), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
-    }
-    datasrc->bytes_in_buffer--;
-    return (*datasrc->next_input_byte++);
-}
-
-static boolean COM_handler(j_decompress_ptr cinfo)
+    ppm_dest_ptr dest = (ppm_dest_ptr) dinfo;
+    register char *bufferptr;
+    register int pixval;
+    register JSAMPROW ptr;
+    register JSAMPROW color_map0 = cinfo->colormap[0];
+    register JSAMPROW color_map1 = cinfo->colormap[1];
+    register JSAMPROW color_map2 = cinfo->colormap[2];
+    register JDIMENSION col;
+    ptr = dest->pub.buffer[0];
+    bufferptr = dest->iobuffer;
+    for (col = cinfo->output_width; col > 0; col--) {
+	pixval = ((int) (*ptr++));
+	*bufferptr++ = (char) (((int) (color_map0[pixval])));
+	*bufferptr++ = (char) (((int) (color_map1[pixval])));
+	*bufferptr++ = (char) (((int) (color_map2[pixval])));
+    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
+} static void put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
 {
-    boolean traceit = (cinfo->err->trace_level >= 1);
-    INT32 length;
-    unsigned int ch;
-    unsigned int lastch = 0;
-    length = jpeg_getc(cinfo) << 8;
-    length += jpeg_getc(cinfo);
-    length -= 2;
-    if (traceit)
-	fprintf(stderr, "Comment, length %ld:\n", (long) length);
-    while (--length >= 0) {
-	ch = jpeg_getc(cinfo);
-	if (traceit) {
-	    if (ch == '\r') {
-		fprintf(stderr, "\n");
-	    } else if (ch == '\n') {
-		if (lastch != '\r')
-		    fprintf(stderr, "\n");
-	    } else if (ch == '\\') {
-		fprintf(stderr, "\\\\");
-	    } else if (((*__ctype_b_loc())[(int) ((ch))] & (unsigned short int) _ISprint)) {
-		_IO_putc(ch, stderr);
-	    } else {
-		fprintf(stderr, "\\%03o", ch);
-	    }
-	    lastch = ch;
-	}
-    }
-    if (traceit)
-	fprintf(stderr, "\n");
-    return 1;
-}
-
-int main1(int argc, char **argv)
+    ppm_dest_ptr dest = (ppm_dest_ptr) dinfo;
+    register char *bufferptr;
+    register JSAMPROW ptr;
+    register JSAMPROW color_map = cinfo->colormap[0];
+    register JDIMENSION col;
+    ptr = dest->pub.buffer[0];
+    bufferptr = dest->iobuffer;
+    for (col = cinfo->output_width; col > 0; col--) {
+	*bufferptr++ = (char) (((int) (color_map[((int) (*ptr++))])));
+    } ;
+    (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
+} static void start_output_ppm(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
-    struct jpeg_decompress_struct cinfo;
-    struct jpeg_error_mgr jerr;
-    int file_index;
-    djpeg_dest_ptr dest_mgr = ((void *) 0);
-    FILE *input_file;
-    FILE *output_file;
-    JDIMENSION num_scanlines;
-    progname = argv[0];
-    if (progname == ((void *) 0) || progname[0] == 0)
-	progname = "djpeg";
-    cinfo.err = jpeg_std_error(&jerr);
-    jpeg_CreateDecompress((&cinfo), 61, (size_t) sizeof(struct jpeg_decompress_struct));
-    jerr.addon_message_table = cdjpeg_message_table;
-    jerr.first_addon_message = JMSG_FIRSTADDONCODE;
-    jerr.last_addon_message = JMSG_LASTADDONCODE;
-    jpeg_set_marker_processor(&cinfo, 0xFE, COM_handler);
-    file_index = parse_switches(&cinfo, argc, argv, 0, 0);
-    if (file_index < argc - 1) {
-	fprintf(stderr, "%s: only one input file\n", progname);
-	usage();
-    }
-    if (file_index < argc) {
-	if ((input_file = fopen(argv[file_index], "rb")) == ((void *) 0)) {
-	    fprintf(stderr, "%s: can't open %s\n", progname, argv[file_index]);
-	    exit(1);
-	}
-    } else {
-	input_file = read_stdin();
-    }
-    if (outfilename != ((void *) 0)) {
-	if ((output_file = fopen(outfilename, "wb")) == ((void *) 0)) {
-	    fprintf(stderr, "%s: can't open %s\n", progname, outfilename);
-	    exit(1);
-	}
-    } else {
-	output_file = write_stdout();
-    }
-    jpeg_stdio_src(&cinfo, input_file);
-    (void) jpeg_read_header(&cinfo, 1);
-    file_index = parse_switches(&cinfo, argc, argv, 0, 1);
-    switch (requested_fmt) {
-    case FMT_BMP:
-	dest_mgr = jinit_write_bmp(&cinfo, 0);
+    ppm_dest_ptr dest = (ppm_dest_ptr) dinfo;
+    switch (cinfo->out_color_space) {
+    case JCS_GRAYSCALE:
+	fprintf(dest->pub.output_file, "P5\n%ld %ld\n%d\n", (long) cinfo->output_width, (long) cinfo->output_height, 255);
 	break;
-    case FMT_OS2:
-	dest_mgr = jinit_write_bmp(&cinfo, 1);
-	break;
-    case FMT_GIF:
-	dest_mgr = jinit_write_gif(&cinfo);
-	break;
-    case FMT_PPM:
-	dest_mgr = jinit_write_ppm(&cinfo);
-	break;
-    case FMT_TARGA:
-	dest_mgr = jinit_write_targa(&cinfo);
+    case JCS_RGB:
+	fprintf(dest->pub.output_file, "P6\n%ld %ld\n%d\n", (long) cinfo->output_width, (long) cinfo->output_height, 255);
 	break;
     default:
-	((&cinfo)->err->msg_code = (JERR_UNSUPPORTED_FORMAT), (*(&cinfo)->err->error_exit) ((j_common_ptr) (&cinfo)));
-	break;
+	((cinfo)->err->msg_code = (JERR_PPM_COLORSPACE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
     }
-    dest_mgr->output_file = output_file;
-    (void) jpeg_start_decompress(&cinfo);
-    (*dest_mgr->start_output) (&cinfo, dest_mgr);
-    while (cinfo.output_scanline < cinfo.output_height) {
-	num_scanlines = jpeg_read_scanlines(&cinfo, dest_mgr->buffer, dest_mgr->buffer_height);
-	(*dest_mgr->put_pixel_rows) (&cinfo, dest_mgr, num_scanlines);
+}
+
+static void finish_output_ppm(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+{
+    fflush(dinfo->output_file);
+    if (ferror(dinfo->output_file))
+	((cinfo)->err->msg_code = (JERR_FILE_WRITE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+}
+
+djpeg_dest_ptr jinit_write_ppm(j_decompress_ptr cinfo)
+{
+    ppm_dest_ptr dest;
+    dest = (ppm_dest_ptr) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, ((size_t) sizeof(ppm_dest_struct)));
+    dest->pub.start_output = start_output_ppm;
+    dest->pub.finish_output = finish_output_ppm;
+    jpeg_calc_output_dimensions(cinfo);
+    dest->samples_per_row = cinfo->output_width * cinfo->out_color_components;
+    dest->buffer_width = dest->samples_per_row * (1 * ((size_t) sizeof(char)));
+    dest->iobuffer = (char *) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, dest->buffer_width);
+    if (cinfo->quantize_colors || 8 != 8 || ((size_t) sizeof(JSAMPLE)) != ((size_t) sizeof(char))) {
+	dest->pub.buffer = (*cinfo->mem->alloc_sarray) ((j_common_ptr) cinfo, 1, cinfo->output_width * cinfo->output_components, (JDIMENSION) 1);
+	dest->pub.buffer_height = 1;
+	if (!cinfo->quantize_colors)
+	    dest->pub.put_pixel_rows = copy_pixel_rows;
+	else if (cinfo->out_color_space == JCS_GRAYSCALE)
+	    dest->pub.put_pixel_rows = put_demapped_gray;
+	else
+	    dest->pub.put_pixel_rows = put_demapped_rgb;
+    } else {
+	dest->pixrow = (JSAMPROW) dest->iobuffer;
+	dest->pub.buffer = &dest->pixrow;
+	dest->pub.buffer_height = 1;
+	dest->pub.put_pixel_rows = put_pixel_rows;
     }
-    (*dest_mgr->finish_output) (&cinfo, dest_mgr);
-    (void) jpeg_finish_decompress(&cinfo);
-    jpeg_destroy_decompress(&cinfo);
-    if (input_file != stdin)
-	fclose(input_file);
-    if (output_file != stdout)
-	fclose(output_file);
-    return 0;
+    return (djpeg_dest_ptr) dest;
 }
