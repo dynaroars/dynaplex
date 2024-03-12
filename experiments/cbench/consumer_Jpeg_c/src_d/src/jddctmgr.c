@@ -804,3 +804,4 @@ void jinit_inverse_dct(j_decompress_ptr cinfo)
 	idct->cur_method[ci] = -1;
     }
 }
+ 

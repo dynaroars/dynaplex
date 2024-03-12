@@ -1,5 +1,5 @@
 
-#include <stddef.h>
+ #include "jpeglib.h"
 //complexity is O(1) inffered by loopus
 typedef __typeof__(((int *) 0) - ((int *) 0)) ptrdiff_t;
 typedef __typeof__(sizeof(int)) size_t;
@@ -171,14 +171,14 @@ struct jpeg_memory_mgr {
     void (*self_destruct) (j_common_ptr cinfo);
     long max_memory_to_use;
 };
-typedef boolean(*jpeg_marker_parser_method) (j_decompress_ptr cinfo);
+
 extern struct jpeg_error_mgr *jpeg_std_error(struct jpeg_error_mgr *err);
 extern void jpeg_CreateCompress(j_compress_ptr cinfo, int version, size_t structsize);
-extern void jpeg_CreateDecompress(j_decompress_ptr cinfo, int version, size_t structsize);
+
 extern void jpeg_destroy_compress(j_compress_ptr cinfo);
-extern void jpeg_destroy_decompress(j_decompress_ptr cinfo);
+
 extern void jpeg_stdio_dest(j_compress_ptr cinfo, FILE * outfile);
-extern void jpeg_stdio_src(j_decompress_ptr cinfo, FILE * infile);
+
 extern void jpeg_set_defaults(j_compress_ptr cinfo);
 extern void jpeg_set_colorspace(j_compress_ptr cinfo, J_COLOR_SPACE colorspace);
 extern void jpeg_default_colorspace(j_compress_ptr cinfo);
@@ -196,27 +196,10 @@ extern void jpeg_finish_compress(j_compress_ptr cinfo);
 extern JDIMENSION jpeg_write_raw_data(j_compress_ptr cinfo, JSAMPIMAGE data, JDIMENSION num_lines);
 extern void jpeg_write_marker(j_compress_ptr cinfo, int marker, const JOCTET * dataptr, unsigned int datalen);
 extern void jpeg_write_tables(j_compress_ptr cinfo);
-extern int jpeg_read_header(j_decompress_ptr cinfo, boolean require_image);
-extern boolean jpeg_start_decompress(j_decompress_ptr cinfo);
-extern JDIMENSION jpeg_read_scanlines(j_decompress_ptr cinfo, JSAMPARRAY scanlines, JDIMENSION max_lines);
-extern boolean jpeg_finish_decompress(j_decompress_ptr cinfo);
-extern JDIMENSION jpeg_read_raw_data(j_decompress_ptr cinfo, JSAMPIMAGE data, JDIMENSION max_lines);
-extern boolean jpeg_has_multiple_scans(j_decompress_ptr cinfo);
-extern boolean jpeg_start_output(j_decompress_ptr cinfo, int scan_number);
-extern boolean jpeg_finish_output(j_decompress_ptr cinfo);
-extern boolean jpeg_input_complete(j_decompress_ptr cinfo);
-extern void jpeg_new_colormap(j_decompress_ptr cinfo);
-extern int jpeg_consume_input(j_decompress_ptr cinfo);
-extern void jpeg_calc_output_dimensions(j_decompress_ptr cinfo);
-extern void jpeg_set_marker_processor(j_decompress_ptr cinfo, int marker_code, jpeg_marker_parser_method routine);
-extern jvirt_barray_ptr *jpeg_read_coefficients(j_decompress_ptr cinfo);
 extern void jpeg_write_coefficients(j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays);
-extern void jpeg_copy_critical_parameters(j_decompress_ptr srcinfo, j_compress_ptr dstinfo);
 extern void jpeg_abort_compress(j_compress_ptr cinfo);
-extern void jpeg_abort_decompress(j_decompress_ptr cinfo);
 extern void jpeg_abort(j_common_ptr cinfo);
 extern void jpeg_destroy(j_common_ptr cinfo);
-extern boolean jpeg_resync_to_restart(j_decompress_ptr cinfo, int desired);
 typedef enum { JBUF_PASS_THRU, JBUF_SAVE_SOURCE, JBUF_CRANK_DEST, JBUF_SAVE_AND_PASS } J_BUF_MODE;
 struct jpeg_comp_master {
     void (*prepare_for_pass) (j_compress_ptr cinfo);
@@ -248,7 +231,8 @@ struct jpeg_downsampler {
 };
 struct jpeg_forward_dct {
     void (*start_pass) (j_compress_ptr cinfo);
-    void (*forward_DCT) (j_compress_ptr cinfo, jpeg_component_info * compptr, JSAMPARRAY sample_data, JBLOCKROW coef_blocks, JDIMENSION start_row, JDIMENSION start_col, JDIMENSION num_blocks);
+
+    void (*forward_DCT) (j_compress_ptr cinfo, struct jpeg_component_info * compptr, JSAMPARRAY sample_data, JBLOCKROW coef_blocks, JDIMENSION start_row, JDIMENSION start_col, JDIMENSION num_blocks);
 };
 struct jpeg_entropy_encoder {
     void (*start_pass) (j_compress_ptr cinfo, boolean gather_statistics);
@@ -262,69 +246,6 @@ struct jpeg_marker_writer {
     void (*write_scan_header) (j_compress_ptr cinfo);
     void (*write_file_trailer) (j_compress_ptr cinfo);
     void (*write_tables_only) (j_compress_ptr cinfo);
-};
-struct jpeg_decomp_master {
-    void (*prepare_for_output_pass) (j_decompress_ptr cinfo);
-    void (*finish_output_pass) (j_decompress_ptr cinfo);
-    boolean is_dummy_pass;
-};
-struct jpeg_input_controller {
-    int (*consume_input) (j_decompress_ptr cinfo);
-    void (*reset_input_controller) (j_decompress_ptr cinfo);
-    void (*start_input_pass) (j_decompress_ptr cinfo);
-    void (*finish_input_pass) (j_decompress_ptr cinfo);
-    boolean has_multiple_scans;
-    boolean eoi_reached;
-};
-struct jpeg_d_main_controller {
-    void (*start_pass) (j_decompress_ptr cinfo, J_BUF_MODE pass_mode);
-    void (*process_data) (j_decompress_ptr cinfo, JSAMPARRAY output_buf, JDIMENSION * out_row_ctr, JDIMENSION out_rows_avail);
-};
-struct jpeg_d_coef_controller {
-    void (*start_input_pass) (j_decompress_ptr cinfo);
-    int (*consume_data) (j_decompress_ptr cinfo);
-    void (*start_output_pass) (j_decompress_ptr cinfo);
-    int (*decompress_data) (j_decompress_ptr cinfo, JSAMPIMAGE output_buf);
-    jvirt_barray_ptr *coef_arrays;
-};
-struct jpeg_d_post_controller {
-    void (*start_pass) (j_decompress_ptr cinfo, J_BUF_MODE pass_mode);
-    void (*post_process_data) (j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION * in_row_group_ctr, JDIMENSION in_row_groups_avail, JSAMPARRAY output_buf, JDIMENSION * out_row_ctr, JDIMENSION out_rows_avail);
-};
-struct jpeg_marker_reader {
-    void (*reset_marker_reader) (j_decompress_ptr cinfo);
-    int (*read_markers) (j_decompress_ptr cinfo);
-    jpeg_marker_parser_method read_restart_marker;
-    jpeg_marker_parser_method process_COM;
-    jpeg_marker_parser_method process_APPn[16];
-    boolean saw_SOI;
-    boolean saw_SOF;
-    int next_restart_num;
-    unsigned int discarded_bytes;
-};
-struct jpeg_entropy_decoder {
-    void (*start_pass) (j_decompress_ptr cinfo);
-    boolean(*decode_mcu) (j_decompress_ptr cinfo, JBLOCKROW * MCU_data);
-};
-typedef void (*inverse_DCT_method_ptr) (j_decompress_ptr cinfo, jpeg_component_info * compptr, JCOEFPTR coef_block, JSAMPARRAY output_buf, JDIMENSION output_col);
-struct jpeg_inverse_dct {
-    void (*start_pass) (j_decompress_ptr cinfo);
-    inverse_DCT_method_ptr inverse_DCT[10];
-};
-struct jpeg_upsampler {
-    void (*start_pass) (j_decompress_ptr cinfo);
-    void (*upsample) (j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION * in_row_group_ctr, JDIMENSION in_row_groups_avail, JSAMPARRAY output_buf, JDIMENSION * out_row_ctr, JDIMENSION out_rows_avail);
-    boolean need_context_rows;
-};
-struct jpeg_color_deconverter {
-    void (*start_pass) (j_decompress_ptr cinfo);
-    void (*color_convert) (j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows);
-};
-struct jpeg_color_quantizer {
-    void (*start_pass) (j_decompress_ptr cinfo, boolean is_pre_scan);
-    void (*color_quantize) (j_decompress_ptr cinfo, JSAMPARRAY input_buf, JSAMPARRAY output_buf, int num_rows);
-    void (*finish_pass) (j_decompress_ptr cinfo);
-    void (*new_color_map) (j_decompress_ptr cinfo);
 };
 extern void jinit_compress_master(j_compress_ptr cinfo);
 extern void jinit_c_master_control(j_compress_ptr cinfo, boolean transcode_only);
