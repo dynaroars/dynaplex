@@ -17,7 +17,7 @@ def findMax(arr, n):
             mi = i
     return mi
 
-def pancakeSort(arr: list, n: int) -> None:
+def pancakeSort(arr: list[int], n: int) -> None:
     if n <= 1:
         return
     mi = findMax(arr, n)

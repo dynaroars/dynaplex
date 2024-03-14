@@ -1,4 +1,4 @@
-def binary_search(arr: list, low: int, high: int, x: int) -> int:
+def binary_search(arr: list[int], low: int, high: int, x: int) -> int:
     if high >= low:
 
         mid = (high + low) // 2
@@ -14,3 +14,14 @@ def binary_search(arr: list, low: int, high: int, x: int) -> int:
 
     else:
         return -1
+
+if __name__ == "__main__":
+    arr = [2, 3, 4, 10, 40]
+    x = 109
+
+    result = binary_search(arr, 0, len(arr) - 1, x)
+
+    if result != -1:
+        print("Element is present at index % d" % result)
+    else:
+        print("Element is not present in array")

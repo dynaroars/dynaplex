@@ -1,4 +1,4 @@
-def isSubsetSum(set: list, n: int, sum: int) -> bool:
+def isSubsetSum(set: list[int], n: int, sum: int) -> bool:
     if (sum == 0) :
         return True
     if (n == 0 and sum != 0) :

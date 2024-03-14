@@ -1,4 +1,4 @@
-def selection_sort_recursive(arr: list) -> list:
+def selection_sort_recursive(arr: list[int]) -> list:
     if len(arr) <= 1:
         return arr
     min_index = arr.index(min(arr))

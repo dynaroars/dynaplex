@@ -6,7 +6,7 @@ def insertAtBottom(stack, item):
         insertAtBottom(stack, item)
         push(stack, temp)
 
-def reverse(stack: list) -> list:
+def reverse(stack: list[int]) -> list:
     if not isEmpty(stack):
         temp = pop(stack)
         reverse(stack)
@@ -20,7 +20,6 @@ def push( stack, item ):
 
 def pop( stack ):
     if(isEmpty( stack )):
-        print("Stack Underflow ")
         exit(1)
     return stack.pop()
 

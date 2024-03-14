@@ -17,7 +17,7 @@ def merge(a, b):
             j += 1
     return r
 
-def visit_mem(R: int, L: int, x: int, a: list) -> None:
+def visit_mem(R: int, L: int, x: int, a: list[int]) -> None:
     global tree
     if L == R:
         tree[x].append(a[L])

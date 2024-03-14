@@ -1,7 +1,6 @@
 import argparse
 from rec_solver import Rec_term, Div_and_conquer_recurrence, Linear_recurrence
 import subprocess as sp
-import ast
 import os
 import logging
 from pathlib import Path
@@ -10,7 +9,6 @@ import loop_bound
 import warnings
 from functools import cmp_to_key
 import re
-import math
 
 #execution trace tree for 1 run
 class Node(object):

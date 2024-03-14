@@ -1,4 +1,4 @@
-def perm_index(a: list, sz: int) -> int:
+def perm_index(a: list[int], sz: int) -> int:
     if sz == 1:
         return 0
     fac = 1

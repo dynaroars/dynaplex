@@ -1,4 +1,4 @@
-def insertion_sort(arr: list) -> None:
+def insertion_sort(arr: list[int]) -> None:
     if len(arr) <= 1:
         return
     insertion_sort(arr[:-1])

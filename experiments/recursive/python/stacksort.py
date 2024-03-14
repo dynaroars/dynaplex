@@ -7,7 +7,7 @@ def sortedInsert(s, element):
         sortedInsert(s, element,)
         s.append(temp)
 
-def sortStack(s: list) -> list:
+def sortStack(s: list[int]) -> list:
     if len(s) != 0:
         temp = s.pop()
         sortStack(s)

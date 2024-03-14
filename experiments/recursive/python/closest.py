@@ -16,7 +16,7 @@ def brute_force_closest_pair(points):
                 closest_pair = (points[i], points[j])
     return closest_pair
 
-def closest_pair(points: list) -> tuple:
+def closest_pair(points: list[tuple[int, int]]) -> tuple:
     if len(points) <= 3:
         return brute_force_closest_pair(points)
     else:

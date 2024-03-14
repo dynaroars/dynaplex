@@ -49,7 +49,7 @@ def subtract_matrix(a, b):
     return d
 
 
-def strassen(x: list, y: list, n: int) -> list:
+def strassen(x: list[int], y: list[int], n: int) -> list:
     if n == 1:
         z = [[0]]
         z[0][0] = x[0][0] * y[0][0]

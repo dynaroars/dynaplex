@@ -1,4 +1,4 @@
-def merge_sort(myList: list) -> list:
+def merge_sort(myList: list[int]) -> list:
     if len(myList) > 1:
         mid = len(myList) // 2
         left = myList[:mid]
@@ -23,7 +23,7 @@ def merge_sort(myList: list) -> list:
             myList[k] = left[i]
             i += 1
             k += 1
-        ### 26_S_13
+        ### 27_S_13
         while j < len(right):
             myList[k]=right[j]
             j += 1
