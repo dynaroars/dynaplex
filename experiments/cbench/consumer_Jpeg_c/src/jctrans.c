@@ -414,152 +414,9 @@ typedef _G_fpos_t fpos_t;
 extern struct _IO_FILE *stdin;
 extern struct _IO_FILE *stdout;
 extern struct _IO_FILE *stderr;
-extern int remove(__const char *__filename) __attribute__ ((__nothrow__));
-extern int rename(__const char *__old, __const char *__new) __attribute__ ((__nothrow__));
-extern int renameat(int __oldfd, __const char *__old, int __newfd, __const char *__new) __attribute__ ((__nothrow__));
-extern FILE *tmpfile(void);
-extern char *tmpnam(char *__s) __attribute__ ((__nothrow__));
-extern char *tmpnam_r(char *__s) __attribute__ ((__nothrow__));
-extern char *tempnam(__const char *__dir, __const char *__pfx) __attribute__ ((__nothrow__)) __attribute__ ((__malloc__));
-extern int fclose(FILE * __stream);
-extern int fflush(FILE * __stream);
-extern int fflush_unlocked(FILE * __stream);
-extern FILE *fopen(__const char *__restrict __filename, __const char *__restrict __modes);
-extern FILE *freopen(__const char *__restrict __filename, __const char *__restrict __modes, FILE * __restrict __stream);
-extern FILE *fdopen(int __fd, __const char *__modes) __attribute__ ((__nothrow__));
-extern FILE *fmemopen(void *__s, size_t __len, __const char *__modes) __attribute__ ((__nothrow__));
-extern FILE *open_memstream(char **__bufloc, size_t * __sizeloc) __attribute__ ((__nothrow__));
-extern void setbuf(FILE * __restrict __stream, char *__restrict __buf) __attribute__ ((__nothrow__));
-extern int setvbuf(FILE * __restrict __stream, char *__restrict __buf, int __modes, size_t __n) __attribute__ ((__nothrow__));
-extern void setbuffer(FILE * __restrict __stream, char *__restrict __buf, size_t __size) __attribute__ ((__nothrow__));
-extern void setlinebuf(FILE * __stream) __attribute__ ((__nothrow__));
-extern int fprintf(FILE * __restrict __stream, __const char *__restrict __format, ...);
-extern int printf(__const char *__restrict __format, ...);
-extern int sprintf(char *__restrict __s, __const char *__restrict __format, ...) __attribute__ ((__nothrow__));
-extern int vfprintf(FILE * __restrict __s, __const char *__restrict __format, __gnuc_va_list __arg);
-extern int vprintf(__const char *__restrict __format, __gnuc_va_list __arg);
-extern int vsprintf(char *__restrict __s, __const char *__restrict __format, __gnuc_va_list __arg) __attribute__ ((__nothrow__));
-extern int snprintf(char *__restrict __s, size_t __maxlen, __const char *__restrict __format, ...) __attribute__ ((__nothrow__)) __attribute__ ((__format__(__printf__, 3, 4)));
-extern int vsnprintf(char *__restrict __s, size_t __maxlen, __const char *__restrict __format, __gnuc_va_list __arg) __attribute__ ((__nothrow__)) __attribute__ ((__format__(__printf__, 3, 0)));
-extern int vdprintf(int __fd, __const char *__restrict __fmt, __gnuc_va_list __arg) __attribute__ ((__format__(__printf__, 2, 0)));
-extern int dprintf(int __fd, __const char *__restrict __fmt, ...) __attribute__ ((__format__(__printf__, 2, 3)));
-extern int fscanf(FILE * __restrict __stream, __const char *__restrict __format, ...);
-extern int scanf(__const char *__restrict __format, ...);
-extern int sscanf(__const char *__restrict __s, __const char *__restrict __format, ...) __attribute__ ((__nothrow__));
-extern int fscanf(FILE * __restrict __stream, __const char *__restrict __format, ...) __asm__("" "__isoc99_fscanf");
-extern int scanf(__const char *__restrict __format, ...) __asm__("" "__isoc99_scanf");
-extern int sscanf(__const char *__restrict __s, __const char *__restrict __format, ...) __asm__("" "__isoc99_sscanf") __attribute__ ((__nothrow__));
-extern int vfscanf(FILE * __restrict __s, __const char *__restrict __format, __gnuc_va_list __arg) __attribute__ ((__format__(__scanf__, 2, 0)));
-extern int vscanf(__const char *__restrict __format, __gnuc_va_list __arg) __attribute__ ((__format__(__scanf__, 1, 0)));
-extern int vsscanf(__const char *__restrict __s, __const char *__restrict __format, __gnuc_va_list __arg) __attribute__ ((__nothrow__)) __attribute__ ((__format__(__scanf__, 2, 0)));
-extern int vfscanf(FILE * __restrict __s, __const char *__restrict __format, __gnuc_va_list __arg) __asm__("" "__isoc99_vfscanf") __attribute__ ((__format__(__scanf__, 2, 0)));
-extern int vscanf(__const char *__restrict __format, __gnuc_va_list __arg) __asm__("" "__isoc99_vscanf") __attribute__ ((__format__(__scanf__, 1, 0)));
-extern int vsscanf(__const char *__restrict __s, __const char *__restrict __format, __gnuc_va_list __arg) __asm__("" "__isoc99_vsscanf") __attribute__ ((__nothrow__)) __attribute__ ((__format__(__scanf__, 2, 0)));
-extern int fgetc(FILE * __stream);
-extern int getc(FILE * __stream);
-extern int getchar(void);
-extern int getc_unlocked(FILE * __stream);
-extern int getchar_unlocked(void);
-extern int fgetc_unlocked(FILE * __stream);
-extern int fputc(int __c, FILE * __stream);
-extern int putc(int __c, FILE * __stream);
-extern int putchar(int __c);
-extern int fputc_unlocked(int __c, FILE * __stream);
-extern int putc_unlocked(int __c, FILE * __stream);
-extern int putchar_unlocked(int __c);
-extern int getw(FILE * __stream);
-extern int putw(int __w, FILE * __stream);
-extern char *fgets(char *__restrict __s, int __n, FILE * __restrict __stream);
-extern char *gets(char *__s);
-extern __ssize_t __getdelim(char **__restrict __lineptr, size_t * __restrict __n, int __delimiter, FILE * __restrict __stream);
-extern __ssize_t getdelim(char **__restrict __lineptr, size_t * __restrict __n, int __delimiter, FILE * __restrict __stream);
-extern __ssize_t getline(char **__restrict __lineptr, size_t * __restrict __n, FILE * __restrict __stream);
-extern int fputs(__const char *__restrict __s, FILE * __restrict __stream);
+
 extern int puts(__const char *__s);
 extern int ungetc(int __c, FILE * __stream);
-extern size_t fread(void *__restrict __ptr, size_t __size, size_t __n, FILE * __restrict __stream);
-extern size_t fwrite(__const void *__restrict __ptr, size_t __size, size_t __n, FILE * __restrict __s);
-extern size_t fread_unlocked(void *__restrict __ptr, size_t __size, size_t __n, FILE * __restrict __stream);
-extern size_t fwrite_unlocked(__const void *__restrict __ptr, size_t __size, size_t __n, FILE * __restrict __stream);
-extern int fseek(FILE * __stream, long int __off, int __whence);
-extern long int ftell(FILE * __stream);
-extern void rewind(FILE * __stream);
-extern int fseeko(FILE * __stream, __off_t __off, int __whence);
-extern __off_t ftello(FILE * __stream);
-extern int fgetpos(FILE * __restrict __stream, fpos_t * __restrict __pos);
-extern int fsetpos(FILE * __stream, __const fpos_t * __pos);
-extern void clearerr(FILE * __stream) __attribute__ ((__nothrow__));
-extern int feof(FILE * __stream) __attribute__ ((__nothrow__));
-extern int ferror(FILE * __stream) __attribute__ ((__nothrow__));
-extern void clearerr_unlocked(FILE * __stream) __attribute__ ((__nothrow__));
-extern int feof_unlocked(FILE * __stream) __attribute__ ((__nothrow__));
-extern int ferror_unlocked(FILE * __stream) __attribute__ ((__nothrow__));
-extern void perror(__const char *__s);
-extern int sys_nerr;
-extern __const char *__const sys_errlist[];
-extern int fileno(FILE * __stream) __attribute__ ((__nothrow__));
-extern int fileno_unlocked(FILE * __stream) __attribute__ ((__nothrow__));
-extern FILE *popen(__const char *__command, __const char *__modes);
-extern int pclose(FILE * __stream);
-extern char *ctermid(char *__s) __attribute__ ((__nothrow__));
-extern void flockfile(FILE * __stream) __attribute__ ((__nothrow__));
-extern int ftrylockfile(FILE * __stream) __attribute__ ((__nothrow__));
-extern void funlockfile(FILE * __stream) __attribute__ ((__nothrow__));
-extern void *memcpy(void *__restrict __dest, __const void *__restrict __src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
-extern void *memmove(void *__dest, __const void *__src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
-extern void *memccpy(void *__restrict __dest, __const void *__restrict __src, int __c, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
-extern void *memset(void *__s, int __c, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1)));
-extern int memcmp(__const void *__s1, __const void *__s2, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
-extern void *memchr(__const void *__s, int __c, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1)));
-extern char *strcpy(char *__restrict __dest, __const char *__restrict __src) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
-extern char *strncpy(char *__restrict __dest, __const char *__restrict __src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
-extern char *strcat(char *__restrict __dest, __const char *__restrict __src) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
-extern char *strncat(char *__restrict __dest, __const char *__restrict __src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
-extern int strcmp(__const char *__s1, __const char *__s2) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
-extern int strncmp(__const char *__s1, __const char *__s2, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
-extern int strcoll(__const char *__s1, __const char *__s2) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
-extern size_t strxfrm(char *__restrict __dest, __const char *__restrict __src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(2)));
-typedef struct __locale_struct {
-    struct locale_data *__locales[13];
-    const unsigned short int *__ctype_b;
-    const int *__ctype_tolower;
-    const int *__ctype_toupper;
-    const char *__names[13];
-} *__locale_t;
-typedef __locale_t locale_t;
-extern int strcoll_l(__const char *__s1, __const char *__s2, __locale_t __l) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2, 3)));
-extern size_t strxfrm_l(char *__dest, __const char *__src, size_t __n, __locale_t __l) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(2, 4)));
-extern char *strdup(__const char *__s) __attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) __attribute__ ((__nonnull__(1)));
-extern char *strndup(__const char *__string, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) __attribute__ ((__nonnull__(1)));
-extern char *strchr(__const char *__s, int __c) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1)));
-extern char *strrchr(__const char *__s, int __c) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1)));
-extern size_t strcspn(__const char *__s, __const char *__reject) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
-extern size_t strspn(__const char *__s, __const char *__accept) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
-extern char *strpbrk(__const char *__s, __const char *__accept) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
-extern char *strstr(__const char *__haystack, __const char *__needle) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
-extern char *strtok(char *__restrict __s, __const char *__restrict __delim) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(2)));
-extern char *__strtok_r(char *__restrict __s, __const char *__restrict __delim, char **__restrict __save_ptr) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(2, 3)));
-extern char *strtok_r(char *__restrict __s, __const char *__restrict __delim, char **__restrict __save_ptr) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(2, 3)));
-extern size_t strlen(__const char *__s) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1)));
-extern size_t strnlen(__const char *__string, size_t __maxlen) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1)));
-extern char *strerror(int __errnum) __attribute__ ((__nothrow__));
-extern int strerror_r(int __errnum, char *__buf, size_t __buflen) __asm__("" "__xpg_strerror_r") __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(2)));
-extern char *strerror_l(int __errnum, __locale_t __l) __attribute__ ((__nothrow__));
-extern void __bzero(void *__s, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1)));
-extern void bcopy(__const void *__src, void *__dest, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
-extern void bzero(void *__s, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1)));
-extern int bcmp(__const void *__s1, __const void *__s2, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
-extern char *index(__const char *__s, int __c) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1)));
-extern char *rindex(__const char *__s, int __c) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1)));
-extern int ffs(int __i) __attribute__ ((__nothrow__)) __attribute__ ((__const__));
-extern int strcasecmp(__const char *__s1, __const char *__s2) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
-extern int strncasecmp(__const char *__s1, __const char *__s2, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
-extern char *strsep(char **__restrict __stringp, __const char *__restrict __delim) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
-extern char *strsignal(int __sig) __attribute__ ((__nothrow__));
-extern char *__stpcpy(char *__restrict __dest, __const char *__restrict __src) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
-extern char *stpcpy(char *__restrict __dest, __const char *__restrict __src) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
-extern char *__stpncpy(char *__restrict __dest, __const char *__restrict __src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
-extern char *stpncpy(char *__restrict __dest, __const char *__restrict __src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
 typedef unsigned char JSAMPLE;
 typedef short JCOEF;
 typedef unsigned char JOCTET;
@@ -873,159 +730,327 @@ extern void jpeg_abort_decompress(j_decompress_ptr cinfo);
 extern void jpeg_abort(j_common_ptr cinfo);
 extern void jpeg_destroy(j_common_ptr cinfo);
 extern boolean jpeg_resync_to_restart(j_decompress_ptr cinfo, int desired);
+typedef enum { JBUF_PASS_THRU, JBUF_SAVE_SOURCE, JBUF_CRANK_DEST, JBUF_SAVE_AND_PASS } J_BUF_MODE;
+struct jpeg_comp_master {
+    void (*prepare_for_pass) (j_compress_ptr cinfo);
+    void (*pass_startup) (j_compress_ptr cinfo);
+    void (*finish_pass) (j_compress_ptr cinfo);
+    boolean call_pass_startup;
+    boolean is_last_pass;
+};
+struct jpeg_c_main_controller {
+    void (*start_pass) (j_compress_ptr cinfo, J_BUF_MODE pass_mode);
+    void (*process_data) (j_compress_ptr cinfo, JSAMPARRAY input_buf, JDIMENSION * in_row_ctr, JDIMENSION in_rows_avail);
+};
+struct jpeg_c_prep_controller {
+    void (*start_pass) (j_compress_ptr cinfo, J_BUF_MODE pass_mode);
+    void (*pre_process_data) (j_compress_ptr cinfo, JSAMPARRAY input_buf, JDIMENSION * in_row_ctr, JDIMENSION in_rows_avail, JSAMPIMAGE output_buf, JDIMENSION * out_row_group_ctr, JDIMENSION out_row_groups_avail);
+};
+struct jpeg_c_coef_controller {
+    void (*start_pass) (j_compress_ptr cinfo, J_BUF_MODE pass_mode);
+    boolean(*compress_data) (j_compress_ptr cinfo, JSAMPIMAGE input_buf);
+};
+struct jpeg_color_converter {
+    void (*start_pass) (j_compress_ptr cinfo);
+    void (*color_convert) (j_compress_ptr cinfo, JSAMPARRAY input_buf, JSAMPIMAGE output_buf, JDIMENSION output_row, int num_rows);
+};
+struct jpeg_downsampler {
+    void (*start_pass) (j_compress_ptr cinfo);
+    void (*downsample) (j_compress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION in_row_index, JSAMPIMAGE output_buf, JDIMENSION out_row_group_index);
+    boolean need_context_rows;
+};
+struct jpeg_forward_dct {
+    void (*start_pass) (j_compress_ptr cinfo);
+    void (*forward_DCT) (j_compress_ptr cinfo, jpeg_component_info * compptr, JSAMPARRAY sample_data, JBLOCKROW coef_blocks, JDIMENSION start_row, JDIMENSION start_col, JDIMENSION num_blocks);
+};
+struct jpeg_entropy_encoder {
+    void (*start_pass) (j_compress_ptr cinfo, boolean gather_statistics);
+    boolean(*encode_mcu) (j_compress_ptr cinfo, JBLOCKROW * MCU_data);
+    void (*finish_pass) (j_compress_ptr cinfo);
+};
+struct jpeg_marker_writer {
+    void (*write_any_marker) (j_compress_ptr cinfo, int marker, const JOCTET * dataptr, unsigned int datalen);
+    void (*write_file_header) (j_compress_ptr cinfo);
+    void (*write_frame_header) (j_compress_ptr cinfo);
+    void (*write_scan_header) (j_compress_ptr cinfo);
+    void (*write_file_trailer) (j_compress_ptr cinfo);
+    void (*write_tables_only) (j_compress_ptr cinfo);
+};
+struct jpeg_decomp_master {
+    void (*prepare_for_output_pass) (j_decompress_ptr cinfo);
+    void (*finish_output_pass) (j_decompress_ptr cinfo);
+    boolean is_dummy_pass;
+};
+struct jpeg_input_controller {
+    int (*consume_input) (j_decompress_ptr cinfo);
+    void (*reset_input_controller) (j_decompress_ptr cinfo);
+    void (*start_input_pass) (j_decompress_ptr cinfo);
+    void (*finish_input_pass) (j_decompress_ptr cinfo);
+    boolean has_multiple_scans;
+    boolean eoi_reached;
+};
+struct jpeg_d_main_controller {
+    void (*start_pass) (j_decompress_ptr cinfo, J_BUF_MODE pass_mode);
+    void (*process_data) (j_decompress_ptr cinfo, JSAMPARRAY output_buf, JDIMENSION * out_row_ctr, JDIMENSION out_rows_avail);
+};
+struct jpeg_d_coef_controller {
+    void (*start_input_pass) (j_decompress_ptr cinfo);
+    int (*consume_data) (j_decompress_ptr cinfo);
+    void (*start_output_pass) (j_decompress_ptr cinfo);
+    int (*decompress_data) (j_decompress_ptr cinfo, JSAMPIMAGE output_buf);
+    jvirt_barray_ptr *coef_arrays;
+};
+struct jpeg_d_post_controller {
+    void (*start_pass) (j_decompress_ptr cinfo, J_BUF_MODE pass_mode);
+    void (*post_process_data) (j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION * in_row_group_ctr, JDIMENSION in_row_groups_avail, JSAMPARRAY output_buf, JDIMENSION * out_row_ctr, JDIMENSION out_rows_avail);
+};
+struct jpeg_marker_reader {
+    void (*reset_marker_reader) (j_decompress_ptr cinfo);
+    int (*read_markers) (j_decompress_ptr cinfo);
+    jpeg_marker_parser_method read_restart_marker;
+    jpeg_marker_parser_method process_COM;
+    jpeg_marker_parser_method process_APPn[16];
+    boolean saw_SOI;
+    boolean saw_SOF;
+    int next_restart_num;
+    unsigned int discarded_bytes;
+};
+struct jpeg_entropy_decoder {
+    void (*start_pass) (j_decompress_ptr cinfo);
+    boolean(*decode_mcu) (j_decompress_ptr cinfo, JBLOCKROW * MCU_data);
+};
+typedef void (*inverse_DCT_method_ptr) (j_decompress_ptr cinfo, jpeg_component_info * compptr, JCOEFPTR coef_block, JSAMPARRAY output_buf, JDIMENSION output_col);
+struct jpeg_inverse_dct {
+    void (*start_pass) (j_decompress_ptr cinfo);
+    inverse_DCT_method_ptr inverse_DCT[10];
+};
+struct jpeg_upsampler {
+    void (*start_pass) (j_decompress_ptr cinfo);
+    void (*upsample) (j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION * in_row_group_ctr, JDIMENSION in_row_groups_avail, JSAMPARRAY output_buf, JDIMENSION * out_row_ctr, JDIMENSION out_rows_avail);
+    boolean need_context_rows;
+};
+struct jpeg_color_deconverter {
+    void (*start_pass) (j_decompress_ptr cinfo);
+    void (*color_convert) (j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows);
+};
+struct jpeg_color_quantizer {
+    void (*start_pass) (j_decompress_ptr cinfo, boolean is_pre_scan);
+    void (*color_quantize) (j_decompress_ptr cinfo, JSAMPARRAY input_buf, JSAMPARRAY output_buf, int num_rows);
+    void (*finish_pass) (j_decompress_ptr cinfo);
+    void (*new_color_map) (j_decompress_ptr cinfo);
+};
+extern void jinit_compress_master(j_compress_ptr cinfo);
+extern void jinit_c_master_control(j_compress_ptr cinfo, boolean transcode_only);
+extern void jinit_c_main_controller(j_compress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_c_prep_controller(j_compress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_c_coef_controller(j_compress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_color_converter(j_compress_ptr cinfo);
+extern void jinit_downsampler(j_compress_ptr cinfo);
+extern void jinit_forward_dct(j_compress_ptr cinfo);
+extern void jinit_huff_encoder(j_compress_ptr cinfo);
+extern void jinit_phuff_encoder(j_compress_ptr cinfo);
+extern void jinit_marker_writer(j_compress_ptr cinfo);
+extern void jinit_master_decompress(j_decompress_ptr cinfo);
+extern void jinit_d_main_controller(j_decompress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_d_coef_controller(j_decompress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_d_post_controller(j_decompress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_input_controller(j_decompress_ptr cinfo);
+extern void jinit_marker_reader(j_decompress_ptr cinfo);
+extern void jinit_huff_decoder(j_decompress_ptr cinfo);
+extern void jinit_phuff_decoder(j_decompress_ptr cinfo);
+extern void jinit_inverse_dct(j_decompress_ptr cinfo);
+extern void jinit_upsampler(j_decompress_ptr cinfo);
+extern void jinit_color_deconverter(j_decompress_ptr cinfo);
+extern void jinit_1pass_quantizer(j_decompress_ptr cinfo);
+extern void jinit_2pass_quantizer(j_decompress_ptr cinfo);
+extern void jinit_merged_upsampler(j_decompress_ptr cinfo);
+extern void jinit_memory_mgr(j_common_ptr cinfo);
+extern long jdiv_round_up(long a, long b);
+extern long jround_up(long a, long b);
+extern void jcopy_sample_rows(JSAMPARRAY input_array, int source_row, JSAMPARRAY output_array, int dest_row, int num_rows, JDIMENSION num_cols);
+extern void jcopy_block_row(JBLOCKROW input_row, JBLOCKROW output_row, JDIMENSION num_blocks);
+extern void jzero_far(void *target, size_t bytestozero);
+extern const int jpeg_zigzag_order[];
+extern const int jpeg_natural_order[];
 typedef enum { JMSG_NOMESSAGE, JERR_ARITH_NOTIMPL, JERR_BAD_ALIGN_TYPE, JERR_BAD_ALLOC_CHUNK, JERR_BAD_BUFFER_MODE, JERR_BAD_COMPONENT_ID, JERR_BAD_DCTSIZE, JERR_BAD_IN_COLORSPACE, JERR_BAD_J_COLORSPACE, JERR_BAD_LENGTH, JERR_BAD_LIB_VERSION, JERR_BAD_MCU_SIZE, JERR_BAD_POOL_ID, JERR_BAD_PRECISION, JERR_BAD_PROGRESSION, JERR_BAD_PROG_SCRIPT, JERR_BAD_SAMPLING, JERR_BAD_SCAN_SCRIPT, JERR_BAD_STATE, JERR_BAD_STRUCT_SIZE, JERR_BAD_VIRTUAL_ACCESS, JERR_BUFFER_SIZE, JERR_CANT_SUSPEND, JERR_CCIR601_NOTIMPL, JERR_COMPONENT_COUNT, JERR_CONVERSION_NOTIMPL, JERR_DAC_INDEX, JERR_DAC_VALUE, JERR_DHT_COUNTS, JERR_DHT_INDEX, JERR_DQT_INDEX, JERR_EMPTY_IMAGE, JERR_EMS_READ, JERR_EMS_WRITE, JERR_EOI_EXPECTED, JERR_FILE_READ, JERR_FILE_WRITE, JERR_FRACT_SAMPLE_NOTIMPL, JERR_HUFF_CLEN_OVERFLOW, JERR_HUFF_MISSING_CODE, JERR_IMAGE_TOO_BIG, JERR_INPUT_EMPTY, JERR_INPUT_EOF, JERR_MISMATCHED_QUANT_TABLE, JERR_MISSING_DATA, JERR_MODE_CHANGE, JERR_NOTIMPL, JERR_NOT_COMPILED, JERR_NO_BACKING_STORE, JERR_NO_HUFF_TABLE, JERR_NO_IMAGE, JERR_NO_QUANT_TABLE, JERR_NO_SOI, JERR_OUT_OF_MEMORY, JERR_QUANT_COMPONENTS, JERR_QUANT_FEW_COLORS, JERR_QUANT_MANY_COLORS, JERR_SOF_DUPLICATE, JERR_SOF_NO_SOS, JERR_SOF_UNSUPPORTED, JERR_SOI_DUPLICATE, JERR_SOS_NO_SOF, JERR_TFILE_CREATE, JERR_TFILE_READ, JERR_TFILE_SEEK, JERR_TFILE_WRITE, JERR_TOO_LITTLE_DATA, JERR_UNKNOWN_MARKER, JERR_VIRTUAL_BUG, JERR_WIDTH_OVERFLOW, JERR_XMS_READ, JERR_XMS_WRITE, JMSG_COPYRIGHT, JMSG_VERSION, JTRC_16BIT_TABLES, JTRC_ADOBE, JTRC_APP0, JTRC_APP14, JTRC_DAC, JTRC_DHT, JTRC_DQT, JTRC_DRI, JTRC_EMS_CLOSE, JTRC_EMS_OPEN, JTRC_EOI, JTRC_HUFFBITS, JTRC_JFIF, JTRC_JFIF_BADTHUMBNAILSIZE, JTRC_JFIF_MINOR, JTRC_JFIF_THUMBNAIL, JTRC_MISC_MARKER, JTRC_PARMLESS_MARKER, JTRC_QUANTVALS, JTRC_QUANT_3_NCOLORS, JTRC_QUANT_NCOLORS, JTRC_QUANT_SELECTED, JTRC_RECOVERY_ACTION, JTRC_RST, JTRC_SMOOTH_NOTIMPL, JTRC_SOF, JTRC_SOF_COMPONENT, JTRC_SOI, JTRC_SOS, JTRC_SOS_COMPONENT, JTRC_SOS_PARAMS, JTRC_TFILE_CLOSE, JTRC_TFILE_OPEN, JTRC_UNKNOWN_IDS, JTRC_XMS_CLOSE, JTRC_XMS_OPEN, JWRN_ADOBE_XFORM, JWRN_BOGUS_PROGRESSION, JWRN_EXTRANEOUS_DATA, JWRN_HIT_MARKER, JWRN_HUFF_BAD_CODE, JWRN_JFIF_MAJOR, JWRN_JPEG_EOF, JWRN_MUST_RESYNC, JWRN_NOT_SEQUENTIAL, JWRN_TOO_MUCH_DATA, JMSG_LASTMSGCODE } J_MESSAGE_CODE;
-typedef enum { JMSG_FIRSTADDONCODE = 1000, JERR_BMP_BADCMAP, JERR_BMP_BADDEPTH, JERR_BMP_BADHEADER, JERR_BMP_BADPLANES, JERR_BMP_COLORSPACE, JERR_BMP_COMPRESSED, JERR_BMP_NOT, JTRC_BMP, JTRC_BMP_MAPPED, JTRC_BMP_OS2, JTRC_BMP_OS2_MAPPED, JERR_GIF_BUG, JERR_GIF_CODESIZE, JERR_GIF_COLORSPACE, JERR_GIF_IMAGENOTFOUND, JERR_GIF_NOT, JTRC_GIF, JTRC_GIF_BADVERSION, JTRC_GIF_EXTENSION, JTRC_GIF_NONSQUARE, JWRN_GIF_BADDATA, JWRN_GIF_CHAR, JWRN_GIF_ENDCODE, JWRN_GIF_NOMOREDATA, JERR_PPM_COLORSPACE, JERR_PPM_NONNUMERIC, JERR_PPM_NOT, JTRC_PGM, JTRC_PGM_TEXT, JTRC_PPM, JTRC_PPM_TEXT, JERR_TGA_BADCMAP, JERR_TGA_BADPARMS, JERR_TGA_COLORSPACE, JTRC_TGA, JTRC_TGA_GRAY, JTRC_TGA_MAPPED, JERR_BAD_CMAP_FILE, JERR_TOO_MANY_COLORS, JERR_UNGETC_FAILED, JERR_UNKNOWN_FORMAT, JERR_UNSUPPORTED_FORMAT, JMSG_LASTADDONCODE } ADDON_MESSAGE_CODE;
-typedef struct cjpeg_source_struct *cjpeg_source_ptr;
-struct cjpeg_source_struct {
-    void (*start_input) (j_compress_ptr cinfo, cjpeg_source_ptr sinfo);
-    JDIMENSION(*get_pixel_rows) (j_compress_ptr cinfo, cjpeg_source_ptr sinfo);
-    void (*finish_input) (j_compress_ptr cinfo, cjpeg_source_ptr sinfo);
-    FILE *input_file;
-    JSAMPARRAY buffer;
-    JDIMENSION buffer_height;
-};
-typedef struct djpeg_dest_struct *djpeg_dest_ptr;
-struct djpeg_dest_struct {
-    void (*start_output) (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo);
-    void (*put_pixel_rows) (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied);
-    void (*finish_output) (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo);
-    FILE *output_file;
-    JSAMPARRAY buffer;
-    JDIMENSION buffer_height;
-};
-struct cdjpeg_progress_mgr {
-    struct jpeg_progress_mgr pub;
-    int completed_extra_passes;
-    int total_extra_passes;
-    int percent_done;
-};
-typedef struct cdjpeg_progress_mgr *cd_progress_ptr;
-extern cjpeg_source_ptr jinit_read_bmp(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_bmp(j_decompress_ptr cinfo, boolean is_os2);
-extern cjpeg_source_ptr jinit_read_gif(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_gif(j_decompress_ptr cinfo);
-extern cjpeg_source_ptr jinit_read_ppm(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_ppm(j_decompress_ptr cinfo);
-extern cjpeg_source_ptr jinit_read_rle(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_rle(j_decompress_ptr cinfo);
-extern cjpeg_source_ptr jinit_read_targa(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_targa(j_decompress_ptr cinfo);
-extern boolean read_quant_tables(j_compress_ptr cinfo, char *filename, int scale_factor, boolean force_baseline);
-extern boolean read_scan_script(j_compress_ptr cinfo, char *filename);
-extern boolean set_quant_slots(j_compress_ptr cinfo, char *arg);
-extern boolean set_sample_factors(j_compress_ptr cinfo, char *arg);
-extern void read_color_map(j_decompress_ptr cinfo, FILE * infile);
-extern void enable_signal_catcher(j_common_ptr cinfo);
-extern void start_progress_monitor(j_common_ptr cinfo, cd_progress_ptr progress);
-extern void end_progress_monitor(j_common_ptr cinfo);
-extern boolean keymatch(char *arg, const char *keyword, int minchars);
-extern FILE *read_stdin(void);
-extern FILE *write_stdout(void);
-typedef struct {
-    struct djpeg_dest_struct pub;
-    char *iobuffer;
-    JSAMPROW pixrow;
-    size_t buffer_width;
-    JDIMENSION samples_per_row;
-} ppm_dest_struct;
-typedef ppm_dest_struct *ppm_dest_ptr;
-static void put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
+static void transencode_master_selection(j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays);
+static void transencode_coef_controller(j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays);
+void jpeg_write_coefficients(j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays)
 {
-    ppm_dest_ptr dest = (ppm_dest_ptr) dinfo;
-    (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
+    if (cinfo->global_state != 100)
+	((cinfo)->err->msg_code = (JERR_BAD_STATE), (cinfo)->err->msg_parm.i[0] = (cinfo->global_state), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    jpeg_suppress_tables(cinfo, 0);
+    (*cinfo->err->reset_error_mgr) ((j_common_ptr) cinfo);
+    (*cinfo->dest->init_destination) (cinfo);
+    transencode_master_selection(cinfo, coef_arrays);
+    cinfo->next_scanline = 0;
+    cinfo->global_state = 103;
 }
-//complexity is O(n) inferred by loopus
- static void copy_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
+//complexity is O(n) inffered by loopus
+void jpeg_copy_critical_parameters(j_decompress_ptr srcinfo, j_compress_ptr dstinfo)
 {
-    ppm_dest_ptr dest = (ppm_dest_ptr) dinfo;
-    register char *bufferptr;
-    register JSAMPROW ptr;
-    register JDIMENSION col;
-    ptr = dest->pub.buffer[0];
-    bufferptr = dest->iobuffer;
-    for (col = dest->samples_per_row; col > 0; col--) {
-	*bufferptr++ = (char) (((int) (*ptr++)));
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
-} 
-//complexity is O(n) inferred by loopus
-static void put_demapped_rgb(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
-{
-    ppm_dest_ptr dest = (ppm_dest_ptr) dinfo;
-    register char *bufferptr;
-    register int pixval;
-    register JSAMPROW ptr;
-    register JSAMPROW color_map0 = cinfo->colormap[0];
-    register JSAMPROW color_map1 = cinfo->colormap[1];
-    register JSAMPROW color_map2 = cinfo->colormap[2];
-    register JDIMENSION col;
-    ptr = dest->pub.buffer[0];
-    bufferptr = dest->iobuffer;
-    for (col = cinfo->output_width; col > 0; col--) {
-	pixval = ((int) (*ptr++));
-	*bufferptr++ = (char) (((int) (color_map0[pixval])));
-	*bufferptr++ = (char) (((int) (color_map1[pixval])));
-	*bufferptr++ = (char) (((int) (color_map2[pixval])));
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
-}
-// complexity is O(n) inferred by loopus
- static void put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
-{
-    ppm_dest_ptr dest = (ppm_dest_ptr) dinfo;
-    register char *bufferptr;
-    register JSAMPROW ptr;
-    register JSAMPROW color_map = cinfo->colormap[0];
-    register JDIMENSION col;
-    ptr = dest->pub.buffer[0];
-    bufferptr = dest->iobuffer;
-    for (col = cinfo->output_width; col > 0; col--) {
-	*bufferptr++ = (char) (((int) (color_map[((int) (*ptr++))])));
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
-} static void start_output_ppm(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
-{
-    ppm_dest_ptr dest = (ppm_dest_ptr) dinfo;
-    switch (cinfo->out_color_space) {
-    case JCS_GRAYSCALE:
-	fprintf(dest->pub.output_file, "P5\n%ld %ld\n%d\n", (long) cinfo->output_width, (long) cinfo->output_height, 255);
-	break;
-    case JCS_RGB:
-	fprintf(dest->pub.output_file, "P6\n%ld %ld\n%d\n", (long) cinfo->output_width, (long) cinfo->output_height, 255);
-	break;
-    default:
-	((cinfo)->err->msg_code = (JERR_PPM_COLORSPACE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    JQUANT_TBL **qtblptr;
+    jpeg_component_info *incomp, *outcomp;
+    JQUANT_TBL *c_quant, *slot_quant;
+    int tblno, ci, coefi;
+    if (dstinfo->global_state != 100)
+	((dstinfo)->err->msg_code = (JERR_BAD_STATE), (dstinfo)->err->msg_parm.i[0] = (dstinfo->global_state), (*(dstinfo)->err->error_exit) ((j_common_ptr) (dstinfo)));
+    dstinfo->image_width = srcinfo->image_width;
+    dstinfo->image_height = srcinfo->image_height;
+    dstinfo->input_components = srcinfo->num_components;
+    dstinfo->in_color_space = srcinfo->jpeg_color_space;
+    jpeg_set_defaults(dstinfo);
+    jpeg_set_colorspace(dstinfo, srcinfo->jpeg_color_space);
+    dstinfo->data_precision = srcinfo->data_precision;
+    dstinfo->CCIR601_sampling = srcinfo->CCIR601_sampling;
+    for (tblno = 0; tblno < 4; tblno++) {
+	if (srcinfo->quant_tbl_ptrs[tblno] != ((void *) 0)) {
+	    qtblptr = &dstinfo->quant_tbl_ptrs[tblno];
+	    if (*qtblptr == ((void *) 0))
+		*qtblptr = jpeg_alloc_quant_table((j_common_ptr) dstinfo);
+	    memcpy((void *) ((*qtblptr)->quantval), (const void *) (srcinfo->quant_tbl_ptrs[tblno]->quantval), (size_t) (((size_t) sizeof((*qtblptr)->quantval))));
+	    (*qtblptr)->sent_table = 0;
+	}
+    }
+    dstinfo->num_components = srcinfo->num_components;
+    if (dstinfo->num_components < 1 || dstinfo->num_components > 10)
+	((dstinfo)->err->msg_code = (JERR_COMPONENT_COUNT), (dstinfo)->err->msg_parm.i[0] = (dstinfo->num_components), (dstinfo)->err->msg_parm.i[1] = (10), (*(dstinfo)->err->error_exit) ((j_common_ptr) (dstinfo)));
+    for (ci = 0, incomp = srcinfo->comp_info, outcomp = dstinfo->comp_info; ci < dstinfo->num_components; ci++, incomp++, outcomp++) {
+	outcomp->component_id = incomp->component_id;
+	outcomp->h_samp_factor = incomp->h_samp_factor;
+	outcomp->v_samp_factor = incomp->v_samp_factor;
+	outcomp->quant_tbl_no = incomp->quant_tbl_no;
+	tblno = outcomp->quant_tbl_no;
+	if (tblno < 0 || tblno >= 4 || srcinfo->quant_tbl_ptrs[tblno] == ((void *) 0))
+	    ((dstinfo)->err->msg_code = (JERR_NO_QUANT_TABLE), (dstinfo)->err->msg_parm.i[0] = (tblno), (*(dstinfo)->err->error_exit) ((j_common_ptr) (dstinfo)));
+	slot_quant = srcinfo->quant_tbl_ptrs[tblno];
+	c_quant = incomp->quant_table;
+	if (c_quant != ((void *) 0)) {
+	    for (coefi = 0; coefi < 64; coefi++) {
+		if (c_quant->quantval[coefi] != slot_quant->quantval[coefi])
+		    ((dstinfo)->err->msg_code = (JERR_MISMATCHED_QUANT_TABLE), (dstinfo)->err->msg_parm.i[0] = (tblno), (*(dstinfo)->err->error_exit) ((j_common_ptr) (dstinfo)));
+	    }
+	}
     }
 }
 
-static void finish_output_ppm(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+static void transencode_master_selection(j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays)
 {
-    fflush(dinfo->output_file);
-    if (ferror(dinfo->output_file))
-	((cinfo)->err->msg_code = (JERR_FILE_WRITE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
-}
-
-djpeg_dest_ptr jinit_write_ppm(j_decompress_ptr cinfo)
-{
-    ppm_dest_ptr dest;
-    dest = (ppm_dest_ptr) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, ((size_t) sizeof(ppm_dest_struct)));
-    dest->pub.start_output = start_output_ppm;
-    dest->pub.finish_output = finish_output_ppm;
-    jpeg_calc_output_dimensions(cinfo);
-    dest->samples_per_row = cinfo->output_width * cinfo->out_color_components;
-    dest->buffer_width = dest->samples_per_row * (1 * ((size_t) sizeof(char)));
-    dest->iobuffer = (char *) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, dest->buffer_width);
-    if (cinfo->quantize_colors || 8 != 8 || ((size_t) sizeof(JSAMPLE)) != ((size_t) sizeof(char))) {
-	dest->pub.buffer = (*cinfo->mem->alloc_sarray) ((j_common_ptr) cinfo, 1, cinfo->output_width * cinfo->output_components, (JDIMENSION) 1);
-	dest->pub.buffer_height = 1;
-	if (!cinfo->quantize_colors)
-	    dest->pub.put_pixel_rows = copy_pixel_rows;
-	else if (cinfo->out_color_space == JCS_GRAYSCALE)
-	    dest->pub.put_pixel_rows = put_demapped_gray;
-	else
-	    dest->pub.put_pixel_rows = put_demapped_rgb;
+    cinfo->input_components = 1;
+    jinit_c_master_control(cinfo, 1);
+    if (cinfo->arith_code) {
+	((cinfo)->err->msg_code = (JERR_ARITH_NOTIMPL), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
     } else {
-	dest->pixrow = (JSAMPROW) dest->iobuffer;
-	dest->pub.buffer = &dest->pixrow;
-	dest->pub.buffer_height = 1;
-	dest->pub.put_pixel_rows = put_pixel_rows;
+	if (cinfo->progressive_mode) {
+	    jinit_phuff_encoder(cinfo);
+	} else
+	    jinit_huff_encoder(cinfo);
     }
-    return (djpeg_dest_ptr) dest;
+    transencode_coef_controller(cinfo, coef_arrays);
+    jinit_marker_writer(cinfo);
+    (*cinfo->mem->realize_virt_arrays) ((j_common_ptr) cinfo);
+    (*cinfo->marker->write_file_header) (cinfo);
 }
+
+typedef struct {
+    struct jpeg_c_coef_controller pub;
+    JDIMENSION iMCU_row_num;
+    JDIMENSION mcu_ctr;
+    int MCU_vert_offset;
+    int MCU_rows_per_iMCU_row;
+    jvirt_barray_ptr *whole_image;
+    JBLOCKROW dummy_buffer[10];
+} my_coef_controller;
+typedef my_coef_controller *my_coef_ptr;
+static void start_iMCU_row(j_compress_ptr cinfo)
+{
+    my_coef_ptr coef = (my_coef_ptr) cinfo->coef;
+    if (cinfo->comps_in_scan > 1) {
+	coef->MCU_rows_per_iMCU_row = 1;
+    } else {
+	if (coef->iMCU_row_num < (cinfo->total_iMCU_rows - 1))
+	    coef->MCU_rows_per_iMCU_row = cinfo->cur_comp_info[0]->v_samp_factor;
+	else
+	    coef->MCU_rows_per_iMCU_row = cinfo->cur_comp_info[0]->last_row_height;
+    }
+    coef->mcu_ctr = 0;
+    coef->MCU_vert_offset = 0;
+}
+
+static void start_pass_coef(j_compress_ptr cinfo, J_BUF_MODE pass_mode)
+{
+    my_coef_ptr coef = (my_coef_ptr) cinfo->coef;
+    if (pass_mode != JBUF_CRANK_DEST)
+	((cinfo)->err->msg_code = (JERR_BAD_BUFFER_MODE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    coef->iMCU_row_num = 0;
+    start_iMCU_row(cinfo);
+}
+
+static boolean compress_output(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
+{
+    my_coef_ptr coef = (my_coef_ptr) cinfo->coef;
+    JDIMENSION MCU_col_num;
+    JDIMENSION last_MCU_col = cinfo->MCUs_per_row - 1;
+    JDIMENSION last_iMCU_row = cinfo->total_iMCU_rows - 1;
+    int blkn, ci, xindex, yindex, yoffset, blockcnt;
+    JDIMENSION start_col;
+    JBLOCKARRAY buffer[4];
+    JBLOCKROW MCU_buffer[10];
+    JBLOCKROW buffer_ptr;
+    jpeg_component_info *compptr;
+    for (ci = 0; ci < cinfo->comps_in_scan; ci++) {
+	compptr = cinfo->cur_comp_info[ci];
+	buffer[ci] = (*cinfo->mem->access_virt_barray) ((j_common_ptr) cinfo, coef->whole_image[compptr->component_index], coef->iMCU_row_num * compptr->v_samp_factor, (JDIMENSION) compptr->v_samp_factor, 0);
+    }
+    for (yoffset = coef->MCU_vert_offset; yoffset < coef->MCU_rows_per_iMCU_row; yoffset++) {
+	for (MCU_col_num = coef->mcu_ctr; MCU_col_num < cinfo->MCUs_per_row; MCU_col_num++) {
+	    blkn = 0;
+	    for (ci = 0; ci < cinfo->comps_in_scan; ci++) {
+		compptr = cinfo->cur_comp_info[ci];
+		start_col = MCU_col_num * compptr->MCU_width;
+		blockcnt = (MCU_col_num < last_MCU_col) ? compptr->MCU_width : compptr->last_col_width;
+		for (yindex = 0; yindex < compptr->MCU_height; yindex++) {
+		    if (coef->iMCU_row_num < last_iMCU_row || yindex + yoffset < compptr->last_row_height) {
+			buffer_ptr = buffer[ci][yindex + yoffset] + start_col;
+			for (xindex = 0; xindex < blockcnt; xindex++)
+			    MCU_buffer[blkn++] = buffer_ptr++;
+		    } else {
+			xindex = 0;
+		    }
+		    for (; xindex < compptr->MCU_width; xindex++) {
+			MCU_buffer[blkn] = coef->dummy_buffer[blkn];
+			MCU_buffer[blkn][0][0] = MCU_buffer[blkn - 1][0][0];
+			blkn++;
+		    }
+		}
+	    }
+	    if (!(*cinfo->entropy->encode_mcu) (cinfo, MCU_buffer)) {
+		coef->MCU_vert_offset = yoffset;
+		coef->mcu_ctr = MCU_col_num;
+		return 0;
+	    }
+	}
+	coef->mcu_ctr = 0;
+    }
+    coef->iMCU_row_num++;
+    start_iMCU_row(cinfo);
+    return 1;
+}
+
+static void transencode_coef_controller(j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays)
+{
+    my_coef_ptr coef;
+    JBLOCKROW buffer;
+    int i;
+    coef = (my_coef_ptr) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, ((size_t) sizeof(my_coef_controller)));
+    cinfo->coef = (struct jpeg_c_coef_controller *) coef;
+    coef->pub.start_pass = start_pass_coef;
+    coef->pub.compress_data = compress_output;
+    coef->whole_image = coef_arrays;
+    buffer = (JBLOCKROW) (*cinfo->mem->alloc_large) ((j_common_ptr) cinfo, 1, 10 * ((size_t) sizeof(JBLOCK)));
+    jzero_far((void *) buffer, 10 * ((size_t) sizeof(JBLOCK)));
+    for (i = 0; i < 10; i++) {
+	coef->dummy_buffer[i] = buffer + i;
+    }
+}
+
