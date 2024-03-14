@@ -1,10 +1,9 @@
 import argparse
-from rec_lexer import Rec_term, Div_and_conquer_recurrence, Linear_recurrence
+from rec_solver import Rec_term, Div_and_conquer_recurrence, Linear_recurrence
 import subprocess as sp
 import ast
 import os
 import logging
-import dig
 from pathlib import Path
 from sympy import symbols, parse_expr, limit, oo, sympify
 import loop_bound

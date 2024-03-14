@@ -4,7 +4,7 @@ import logging
 from collections import OrderedDict
 import argparse
 from pathlib import Path
-from rec_lexer import Rec_term, Div_and_conquer_recurrence, Linear_recurrence
+from rec_solver import Rec_term, Div_and_conquer_recurrence, Linear_recurrence
 
 
 class Loop:
