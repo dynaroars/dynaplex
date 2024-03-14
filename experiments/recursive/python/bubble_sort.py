@@ -1,4 +1,4 @@
-def bubble_sort(arr: list) -> list:
+def bubblesort(arr: list) -> list:
     n = len(n)
     if n==1:
         return arr
@@ -7,5 +7,5 @@ def bubble_sort(arr: list) -> list:
         if arr[i]>arr[i+1]:
             arr[i], arr[i+1] = arr[i+1], arr[i]
 
-    return bubble_sort(arr)
+    return bubblesort(arr)
 
