@@ -1,6 +1,10 @@
-//complexity is O(n) inferred by loopus
+ // complexity is O(n) inferred by loopus
 static void shortsort(char *lo, char *hi, unsigned width, int (*comp) (const void *, const void *));
-static void swap(char *p, char *q, unsigned int width); 
+
+//complexity is O(n) inferred by loopus 
+static void swap(char *p, char *q, unsigned int width);
+
+//complexity is O(n) inferred by loopus 
 void qsortx(void *base, unsigned num, unsigned width, int (*comp) (const void *, const void *))
 {
     char *lo, *hi;
@@ -11,7 +15,7 @@ void qsortx(void *base, unsigned num, unsigned width, int (*comp) (const void *,
     int stkptr;
     if (num < 2 || width == 0)
 	return;
-    stkptr = 0 ;
+    stkptr = 0;
     lo = base;
     hi = (char *) base + width * (num - 1);
   recurse:size = (hi - lo) / width + 1;
