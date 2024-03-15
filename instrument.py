@@ -14,8 +14,8 @@ class RecTraceVisitor(ast.NodeTransformer):
         self.size = size
 
     def visit_Module(self, node):
-        import_trace = ast.ImportFrom(module='tracing', names=[ast.alias(name='*', asname=None)], level=0)
-        node.body = [import_trace] + node.body
+        import_random = ast.Import(names=[ast.alias(name='random', asname=None)])
+        node.body = [import_random] + node.body
 
         return self.generic_visit(node)
 
@@ -32,14 +32,15 @@ class RecTraceVisitor(ast.NodeTransformer):
             node.body.insert(0, new_stmt)
             node.args.args.append(ast.arg(arg='depth', annotation=None))
             for subnode in ast.walk(node):
-                if isinstance(subnode, ast.Call) and subnode.func.id == node.name:
-                    subnode.args.append(ast.BinOp(
-                        left=ast.Name(id='depth', ctx=ast.Load()),
-                        op=ast.Add(),
-                        right=ast.Constant(value=1)
-                    ))
+                if isinstance(subnode, ast.Call) and hasattr(subnode.func, 'id'):
+                    if subnode.func.id == node.name:
+                        subnode.args.append(ast.BinOp(
+                            left=ast.Name(id='depth', ctx=ast.Load()),
+                            op=ast.Add(),
+                            right=ast.Constant(value=1)
+                        ))
         
-            return self.generic_visit(node)
+        return self.generic_visit(node)
 
 
 # Visitor to traverse AST and collecct traces to compute difference constraints
@@ -103,11 +104,17 @@ class InvTraceVisitor(ast.NodeTransformer):
     def visit_While(self, node):
         return self.modifier(node)
     
+    def visit_Module(self, node):
+        import_random = ast.Import(names=[ast.alias(name='random', asname=None)])
+        node.body = [import_random] + node.body
+
+        return self.generic_visit(node)
+    
 
 # Visitor to traverse AST and collecct traces to estimate polynomial bound
 class EstTraceVisitor(ast.NodeTransformer):
     def modifier(self, node):
-        glob = ast.Global(names=["counter"])
+        glob = ast.Assign(targets=[ast.Name(id="counter", ctx=ast.Store())], value=ast.Constant(value=0, kind=None))
         counter_increment = ast.Expr(value=ast.AugAssign(target=ast.Name(id="counter", ctx=ast.Store()), op=ast.Add(), value=ast.Constant(value=1, kind=None)))
         node.body = [counter_increment] + node.body
         return [glob, node]
@@ -118,34 +125,93 @@ class EstTraceVisitor(ast.NodeTransformer):
     def visit_While(self, node):
         return self.modifier(node)
     
+    def visit_Module(self, node):
+        import_random = ast.Import(names=[ast.alias(name='random', asname=None)])
+        node.body = [import_random] + node.body
+
+        return self.generic_visit(node)
+    
+
+def random_input_code(filename, func_name):
+    tree = read_file(filename)
+    
+    class FuncVisitor(ast.NodeVisitor):
+        def __init__(self, func_name):
+            self.func_name = func_name
+            self.func_ast = None
+        
+        def visit_FunctionDef(self, node):
+            if node.name == self.func_name:
+                self.func_ast = node
+    
+    visitor = FuncVisitor(func_name)
+    visitor.visit(tree)
+    return visitor.func_ast
 
 def append_run_statement(tree, function_name, loop=0, rec=False, est=False):
+        typ = ""
+        class SubscriptVisitor(ast.NodeVisitor):
+            def __init__(self):
+                self.typ = ""
+            def visit_Name(self, node):
+                if isinstance(node.ctx, ast.Load):
+                    self.typ = self.typ + "-" + node.id
+                self.generic_visit(node)
+            def get_typ(self):
+                return self.typ[1:]
+
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef) and node.name == function_name:
                 function_node = node
                 arguments = []
                 for arg in function_node.args.args:
-                    if arg.annotation:
+                    if arg.annotation and type(arg.annotation) == ast.Name:
                         typ = arg.annotation.id
                         arguments.append(typ)
+                    elif arg.annotation and type(arg.annotation) == ast.Subscript:
+                        vis = SubscriptVisitor()
+                        vis.visit(arg.annotation)
+                        arguments.append(vis.get_typ())
+                    else:
+                        assert False, "Unsupported input type: failed to generate random input"
                 break
         inputs = []
         input_stmt = []
         for i in range(len(arguments)):
             if arguments[i] == "int":
-                input = ast.Assign(targets=[ast.Name(id=f"input_{i}", ctx=ast.Store())], value=ast.Call(func=ast.Name(id='random_int', ctx=ast.Load()), args=[], keywords=[]))
+                random_input = random_input_code("tracing.py", "integer")
+                tree.body.append(random_input)
+                input = ast.Assign(targets=[ast.Name(id=f"input_{i}", ctx=ast.Store())], value=ast.Call(func=ast.Name(id='integer', ctx=ast.Load()), args=[], keywords=[]))
                 if i==0:
                     size = ast.Name(id=f"input_{i}", ctx=ast.Load())
                 inputs.append(ast.Name(id=f"input_{i}", ctx=ast.Load()))
-            elif arguments[i] == "list":
+            elif arguments[i] == "list-int":
+                random_input = random_input_code("tracing.py", "int_list")
+                tree.body.append(random_input)
                 if i==0:
                     size = ast.Call(func=ast.Name(id='len', ctx=ast.Load()), args=[ast.Name(id=f"input_{i}", ctx=ast.Load())], keywords=[])
-                input = ast.Assign(targets=[ast.Name(id=f"input_{i}", ctx=ast.Store())], value=ast.Call(func=ast.Name(id='random_list', ctx=ast.Load()), args=[], keywords=[]))
+                input = ast.Assign(targets=[ast.Name(id=f"input_{i}", ctx=ast.Store())], value=ast.Call(func=ast.Name(id='int_list', ctx=ast.Load()), args=[], keywords=[]))
                 inputs.append(ast.Name(id=f"input_{i}", ctx=ast.Load()))
             elif arguments[i] == "str":
+                random_input = random_input_code("tracing.py", "string")
+                tree.body.append(random_input)
                 if i==0:
                     size = ast.Call(func=ast.Name(id='len', ctx=ast.Load()), args=[ast.Name(id=f"input_{i}", ctx=ast.Load())], keywords=[])
-                input = ast.Assign(targets=[ast.Name(id=f"input_{i}", ctx=ast.Store())], value=ast.Call(func=ast.Name(id='random_str', ctx=ast.Load()), args=[], keywords=[]))
+                input = ast.Assign(targets=[ast.Name(id=f"input_{i}", ctx=ast.Store())], value=ast.Call(func=ast.Name(id='string', ctx=ast.Load()), args=[], keywords=[]))
+                inputs.append(ast.Name(id=f"input_{i}", ctx=ast.Load()))
+            elif arguments[i] == "list-tuple-int-int":
+                random_input = random_input_code("tracing.py", "int_tuple_list")
+                tree.body.append(random_input)
+                if i==0:
+                    size = ast.Call(func=ast.Name(id='len', ctx=ast.Load()), args=[ast.Name(id=f"input_{i}", ctx=ast.Load())], keywords=[])
+                input = ast.Assign(targets=[ast.Name(id=f"input_{i}", ctx=ast.Store())], value=ast.Call(func=ast.Name(id='int_tuple_list', ctx=ast.Load()), args=[], keywords=[]))
+                inputs.append(ast.Name(id=f"input_{i}", ctx=ast.Load()))
+            elif arguments[i] == "Node":
+                random_input = random_input_code("tracing.py", "node")
+                tree.body.append(random_input)
+                if i==0:
+                    size = ast.Call(func=ast.Name(id='len', ctx=ast.Load()), args=[ast.Name(id=f"input_{i}", ctx=ast.Load())], keywords=[])
+                input = ast.Assign(targets=[ast.Name(id=f"input_{i}", ctx=ast.Store())], value=ast.Call(func=ast.Name(id='node', ctx=ast.Load()), args=[], keywords=[]))
                 inputs.append(ast.Name(id=f"input_{i}", ctx=ast.Load()))
             else:
                 assert False, "Unsupported input type: failed to generate random input"
@@ -157,7 +223,7 @@ def append_run_statement(tree, function_name, loop=0, rec=False, est=False):
                 run_stmt = ast.Expr(ast.For(target=ast.Name(id='i', ctx=ast.Store()), iter=ast.Call(func=ast.Name(id='range', ctx=ast.Load()), args=[ast.Constant(value=loop, kind=None)], keywords=[]), 
                               body=[counter] + input_stmt + [ast.Expr(ast.Call(func=ast.Name(id=function_name, ctx=ast.Load()), args=inputs, keywords=[])), 
                                                              ast.Expr(ast.Call(func=ast.Name(id='print', ctx=ast.Load()), args=[ast.Name(id='counter', ctx=ast.Load()), ast.Constant(value=";", kind=None), size], keywords=[]))], orelse=[]))
-                tree.body = tree.body + [ast.Global(names=["counter"]), run_stmt]
+                tree.body = tree.body + [run_stmt]
                 return tree
             else:
                 run_stmt = ast.Expr(ast.For(target=ast.Name(id='i', ctx=ast.Store()), iter=ast.Call(func=ast.Name(id='range', ctx=ast.Load()), args=[ast.Constant(value=loop, kind=None)], keywords=[]), 
@@ -167,7 +233,8 @@ def append_run_statement(tree, function_name, loop=0, rec=False, est=False):
 
         if rec:
             run_stmt = input_stmt + [ast.Expr(ast.Call(func=ast.Name(id=function_name, ctx=ast.Load()), args=inputs+[ast.Constant(value=0, kind=None)], keywords=[]))]
-    
+
+        
         tree.body = tree.body + run_stmt
         
         return tree
@@ -242,14 +309,14 @@ def main():
     problem_size = args.size
 
     is_recursive = is_recursive_function(full_path, target_function)
-    loop_ids = find_loop_ids(full_path)
+    loop_ids = find_loop_ids(full_path) # todo: skip invariant generation if no loop is found
 
     # collect recurrence inference traces
     if is_recursive:
         code = read_file(full_path)
         recvisitor = RecTraceVisitor(target_function, problem_size)
-        reccode = recvisitor.visit(code)
-        reccode = append_run_statement(reccode, target_function, rec=True)
+        reccode = append_run_statement(code, target_function, rec=True)
+        reccode = recvisitor.visit(reccode)
         rec_tracefile = create_temp_file()
         rec_codefile = create_temp_file()
         write_to_file(rec_codefile, astor.to_source(reccode))
@@ -259,10 +326,8 @@ def main():
         # collect polynomial bound estimation traces
         code = read_file(full_path)
         estvisitor = EstTraceVisitor()
-        estcode = estvisitor.visit(code)
-        estcode = append_run_statement(estcode, target_function, loop=50, est=True)
-        import_trace = ast.ImportFrom(module='tracing', names=[ast.alias(name='*', asname=None)], level=0)
-        estcode.body = [import_trace] + estcode.body
+        estcode = append_run_statement(code, target_function, loop=50, est=True)
+        estcode = estvisitor.visit(estcode)
         est_tracefile = create_temp_file()
         est_codefile = create_temp_file()
         write_to_file(est_codefile, astor.to_source(estcode))
@@ -273,10 +338,8 @@ def main():
     # collect invariant generation traces
     code = read_file(full_path)
     invvisitor = InvTraceVisitor(loop_ids, problem_size)
-    invcode = invvisitor.visit(code)
-    invcode = append_run_statement(invcode, target_function)
-    import_trace = ast.ImportFrom(module='tracing', names=[ast.alias(name='*', asname=None)], level=0)
-    invcode.body = [import_trace] + invcode.body
+    invcode = append_run_statement(code, target_function)
+    invcode = invvisitor.visit(invcode)
     inv_tracefile = create_temp_file()
     inv_codefile = create_temp_file()
     write_to_file(inv_codefile, astor.to_source(invcode))
@@ -286,10 +349,8 @@ def main():
     # collect difference constraint traces
     code = read_file(full_path)
     dcvisitor = DcTraceVisitor(loop_ids)
-    dccode = dcvisitor.visit(code)
-    dccode = append_run_statement(dccode, target_function)
-    import_trace = ast.ImportFrom(module='tracing', names=[ast.alias(name='*', asname=None)], level=0)
-    dccode.body = [import_trace] + dccode.body
+    dccode = append_run_statement(code, target_function)
+    dccode = dcvisitor.visit(dccode)
     dc_tracefile = create_temp_file()
     dc_codefile = create_temp_file()
     write_to_file(dc_codefile, astor.to_source(dccode))
