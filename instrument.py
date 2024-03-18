@@ -48,6 +48,12 @@ class DcTraceVisitor(ast.NodeTransformer):
     def __init__(self, loop_ids):
         self.loop_ids = loop_ids
 
+    def visit_Module(self, node):
+        import_random = ast.Import(names=[ast.alias(name='random', asname=None)])
+        node.body = [import_random] + node.body
+
+        return self.generic_visit(node)
+
     def visit_For(self, node):
             var_name = "depth_{}".format(node.lineno)
             loop_id = self.loop_ids[node.lineno]

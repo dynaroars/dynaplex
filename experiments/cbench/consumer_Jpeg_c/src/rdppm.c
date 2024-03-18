@@ -921,156 +921,258 @@ extern void end_progress_monitor(j_common_ptr cinfo);
 extern boolean keymatch(char *arg, const char *keyword, int minchars);
 extern FILE *read_stdin(void);
 extern FILE *write_stdout(void);
+typedef unsigned char U_CHAR;
 typedef struct {
-    struct djpeg_dest_struct pub;
-    char *iobuffer;
-    JDIMENSION buffer_width;
-} tga_dest_struct;
-typedef tga_dest_struct *tga_dest_ptr;
-static void write_header(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, int num_colors)
+    struct cjpeg_source_struct pub;
+    U_CHAR *iobuffer;
+    JSAMPROW pixrow;
+    size_t buffer_width;
+    JSAMPLE *rescale;
+} ppm_source_struct;
+typedef ppm_source_struct *ppm_source_ptr;
+static int pbm_getc(FILE * infile)
 {
-    char targaheader[18];
-    memset((void *) (targaheader), 0, (size_t) (((size_t) sizeof(targaheader))));
-    if (num_colors > 0) {
-	targaheader[1] = 1;
-	targaheader[5] = (char) (num_colors & 0xFF);
-	targaheader[6] = (char) (num_colors >> 8);
-	targaheader[7] = 24;
+    register int ch;
+    ch = _IO_getc(infile);
+    if (ch == '#') {
+	do {
+	    ch = _IO_getc(infile);
+	} while (ch != '\n' && ch != (-1));
     }
-    targaheader[12] = (char) (cinfo->output_width & 0xFF);
-    targaheader[13] = (char) (cinfo->output_width >> 8);
-    targaheader[14] = (char) (cinfo->output_height & 0xFF);
-    targaheader[15] = (char) (cinfo->output_height >> 8);
-    targaheader[17] = 0x20;
-    if (cinfo->out_color_space == JCS_GRAYSCALE) {
-	targaheader[2] = 3;
-	targaheader[16] = 8;
-    } else {
-	if (num_colors > 0) {
-	    targaheader[2] = 1;
-	    targaheader[16] = 8;
-	} else {
-	    targaheader[2] = 2;
-	    targaheader[16] = 24;
-	}
+    return ch;
+}
+
+static unsigned int read_pbm_integer(j_compress_ptr cinfo, FILE * infile)
+{
+    register int ch;
+    register unsigned int val;
+    do {
+	ch = pbm_getc(infile);
+	if (ch == (-1))
+	    ((cinfo)->err->msg_code = (JERR_INPUT_EOF), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    } while (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r');
+    if (ch < '0' || ch > '9')
+	((cinfo)->err->msg_code = (JERR_PPM_NONNUMERIC), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    val = ch - '0';
+    while ((ch = pbm_getc(infile)) >= '0' && ch <= '9') {
+	val *= 10;
+	val += ch - '0';
     }
-    if (((size_t) fwrite((const void *) (targaheader), (size_t) 1, (size_t) (18), (dinfo->output_file))) != (size_t) 18)
-	((cinfo)->err->msg_code = (JERR_FILE_WRITE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
-} 
-//complexity is O(n) inferred by loopus
-static void put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
+    return val;
+}
+
+static JDIMENSION get_text_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    register JSAMPROW inptr;
-    register char *outptr;
-    register JDIMENSION col;
-    inptr = dest->pub.buffer[0];
-    outptr = dest->iobuffer;
-    for (col = cinfo->output_width; col > 0; col--) {
-	outptr[0] = (char) ((int) (inptr[2]));
-	outptr[1] = (char) ((int) (inptr[1]));
-	outptr[2] = (char) ((int) (inptr[0]));
-	inptr += 3, outptr += 3;
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
-} 
-//complexity is O(n) inferred by loopus
-static void put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
-{
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    register JSAMPROW inptr;
-    register char *outptr;
-    register JDIMENSION col;
-    inptr = dest->pub.buffer[0];
-    outptr = dest->iobuffer;
-    for (col = cinfo->output_width; col > 0; col--) {
-	*outptr++ = (char) ((int) (*inptr++));
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
+    ppm_source_ptr source = (ppm_source_ptr) sinfo;
+    FILE *infile = source->pub.input_file;
+    register JSAMPROW ptr;
+    register JSAMPLE *rescale = source->rescale;
+    JDIMENSION col;
+    ptr = source->pub.buffer[0];
+    for (col = cinfo->image_width; col > 0; col--) {
+	*ptr++ = rescale[read_pbm_integer(cinfo, infile)];
+    }
+    return 1;
 }
 // complexity is O(n) inferred by loopus
- static void put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
+static JDIMENSION get_text_rgb_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    register JSAMPROW inptr;
-    register char *outptr;
-    register JSAMPROW color_map0 = cinfo->colormap[0];
-    register JDIMENSION col;
-    inptr = dest->pub.buffer[0];
-    outptr = dest->iobuffer;
-    for (col = cinfo->output_width; col > 0; col--) {
-	*outptr++ = (char) ((int) (color_map0[((int) (*inptr++))]));
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
-} 
+    ppm_source_ptr source = (ppm_source_ptr) sinfo;
+    FILE *infile = source->pub.input_file;
+    register JSAMPROW ptr;
+    register JSAMPLE *rescale = source->rescale;
+    JDIMENSION col;
+    ptr = source->pub.buffer[0];
+    for (col = cinfo->image_width; col > 0; col--) {
+	*ptr++ = rescale[read_pbm_integer(cinfo, infile)];
+	*ptr++ = rescale[read_pbm_integer(cinfo, infile)];
+	*ptr++ = rescale[read_pbm_integer(cinfo, infile)];
+    }
+    return 1;
+}
 // complexity is O(n) inferred by loopus
-static void start_output_tga(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+static JDIMENSION get_scaled_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    int num_colors, i;
-    FILE *outfile;
-    if (cinfo->out_color_space == JCS_GRAYSCALE) {
-	write_header(cinfo, dinfo, 0);
-	if (cinfo->quantize_colors)
-	    dest->pub.put_pixel_rows = put_demapped_gray;
-	else
-	    dest->pub.put_pixel_rows = put_gray_rows;
-    } else if (cinfo->out_color_space == JCS_RGB) {
-	if (cinfo->quantize_colors) {
-	    num_colors = cinfo->actual_number_of_colors;
-	    if (num_colors > 256)
-		((cinfo)->err->msg_code = (JERR_TOO_MANY_COLORS), (cinfo)->err->msg_parm.i[0] = (num_colors), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
-	    write_header(cinfo, dinfo, num_colors);
-	    outfile = dest->pub.output_file;
-	    for (i = 0; i < num_colors; i++) {
-		_IO_putc(((int) (cinfo->colormap[2][i])), outfile);
-		_IO_putc(((int) (cinfo->colormap[1][i])), outfile);
-		_IO_putc(((int) (cinfo->colormap[0][i])), outfile);
-	    } dest->pub.put_pixel_rows = put_gray_rows;
+    ppm_source_ptr source = (ppm_source_ptr) sinfo;
+    register JSAMPROW ptr;
+    register U_CHAR *bufferptr;
+    register JSAMPLE *rescale = source->rescale;
+    JDIMENSION col;
+    if (!(((size_t) fread((void *) (source->iobuffer), (size_t) 1, (size_t) (source->buffer_width), (source->pub.input_file))) == ((size_t) (source->buffer_width))))
+	((cinfo)->err->msg_code = (JERR_INPUT_EOF), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    ptr = source->pub.buffer[0];
+    bufferptr = source->iobuffer;
+    for (col = cinfo->image_width; col > 0; col--) {
+	*ptr++ = rescale[((int) (*bufferptr++))];
+    } return 1;
+}
+
+static JDIMENSION get_scaled_rgb_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+{
+    ppm_source_ptr source = (ppm_source_ptr) sinfo;
+    register JSAMPROW ptr;
+    register U_CHAR *bufferptr;
+    register JSAMPLE *rescale = source->rescale;
+    JDIMENSION col;
+    if (!(((size_t) fread((void *) (source->iobuffer), (size_t) 1, (size_t) (source->buffer_width), (source->pub.input_file))) == ((size_t) (source->buffer_width))))
+	((cinfo)->err->msg_code = (JERR_INPUT_EOF), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    ptr = source->pub.buffer[0];
+    bufferptr = source->iobuffer;
+    for (col = cinfo->image_width; col > 0; col--) {
+	*ptr++ = rescale[((int) (*bufferptr++))];
+	*ptr++ = rescale[((int) (*bufferptr++))];
+	*ptr++ = rescale[((int) (*bufferptr++))];
+    } return 1;
+}
+
+static JDIMENSION get_raw_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+{
+    ppm_source_ptr source = (ppm_source_ptr) sinfo;
+    if (!(((size_t) fread((void *) (source->iobuffer), (size_t) 1, (size_t) (source->buffer_width), (source->pub.input_file))) == ((size_t) (source->buffer_width))))
+	((cinfo)->err->msg_code = (JERR_INPUT_EOF), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    return 1;
+}
+// complexity is O(n) inferred by loops
+static JDIMENSION get_word_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+{
+    ppm_source_ptr source = (ppm_source_ptr) sinfo;
+    register JSAMPROW ptr;
+    register U_CHAR *bufferptr;
+    register JSAMPLE *rescale = source->rescale;
+    JDIMENSION col;
+    if (!(((size_t) fread((void *) (source->iobuffer), (size_t) 1, (size_t) (source->buffer_width), (source->pub.input_file))) == ((size_t) (source->buffer_width))))
+	((cinfo)->err->msg_code = (JERR_INPUT_EOF), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    ptr = source->pub.buffer[0];
+    bufferptr = source->iobuffer;
+    for (col = cinfo->image_width; col > 0; col--) {
+	register int temp;
+	temp = ((int) (*bufferptr++));
+	temp |= ((int) (*bufferptr++)) << 8;
+	*ptr++ = rescale[temp];
+    } return 1;
+}
+// complexity is O(n) inferred loopus
+static JDIMENSION get_word_rgb_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+{
+    ppm_source_ptr source = (ppm_source_ptr) sinfo;
+    register JSAMPROW ptr;
+    register U_CHAR *bufferptr;
+    register JSAMPLE *rescale = source->rescale;
+    JDIMENSION col;
+    if (!(((size_t) fread((void *) (source->iobuffer), (size_t) 1, (size_t) (source->buffer_width), (source->pub.input_file))) == ((size_t) (source->buffer_width))))
+	((cinfo)->err->msg_code = (JERR_INPUT_EOF), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    ptr = source->pub.buffer[0];
+    bufferptr = source->iobuffer;
+    for (col = cinfo->image_width; col > 0; col--) {
+	register int temp;
+	temp = ((int) (*bufferptr++));
+	temp |= ((int) (*bufferptr++)) << 8;
+	*ptr++ = rescale[temp];
+	temp = ((int) (*bufferptr++));
+	temp |= ((int) (*bufferptr++)) << 8;
+	*ptr++ = rescale[temp];
+	temp = ((int) (*bufferptr++));
+	temp |= ((int) (*bufferptr++)) << 8;
+	*ptr++ = rescale[temp];
+    } return 1;
+}
+
+static void start_input_ppm(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+{
+    ppm_source_ptr source = (ppm_source_ptr) sinfo;
+    int c;
+    unsigned int w, h, maxval;
+    boolean need_iobuffer, use_raw_buffer, need_rescale;
+    if (_IO_getc(source->pub.input_file) != 'P')
+	((cinfo)->err->msg_code = (JERR_PPM_NOT), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    c = _IO_getc(source->pub.input_file);
+    w = read_pbm_integer(cinfo, source->pub.input_file);
+    h = read_pbm_integer(cinfo, source->pub.input_file);
+    maxval = read_pbm_integer(cinfo, source->pub.input_file);
+    if (w <= 0 || h <= 0 || maxval <= 0)
+	((cinfo)->err->msg_code = (JERR_PPM_NOT), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    cinfo->data_precision = 8;
+    cinfo->image_width = (JDIMENSION) w;
+    cinfo->image_height = (JDIMENSION) h;
+    need_iobuffer = 1;
+    use_raw_buffer = 0;
+    need_rescale = 1;
+    switch (c) {
+    case '2':
+	cinfo->input_components = 1;
+	cinfo->in_color_space = JCS_GRAYSCALE;
+	((cinfo)->err->msg_code = (JTRC_PGM_TEXT), (cinfo)->err->msg_parm.i[0] = (w), (cinfo)->err->msg_parm.i[1] = (h), (*(cinfo)->err->emit_message) ((j_common_ptr) (cinfo), (1)));
+	source->pub.get_pixel_rows = get_text_gray_row;
+	need_iobuffer = 0;
+	break;
+    case '3':
+	cinfo->input_components = 3;
+	cinfo->in_color_space = JCS_RGB;
+	((cinfo)->err->msg_code = (JTRC_PPM_TEXT), (cinfo)->err->msg_parm.i[0] = (w), (cinfo)->err->msg_parm.i[1] = (h), (*(cinfo)->err->emit_message) ((j_common_ptr) (cinfo), (1)));
+	source->pub.get_pixel_rows = get_text_rgb_row;
+	need_iobuffer = 0;
+	break;
+    case '5':
+	cinfo->input_components = 1;
+	cinfo->in_color_space = JCS_GRAYSCALE;
+	((cinfo)->err->msg_code = (JTRC_PGM), (cinfo)->err->msg_parm.i[0] = (w), (cinfo)->err->msg_parm.i[1] = (h), (*(cinfo)->err->emit_message) ((j_common_ptr) (cinfo), (1)));
+	if (maxval > 255) {
+	    source->pub.get_pixel_rows = get_word_gray_row;
+	} else if (maxval == 255 && ((size_t) sizeof(JSAMPLE)) == ((size_t) sizeof(U_CHAR))) {
+	    source->pub.get_pixel_rows = get_raw_row;
+	    use_raw_buffer = 1;
+	    need_rescale = 0;
 	} else {
-	    write_header(cinfo, dinfo, 0);
-	    dest->pub.put_pixel_rows = put_pixel_rows;
+	    source->pub.get_pixel_rows = get_scaled_gray_row;
 	}
+	break;
+    case '6':
+	cinfo->input_components = 3;
+	cinfo->in_color_space = JCS_RGB;
+	((cinfo)->err->msg_code = (JTRC_PPM), (cinfo)->err->msg_parm.i[0] = (w), (cinfo)->err->msg_parm.i[1] = (h), (*(cinfo)->err->emit_message) ((j_common_ptr) (cinfo), (1)));
+	if (maxval > 255) {
+	    source->pub.get_pixel_rows = get_word_rgb_row;
+	} else if (maxval == 255 && ((size_t) sizeof(JSAMPLE)) == ((size_t) sizeof(U_CHAR))) {
+	    source->pub.get_pixel_rows = get_raw_row;
+	    use_raw_buffer = 1;
+	    need_rescale = 0;
+	} else {
+	    source->pub.get_pixel_rows = get_scaled_rgb_row;
+	}
+	break;
+    default:
+	((cinfo)->err->msg_code = (JERR_PPM_NOT), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+	break;
+    }
+    if (need_iobuffer) {
+	source->buffer_width = (size_t) w *cinfo->input_components * ((maxval <= 255) ? ((size_t) sizeof(U_CHAR)) : (2 * ((size_t) sizeof(U_CHAR))));
+	source->iobuffer = (U_CHAR *) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, source->buffer_width);
+    }
+    if (use_raw_buffer) {
+	source->pixrow = (JSAMPROW) source->iobuffer;
+	source->pub.buffer = &source->pixrow;
+	source->pub.buffer_height = 1;
     } else {
-	((cinfo)->err->msg_code = (JERR_TGA_COLORSPACE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+	source->pub.buffer = (*cinfo->mem->alloc_sarray) ((j_common_ptr) cinfo, 1, (JDIMENSION) w * cinfo->input_components, (JDIMENSION) 1);
+	source->pub.buffer_height = 1;
+    }
+    if (need_rescale) {
+	INT32 val, half_maxval;
+	source->rescale = (JSAMPLE *) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, (size_t) (((long) maxval + 1L) * ((size_t) sizeof(JSAMPLE))));
+	half_maxval = maxval / 2;
+	for (val = 0; val <= (INT32) maxval; val++) {
+	    source->rescale[val] = (JSAMPLE) ((val * 255 + half_maxval) / maxval);
+	}
     }
 }
 
-static void finish_output_tga(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+static void finish_input_ppm(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
-    fflush(dinfo->output_file);
-    if (ferror(dinfo->output_file))
-	((cinfo)->err->msg_code = (JERR_FILE_WRITE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
-}
-
-djpeg_dest_ptr jinit_write_targa(j_decompress_ptr cinfo)
+} cjpeg_source_ptr jinit_read_ppm(j_compress_ptr cinfo)
 {
-    tga_dest_ptr dest;
-    dest = (tga_dest_ptr) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, ((size_t) sizeof(tga_dest_struct)));
-    dest->pub.start_output = start_output_tga;
-    dest->pub.finish_output = finish_output_tga;
-    jpeg_calc_output_dimensions(cinfo);
-    dest->buffer_width = cinfo->output_width * cinfo->output_components;
-    dest->iobuffer = (char *) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, (size_t) (dest->buffer_width * ((size_t) sizeof(char))));
-    dest->pub.buffer = (*cinfo->mem->alloc_sarray) ((j_common_ptr) cinfo, 1, dest->buffer_width, (JDIMENSION) 1);
-    dest->pub.buffer_height = 1;
-    return (djpeg_dest_ptr) dest;
-}
-int main(){
-    j_decompress_ptr cinfo; // Declare cinfo
-    cinfo = (j_decompress_ptr)malloc(sizeof(struct jpeg_decompress_struct));
-    jpeg_create_decompress(cinfo);
-    
-
-    djpeg_dest_ptr dinfo = jinit_write_targa(cinfo); 
-    
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    register JSAMPROW inptr;
-    register char *outptr;
-    register JDIMENSION col;
-    inptr = dest->pub.buffer[0];
-    outptr = dest->iobuffer;
-    for (col = cinfo->output_width; col > 0; col--) { // Use cinfo here
-        outptr[0] = (char) ((int) (inptr[2]));
-        outptr[1] = (char) ((int) (inptr[1]));
-        outptr[2] = (char) ((int) (inptr[0]));
-        inptr += 3, outptr += 3;
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
+    ppm_source_ptr source;
+    source = (ppm_source_ptr) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, ((size_t) sizeof(ppm_source_struct)));
+    source->pub.start_input = start_input_ppm;
+    source->pub.finish_input = finish_input_ppm;
+    return (cjpeg_source_ptr) source;
 }

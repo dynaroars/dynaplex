@@ -873,204 +873,697 @@ extern void jpeg_abort_decompress(j_decompress_ptr cinfo);
 extern void jpeg_abort(j_common_ptr cinfo);
 extern void jpeg_destroy(j_common_ptr cinfo);
 extern boolean jpeg_resync_to_restart(j_decompress_ptr cinfo, int desired);
+typedef enum { JBUF_PASS_THRU, JBUF_SAVE_SOURCE, JBUF_CRANK_DEST, JBUF_SAVE_AND_PASS } J_BUF_MODE;
+struct jpeg_comp_master {
+    void (*prepare_for_pass) (j_compress_ptr cinfo);
+    void (*pass_startup) (j_compress_ptr cinfo);
+    void (*finish_pass) (j_compress_ptr cinfo);
+    boolean call_pass_startup;
+    boolean is_last_pass;
+};
+struct jpeg_c_main_controller {
+    void (*start_pass) (j_compress_ptr cinfo, J_BUF_MODE pass_mode);
+    void (*process_data) (j_compress_ptr cinfo, JSAMPARRAY input_buf, JDIMENSION * in_row_ctr, JDIMENSION in_rows_avail);
+};
+struct jpeg_c_prep_controller {
+    void (*start_pass) (j_compress_ptr cinfo, J_BUF_MODE pass_mode);
+    void (*pre_process_data) (j_compress_ptr cinfo, JSAMPARRAY input_buf, JDIMENSION * in_row_ctr, JDIMENSION in_rows_avail, JSAMPIMAGE output_buf, JDIMENSION * out_row_group_ctr, JDIMENSION out_row_groups_avail);
+};
+struct jpeg_c_coef_controller {
+    void (*start_pass) (j_compress_ptr cinfo, J_BUF_MODE pass_mode);
+    boolean(*compress_data) (j_compress_ptr cinfo, JSAMPIMAGE input_buf);
+};
+struct jpeg_color_converter {
+    void (*start_pass) (j_compress_ptr cinfo);
+    void (*color_convert) (j_compress_ptr cinfo, JSAMPARRAY input_buf, JSAMPIMAGE output_buf, JDIMENSION output_row, int num_rows);
+};
+struct jpeg_downsampler {
+    void (*start_pass) (j_compress_ptr cinfo);
+    void (*downsample) (j_compress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION in_row_index, JSAMPIMAGE output_buf, JDIMENSION out_row_group_index);
+    boolean need_context_rows;
+};
+struct jpeg_forward_dct {
+    void (*start_pass) (j_compress_ptr cinfo);
+    void (*forward_DCT) (j_compress_ptr cinfo, jpeg_component_info * compptr, JSAMPARRAY sample_data, JBLOCKROW coef_blocks, JDIMENSION start_row, JDIMENSION start_col, JDIMENSION num_blocks);
+};
+struct jpeg_entropy_encoder {
+    void (*start_pass) (j_compress_ptr cinfo, boolean gather_statistics);
+    boolean(*encode_mcu) (j_compress_ptr cinfo, JBLOCKROW * MCU_data);
+    void (*finish_pass) (j_compress_ptr cinfo);
+};
+struct jpeg_marker_writer {
+    void (*write_any_marker) (j_compress_ptr cinfo, int marker, const JOCTET * dataptr, unsigned int datalen);
+    void (*write_file_header) (j_compress_ptr cinfo);
+    void (*write_frame_header) (j_compress_ptr cinfo);
+    void (*write_scan_header) (j_compress_ptr cinfo);
+    void (*write_file_trailer) (j_compress_ptr cinfo);
+    void (*write_tables_only) (j_compress_ptr cinfo);
+};
+struct jpeg_decomp_master {
+    void (*prepare_for_output_pass) (j_decompress_ptr cinfo);
+    void (*finish_output_pass) (j_decompress_ptr cinfo);
+    boolean is_dummy_pass;
+};
+struct jpeg_input_controller {
+    int (*consume_input) (j_decompress_ptr cinfo);
+    void (*reset_input_controller) (j_decompress_ptr cinfo);
+    void (*start_input_pass) (j_decompress_ptr cinfo);
+    void (*finish_input_pass) (j_decompress_ptr cinfo);
+    boolean has_multiple_scans;
+    boolean eoi_reached;
+};
+struct jpeg_d_main_controller {
+    void (*start_pass) (j_decompress_ptr cinfo, J_BUF_MODE pass_mode);
+    void (*process_data) (j_decompress_ptr cinfo, JSAMPARRAY output_buf, JDIMENSION * out_row_ctr, JDIMENSION out_rows_avail);
+};
+struct jpeg_d_coef_controller {
+    void (*start_input_pass) (j_decompress_ptr cinfo);
+    int (*consume_data) (j_decompress_ptr cinfo);
+    void (*start_output_pass) (j_decompress_ptr cinfo);
+    int (*decompress_data) (j_decompress_ptr cinfo, JSAMPIMAGE output_buf);
+    jvirt_barray_ptr *coef_arrays;
+};
+struct jpeg_d_post_controller {
+    void (*start_pass) (j_decompress_ptr cinfo, J_BUF_MODE pass_mode);
+    void (*post_process_data) (j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION * in_row_group_ctr, JDIMENSION in_row_groups_avail, JSAMPARRAY output_buf, JDIMENSION * out_row_ctr, JDIMENSION out_rows_avail);
+};
+struct jpeg_marker_reader {
+    void (*reset_marker_reader) (j_decompress_ptr cinfo);
+    int (*read_markers) (j_decompress_ptr cinfo);
+    jpeg_marker_parser_method read_restart_marker;
+    jpeg_marker_parser_method process_COM;
+    jpeg_marker_parser_method process_APPn[16];
+    boolean saw_SOI;
+    boolean saw_SOF;
+    int next_restart_num;
+    unsigned int discarded_bytes;
+};
+struct jpeg_entropy_decoder {
+    void (*start_pass) (j_decompress_ptr cinfo);
+    boolean(*decode_mcu) (j_decompress_ptr cinfo, JBLOCKROW * MCU_data);
+};
+typedef void (*inverse_DCT_method_ptr) (j_decompress_ptr cinfo, jpeg_component_info * compptr, JCOEFPTR coef_block, JSAMPARRAY output_buf, JDIMENSION output_col);
+struct jpeg_inverse_dct {
+    void (*start_pass) (j_decompress_ptr cinfo);
+    inverse_DCT_method_ptr inverse_DCT[10];
+};
+struct jpeg_upsampler {
+    void (*start_pass) (j_decompress_ptr cinfo);
+    void (*upsample) (j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION * in_row_group_ctr, JDIMENSION in_row_groups_avail, JSAMPARRAY output_buf, JDIMENSION * out_row_ctr, JDIMENSION out_rows_avail);
+    boolean need_context_rows;
+};
+struct jpeg_color_deconverter {
+    void (*start_pass) (j_decompress_ptr cinfo);
+    void (*color_convert) (j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows);
+};
+struct jpeg_color_quantizer {
+    void (*start_pass) (j_decompress_ptr cinfo, boolean is_pre_scan);
+    void (*color_quantize) (j_decompress_ptr cinfo, JSAMPARRAY input_buf, JSAMPARRAY output_buf, int num_rows);
+    void (*finish_pass) (j_decompress_ptr cinfo);
+    void (*new_color_map) (j_decompress_ptr cinfo);
+};
+extern void jinit_compress_master(j_compress_ptr cinfo);
+extern void jinit_c_master_control(j_compress_ptr cinfo, boolean transcode_only);
+extern void jinit_c_main_controller(j_compress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_c_prep_controller(j_compress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_c_coef_controller(j_compress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_color_converter(j_compress_ptr cinfo);
+extern void jinit_downsampler(j_compress_ptr cinfo);
+extern void jinit_forward_dct(j_compress_ptr cinfo);
+extern void jinit_huff_encoder(j_compress_ptr cinfo);
+extern void jinit_phuff_encoder(j_compress_ptr cinfo);
+extern void jinit_marker_writer(j_compress_ptr cinfo);
+extern void jinit_master_decompress(j_decompress_ptr cinfo);
+extern void jinit_d_main_controller(j_decompress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_d_coef_controller(j_decompress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_d_post_controller(j_decompress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_input_controller(j_decompress_ptr cinfo);
+extern void jinit_marker_reader(j_decompress_ptr cinfo);
+extern void jinit_huff_decoder(j_decompress_ptr cinfo);
+extern void jinit_phuff_decoder(j_decompress_ptr cinfo);
+extern void jinit_inverse_dct(j_decompress_ptr cinfo);
+extern void jinit_upsampler(j_decompress_ptr cinfo);
+extern void jinit_color_deconverter(j_decompress_ptr cinfo);
+extern void jinit_1pass_quantizer(j_decompress_ptr cinfo);
+extern void jinit_2pass_quantizer(j_decompress_ptr cinfo);
+extern void jinit_merged_upsampler(j_decompress_ptr cinfo);
+extern void jinit_memory_mgr(j_common_ptr cinfo);
+extern long jdiv_round_up(long a, long b);
+extern long jround_up(long a, long b);
+extern void jcopy_sample_rows(JSAMPARRAY input_array, int source_row, JSAMPARRAY output_array, int dest_row, int num_rows, JDIMENSION num_cols);
+extern void jcopy_block_row(JBLOCKROW input_row, JBLOCKROW output_row, JDIMENSION num_blocks);
+extern void jzero_far(void *target, size_t bytestozero);
+extern const int jpeg_zigzag_order[];
+extern const int jpeg_natural_order[];
 typedef enum { JMSG_NOMESSAGE, JERR_ARITH_NOTIMPL, JERR_BAD_ALIGN_TYPE, JERR_BAD_ALLOC_CHUNK, JERR_BAD_BUFFER_MODE, JERR_BAD_COMPONENT_ID, JERR_BAD_DCTSIZE, JERR_BAD_IN_COLORSPACE, JERR_BAD_J_COLORSPACE, JERR_BAD_LENGTH, JERR_BAD_LIB_VERSION, JERR_BAD_MCU_SIZE, JERR_BAD_POOL_ID, JERR_BAD_PRECISION, JERR_BAD_PROGRESSION, JERR_BAD_PROG_SCRIPT, JERR_BAD_SAMPLING, JERR_BAD_SCAN_SCRIPT, JERR_BAD_STATE, JERR_BAD_STRUCT_SIZE, JERR_BAD_VIRTUAL_ACCESS, JERR_BUFFER_SIZE, JERR_CANT_SUSPEND, JERR_CCIR601_NOTIMPL, JERR_COMPONENT_COUNT, JERR_CONVERSION_NOTIMPL, JERR_DAC_INDEX, JERR_DAC_VALUE, JERR_DHT_COUNTS, JERR_DHT_INDEX, JERR_DQT_INDEX, JERR_EMPTY_IMAGE, JERR_EMS_READ, JERR_EMS_WRITE, JERR_EOI_EXPECTED, JERR_FILE_READ, JERR_FILE_WRITE, JERR_FRACT_SAMPLE_NOTIMPL, JERR_HUFF_CLEN_OVERFLOW, JERR_HUFF_MISSING_CODE, JERR_IMAGE_TOO_BIG, JERR_INPUT_EMPTY, JERR_INPUT_EOF, JERR_MISMATCHED_QUANT_TABLE, JERR_MISSING_DATA, JERR_MODE_CHANGE, JERR_NOTIMPL, JERR_NOT_COMPILED, JERR_NO_BACKING_STORE, JERR_NO_HUFF_TABLE, JERR_NO_IMAGE, JERR_NO_QUANT_TABLE, JERR_NO_SOI, JERR_OUT_OF_MEMORY, JERR_QUANT_COMPONENTS, JERR_QUANT_FEW_COLORS, JERR_QUANT_MANY_COLORS, JERR_SOF_DUPLICATE, JERR_SOF_NO_SOS, JERR_SOF_UNSUPPORTED, JERR_SOI_DUPLICATE, JERR_SOS_NO_SOF, JERR_TFILE_CREATE, JERR_TFILE_READ, JERR_TFILE_SEEK, JERR_TFILE_WRITE, JERR_TOO_LITTLE_DATA, JERR_UNKNOWN_MARKER, JERR_VIRTUAL_BUG, JERR_WIDTH_OVERFLOW, JERR_XMS_READ, JERR_XMS_WRITE, JMSG_COPYRIGHT, JMSG_VERSION, JTRC_16BIT_TABLES, JTRC_ADOBE, JTRC_APP0, JTRC_APP14, JTRC_DAC, JTRC_DHT, JTRC_DQT, JTRC_DRI, JTRC_EMS_CLOSE, JTRC_EMS_OPEN, JTRC_EOI, JTRC_HUFFBITS, JTRC_JFIF, JTRC_JFIF_BADTHUMBNAILSIZE, JTRC_JFIF_MINOR, JTRC_JFIF_THUMBNAIL, JTRC_MISC_MARKER, JTRC_PARMLESS_MARKER, JTRC_QUANTVALS, JTRC_QUANT_3_NCOLORS, JTRC_QUANT_NCOLORS, JTRC_QUANT_SELECTED, JTRC_RECOVERY_ACTION, JTRC_RST, JTRC_SMOOTH_NOTIMPL, JTRC_SOF, JTRC_SOF_COMPONENT, JTRC_SOI, JTRC_SOS, JTRC_SOS_COMPONENT, JTRC_SOS_PARAMS, JTRC_TFILE_CLOSE, JTRC_TFILE_OPEN, JTRC_UNKNOWN_IDS, JTRC_XMS_CLOSE, JTRC_XMS_OPEN, JWRN_ADOBE_XFORM, JWRN_BOGUS_PROGRESSION, JWRN_EXTRANEOUS_DATA, JWRN_HIT_MARKER, JWRN_HUFF_BAD_CODE, JWRN_JFIF_MAJOR, JWRN_JPEG_EOF, JWRN_MUST_RESYNC, JWRN_NOT_SEQUENTIAL, JWRN_TOO_MUCH_DATA, JMSG_LASTMSGCODE } J_MESSAGE_CODE;
-typedef enum { JMSG_FIRSTADDONCODE = 1000, JERR_BMP_BADCMAP, JERR_BMP_BADDEPTH, JERR_BMP_BADHEADER, JERR_BMP_BADPLANES, JERR_BMP_COLORSPACE, JERR_BMP_COMPRESSED, JERR_BMP_NOT, JTRC_BMP, JTRC_BMP_MAPPED, JTRC_BMP_OS2, JTRC_BMP_OS2_MAPPED, JERR_GIF_BUG, JERR_GIF_CODESIZE, JERR_GIF_COLORSPACE, JERR_GIF_IMAGENOTFOUND, JERR_GIF_NOT, JTRC_GIF, JTRC_GIF_BADVERSION, JTRC_GIF_EXTENSION, JTRC_GIF_NONSQUARE, JWRN_GIF_BADDATA, JWRN_GIF_CHAR, JWRN_GIF_ENDCODE, JWRN_GIF_NOMOREDATA, JERR_PPM_COLORSPACE, JERR_PPM_NONNUMERIC, JERR_PPM_NOT, JTRC_PGM, JTRC_PGM_TEXT, JTRC_PPM, JTRC_PPM_TEXT, JERR_TGA_BADCMAP, JERR_TGA_BADPARMS, JERR_TGA_COLORSPACE, JTRC_TGA, JTRC_TGA_GRAY, JTRC_TGA_MAPPED, JERR_BAD_CMAP_FILE, JERR_TOO_MANY_COLORS, JERR_UNGETC_FAILED, JERR_UNKNOWN_FORMAT, JERR_UNSUPPORTED_FORMAT, JMSG_LASTADDONCODE } ADDON_MESSAGE_CODE;
-typedef struct cjpeg_source_struct *cjpeg_source_ptr;
-struct cjpeg_source_struct {
-    void (*start_input) (j_compress_ptr cinfo, cjpeg_source_ptr sinfo);
-    JDIMENSION(*get_pixel_rows) (j_compress_ptr cinfo, cjpeg_source_ptr sinfo);
-    void (*finish_input) (j_compress_ptr cinfo, cjpeg_source_ptr sinfo);
-    FILE *input_file;
-    JSAMPARRAY buffer;
-    JDIMENSION buffer_height;
-};
-typedef struct djpeg_dest_struct *djpeg_dest_ptr;
-struct djpeg_dest_struct {
-    void (*start_output) (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo);
-    void (*put_pixel_rows) (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied);
-    void (*finish_output) (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo);
-    FILE *output_file;
-    JSAMPARRAY buffer;
-    JDIMENSION buffer_height;
-};
-struct cdjpeg_progress_mgr {
-    struct jpeg_progress_mgr pub;
-    int completed_extra_passes;
-    int total_extra_passes;
-    int percent_done;
-};
-typedef struct cdjpeg_progress_mgr *cd_progress_ptr;
-extern cjpeg_source_ptr jinit_read_bmp(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_bmp(j_decompress_ptr cinfo, boolean is_os2);
-extern cjpeg_source_ptr jinit_read_gif(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_gif(j_decompress_ptr cinfo);
-extern cjpeg_source_ptr jinit_read_ppm(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_ppm(j_decompress_ptr cinfo);
-extern cjpeg_source_ptr jinit_read_rle(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_rle(j_decompress_ptr cinfo);
-extern cjpeg_source_ptr jinit_read_targa(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_targa(j_decompress_ptr cinfo);
-extern boolean read_quant_tables(j_compress_ptr cinfo, char *filename, int scale_factor, boolean force_baseline);
-extern boolean read_scan_script(j_compress_ptr cinfo, char *filename);
-extern boolean set_quant_slots(j_compress_ptr cinfo, char *arg);
-extern boolean set_sample_factors(j_compress_ptr cinfo, char *arg);
-extern void read_color_map(j_decompress_ptr cinfo, FILE * infile);
-extern void enable_signal_catcher(j_common_ptr cinfo);
-extern void start_progress_monitor(j_common_ptr cinfo, cd_progress_ptr progress);
-extern void end_progress_monitor(j_common_ptr cinfo);
-extern boolean keymatch(char *arg, const char *keyword, int minchars);
-extern FILE *read_stdin(void);
-extern FILE *write_stdout(void);
+extern void *jpeg_get_small(j_common_ptr cinfo, size_t sizeofobject);
+extern void jpeg_free_small(j_common_ptr cinfo, void *object, size_t sizeofobject);
+extern void *jpeg_get_large(j_common_ptr cinfo, size_t sizeofobject);
+extern void jpeg_free_large(j_common_ptr cinfo, void *object, size_t sizeofobject);
+extern long jpeg_mem_available(j_common_ptr cinfo, long min_bytes_needed, long max_bytes_needed, long already_allocated);
+typedef struct backing_store_struct *backing_store_ptr;
+typedef struct backing_store_struct {
+    void (*read_backing_store) (j_common_ptr cinfo, backing_store_ptr info, void *buffer_address, long file_offset, long byte_count);
+    void (*write_backing_store) (j_common_ptr cinfo, backing_store_ptr info, void *buffer_address, long file_offset, long byte_count);
+    void (*close_backing_store) (j_common_ptr cinfo, backing_store_ptr info);
+    FILE *temp_file;
+    char temp_name[64];
+} backing_store_info;
+extern void jpeg_open_backing_store(j_common_ptr cinfo, backing_store_ptr info, long total_bytes_needed);
+extern long jpeg_mem_init(j_common_ptr cinfo);
+extern void jpeg_mem_term(j_common_ptr cinfo);
+typedef union small_pool_struct *small_pool_ptr;
+typedef union small_pool_struct {
+    struct {
+	small_pool_ptr next;
+	size_t bytes_used;
+	size_t bytes_left;
+    } hdr;
+    double dummy;
+} small_pool_hdr;
+typedef union large_pool_struct *large_pool_ptr;
+typedef union large_pool_struct {
+    struct {
+	large_pool_ptr next;
+	size_t bytes_used;
+	size_t bytes_left;
+    } hdr;
+    double dummy;
+} large_pool_hdr;
 typedef struct {
-    struct djpeg_dest_struct pub;
-    char *iobuffer;
-    JDIMENSION buffer_width;
-} tga_dest_struct;
-typedef tga_dest_struct *tga_dest_ptr;
-static void write_header(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, int num_colors)
+    struct jpeg_memory_mgr pub;
+    small_pool_ptr small_list[2];
+    large_pool_ptr large_list[2];
+    jvirt_sarray_ptr virt_sarray_list;
+    jvirt_barray_ptr virt_barray_list;
+    long total_space_allocated;
+    JDIMENSION last_rowsperchunk;
+} my_memory_mgr;
+typedef my_memory_mgr *my_mem_ptr;
+struct jvirt_sarray_control {
+    JSAMPARRAY mem_buffer;
+    JDIMENSION rows_in_array;
+    JDIMENSION samplesperrow;
+    JDIMENSION maxaccess;
+    JDIMENSION rows_in_mem;
+    JDIMENSION rowsperchunk;
+    JDIMENSION cur_start_row;
+    JDIMENSION first_undef_row;
+    boolean pre_zero;
+    boolean dirty;
+    boolean b_s_open;
+    jvirt_sarray_ptr next;
+    backing_store_info b_s_info;
+};
+struct jvirt_barray_control {
+    JBLOCKARRAY mem_buffer;
+    JDIMENSION rows_in_array;
+    JDIMENSION blocksperrow;
+    JDIMENSION maxaccess;
+    JDIMENSION rows_in_mem;
+    JDIMENSION rowsperchunk;
+    JDIMENSION cur_start_row;
+    JDIMENSION first_undef_row;
+    boolean pre_zero;
+    boolean dirty;
+    boolean b_s_open;
+    jvirt_barray_ptr next;
+    backing_store_info b_s_info;
+};
+static void out_of_memory(j_common_ptr cinfo, int which)
 {
-    char targaheader[18];
-    memset((void *) (targaheader), 0, (size_t) (((size_t) sizeof(targaheader))));
-    if (num_colors > 0) {
-	targaheader[1] = 1;
-	targaheader[5] = (char) (num_colors & 0xFF);
-	targaheader[6] = (char) (num_colors >> 8);
-	targaheader[7] = 24;
+    ((cinfo)->err->msg_code = (JERR_OUT_OF_MEMORY), (cinfo)->err->msg_parm.i[0] = (which), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+} static const size_t first_pool_slop[2] = { 1600, 16000 };
+static const size_t extra_pool_slop[2] = { 0, 5000 };
+
+static void *alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobject)
+{
+    my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
+    small_pool_ptr hdr_ptr, prev_hdr_ptr;
+    char *data_ptr;
+    size_t odd_bytes, min_request, slop;
+    if (sizeofobject > (size_t) (1000000000L - ((size_t) sizeof(small_pool_hdr))))
+	out_of_memory(cinfo, 1);
+    odd_bytes = sizeofobject % ((size_t) sizeof(double));
+    if (odd_bytes > 0)
+	sizeofobject += ((size_t) sizeof(double)) - odd_bytes;
+    if (pool_id < 0 || pool_id >= 2)
+	((cinfo)->err->msg_code = (JERR_BAD_POOL_ID), (cinfo)->err->msg_parm.i[0] = (pool_id), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    prev_hdr_ptr = ((void *) 0);
+    hdr_ptr = mem->small_list[pool_id];
+    while (hdr_ptr != ((void *) 0)) {
+	if (hdr_ptr->hdr.bytes_left >= sizeofobject)
+	    break;
+	prev_hdr_ptr = hdr_ptr;
+	hdr_ptr = hdr_ptr->hdr.next;
     }
-    targaheader[12] = (char) (cinfo->output_width & 0xFF);
-    targaheader[13] = (char) (cinfo->output_width >> 8);
-    targaheader[14] = (char) (cinfo->output_height & 0xFF);
-    targaheader[15] = (char) (cinfo->output_height >> 8);
-    targaheader[17] = 0x20;
-    if (cinfo->out_color_space == JCS_GRAYSCALE) {
-	targaheader[2] = 3;
-	targaheader[16] = 8;
-    } else {
-	if (num_colors > 0) {
-	    targaheader[2] = 1;
-	    targaheader[16] = 8;
-	} else {
-	    targaheader[2] = 2;
-	    targaheader[16] = 24;
-	}
-    }
-    if (((size_t) fwrite((const void *) (targaheader), (size_t) 1, (size_t) (18), (dinfo->output_file))) != (size_t) 18)
-	((cinfo)->err->msg_code = (JERR_FILE_WRITE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
-} 
-//complexity is O(n) inferred by loopus
-static void put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
-{
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    register JSAMPROW inptr;
-    register char *outptr;
-    register JDIMENSION col;
-    inptr = dest->pub.buffer[0];
-    outptr = dest->iobuffer;
-    for (col = cinfo->output_width; col > 0; col--) {
-	outptr[0] = (char) ((int) (inptr[2]));
-	outptr[1] = (char) ((int) (inptr[1]));
-	outptr[2] = (char) ((int) (inptr[0]));
-	inptr += 3, outptr += 3;
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
-} 
-//complexity is O(n) inferred by loopus
-static void put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
-{
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    register JSAMPROW inptr;
-    register char *outptr;
-    register JDIMENSION col;
-    inptr = dest->pub.buffer[0];
-    outptr = dest->iobuffer;
-    for (col = cinfo->output_width; col > 0; col--) {
-	*outptr++ = (char) ((int) (*inptr++));
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
-}
-// complexity is O(n) inferred by loopus
- static void put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
-{
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    register JSAMPROW inptr;
-    register char *outptr;
-    register JSAMPROW color_map0 = cinfo->colormap[0];
-    register JDIMENSION col;
-    inptr = dest->pub.buffer[0];
-    outptr = dest->iobuffer;
-    for (col = cinfo->output_width; col > 0; col--) {
-	*outptr++ = (char) ((int) (color_map0[((int) (*inptr++))]));
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
-} 
-// complexity is O(n) inferred by loopus
-static void start_output_tga(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
-{
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    int num_colors, i;
-    FILE *outfile;
-    if (cinfo->out_color_space == JCS_GRAYSCALE) {
-	write_header(cinfo, dinfo, 0);
-	if (cinfo->quantize_colors)
-	    dest->pub.put_pixel_rows = put_demapped_gray;
+    if (hdr_ptr == ((void *) 0)) {
+	min_request = sizeofobject + ((size_t) sizeof(small_pool_hdr));
+	if (prev_hdr_ptr == ((void *) 0))
+	    slop = first_pool_slop[pool_id];
 	else
-	    dest->pub.put_pixel_rows = put_gray_rows;
-    } else if (cinfo->out_color_space == JCS_RGB) {
-	if (cinfo->quantize_colors) {
-	    num_colors = cinfo->actual_number_of_colors;
-	    if (num_colors > 256)
-		((cinfo)->err->msg_code = (JERR_TOO_MANY_COLORS), (cinfo)->err->msg_parm.i[0] = (num_colors), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
-	    write_header(cinfo, dinfo, num_colors);
-	    outfile = dest->pub.output_file;
-	    for (i = 0; i < num_colors; i++) {
-		_IO_putc(((int) (cinfo->colormap[2][i])), outfile);
-		_IO_putc(((int) (cinfo->colormap[1][i])), outfile);
-		_IO_putc(((int) (cinfo->colormap[0][i])), outfile);
-	    } dest->pub.put_pixel_rows = put_gray_rows;
-	} else {
-	    write_header(cinfo, dinfo, 0);
-	    dest->pub.put_pixel_rows = put_pixel_rows;
+	    slop = extra_pool_slop[pool_id];
+	if (slop > (size_t) (1000000000L - min_request))
+	    slop = (size_t) (1000000000L - min_request);
+	for (;;) {
+	    hdr_ptr = (small_pool_ptr) jpeg_get_small(cinfo, min_request + slop);
+	    if (hdr_ptr != ((void *) 0))
+		break;
+	    slop /= 2;
+	    if (slop < 50)
+		out_of_memory(cinfo, 2);
 	}
-    } else {
-	((cinfo)->err->msg_code = (JERR_TGA_COLORSPACE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+	mem->total_space_allocated += min_request + slop;
+	hdr_ptr->hdr.next = ((void *) 0);
+	hdr_ptr->hdr.bytes_used = 0;
+	hdr_ptr->hdr.bytes_left = sizeofobject + slop;
+	if (prev_hdr_ptr == ((void *) 0))
+	    mem->small_list[pool_id] = hdr_ptr;
+	else
+	    prev_hdr_ptr->hdr.next = hdr_ptr;
+    }
+    data_ptr = (char *) (hdr_ptr + 1);
+    data_ptr += hdr_ptr->hdr.bytes_used;
+    hdr_ptr->hdr.bytes_used += sizeofobject;
+    hdr_ptr->hdr.bytes_left -= sizeofobject;
+    return (void *) data_ptr;
+} static void *alloc_large(j_common_ptr cinfo, int pool_id, size_t sizeofobject)
+{
+    my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
+    large_pool_ptr hdr_ptr;
+    size_t odd_bytes;
+    if (sizeofobject > (size_t) (1000000000L - ((size_t) sizeof(large_pool_hdr))))
+	out_of_memory(cinfo, 3);
+    odd_bytes = sizeofobject % ((size_t) sizeof(double));
+    if (odd_bytes > 0)
+	sizeofobject += ((size_t) sizeof(double)) - odd_bytes;
+    if (pool_id < 0 || pool_id >= 2)
+	((cinfo)->err->msg_code = (JERR_BAD_POOL_ID), (cinfo)->err->msg_parm.i[0] = (pool_id), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    hdr_ptr = (large_pool_ptr) jpeg_get_large(cinfo, sizeofobject + ((size_t) sizeof(large_pool_hdr)));
+    if (hdr_ptr == ((void *) 0))
+	out_of_memory(cinfo, 4);
+    mem->total_space_allocated += sizeofobject + ((size_t) sizeof(large_pool_hdr));
+    hdr_ptr->hdr.next = mem->large_list[pool_id];
+    hdr_ptr->hdr.bytes_used = sizeofobject;
+    hdr_ptr->hdr.bytes_left = 0;
+    mem->large_list[pool_id] = hdr_ptr;
+    return (void *) (hdr_ptr + 1);
+} static JSAMPARRAY alloc_sarray(j_common_ptr cinfo, int pool_id, JDIMENSION samplesperrow, JDIMENSION numrows)
+{
+    my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
+    JSAMPARRAY result;
+    JSAMPROW workspace;
+    JDIMENSION rowsperchunk, currow, i;
+    long ltemp;
+    ltemp = (1000000000L - ((size_t) sizeof(large_pool_hdr))) / ((long) samplesperrow * ((size_t) sizeof(JSAMPLE)));
+    if (ltemp <= 0)
+	((cinfo)->err->msg_code = (JERR_WIDTH_OVERFLOW), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    if (ltemp < (long) numrows)
+	rowsperchunk = (JDIMENSION) ltemp;
+    else
+	rowsperchunk = numrows;
+    mem->last_rowsperchunk = rowsperchunk;
+    result = (JSAMPARRAY) alloc_small(cinfo, pool_id, (size_t) (numrows * ((size_t) sizeof(JSAMPROW))));
+    currow = 0;
+    while (currow < numrows) {
+	rowsperchunk = ((rowsperchunk) < (numrows - currow) ? (rowsperchunk) : (numrows - currow));
+	workspace = (JSAMPROW) alloc_large(cinfo, pool_id, (size_t) ((size_t) rowsperchunk * (size_t) samplesperrow * ((size_t) sizeof(JSAMPLE))));
+	for (i = rowsperchunk; i > 0; i--) {
+	    result[currow++] = workspace;
+	    workspace += samplesperrow;
+	}
+    }
+    return result;
+}
+
+static JBLOCKARRAY alloc_barray(j_common_ptr cinfo, int pool_id, JDIMENSION blocksperrow, JDIMENSION numrows)
+{
+    my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
+    JBLOCKARRAY result;
+    JBLOCKROW workspace;
+    JDIMENSION rowsperchunk, currow, i;
+    long ltemp;
+    ltemp = (1000000000L - ((size_t) sizeof(large_pool_hdr))) / ((long) blocksperrow * ((size_t) sizeof(JBLOCK)));
+    if (ltemp <= 0)
+	((cinfo)->err->msg_code = (JERR_WIDTH_OVERFLOW), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    if (ltemp < (long) numrows)
+	rowsperchunk = (JDIMENSION) ltemp;
+    else
+	rowsperchunk = numrows;
+    mem->last_rowsperchunk = rowsperchunk;
+    result = (JBLOCKARRAY) alloc_small(cinfo, pool_id, (size_t) (numrows * ((size_t) sizeof(JBLOCKROW))));
+    currow = 0;
+    while (currow < numrows) {
+	rowsperchunk = ((rowsperchunk) < (numrows - currow) ? (rowsperchunk) : (numrows - currow));
+	workspace = (JBLOCKROW) alloc_large(cinfo, pool_id, (size_t) ((size_t) rowsperchunk * (size_t) blocksperrow * ((size_t) sizeof(JBLOCK))));
+	for (i = rowsperchunk; i > 0; i--) {
+	    result[currow++] = workspace;
+	    workspace += blocksperrow;
+	}
+    }
+    return result;
+}
+
+static jvirt_sarray_ptr request_virt_sarray(j_common_ptr cinfo, int pool_id, boolean pre_zero, JDIMENSION samplesperrow, JDIMENSION numrows, JDIMENSION maxaccess)
+{
+    my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
+    jvirt_sarray_ptr result;
+    if (pool_id != 1)
+	((cinfo)->err->msg_code = (JERR_BAD_POOL_ID), (cinfo)->err->msg_parm.i[0] = (pool_id), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    result = (jvirt_sarray_ptr) alloc_small(cinfo, pool_id, ((size_t) sizeof(struct jvirt_sarray_control)));
+    result->mem_buffer = ((void *) 0);
+    result->rows_in_array = numrows;
+    result->samplesperrow = samplesperrow;
+    result->maxaccess = maxaccess;
+    result->pre_zero = pre_zero;
+    result->b_s_open = 0;
+    result->next = mem->virt_sarray_list;
+    mem->virt_sarray_list = result;
+    return result;
+}
+
+static jvirt_barray_ptr request_virt_barray(j_common_ptr cinfo, int pool_id, boolean pre_zero, JDIMENSION blocksperrow, JDIMENSION numrows, JDIMENSION maxaccess)
+{
+    my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
+    jvirt_barray_ptr result;
+    if (pool_id != 1)
+	((cinfo)->err->msg_code = (JERR_BAD_POOL_ID), (cinfo)->err->msg_parm.i[0] = (pool_id), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    result = (jvirt_barray_ptr) alloc_small(cinfo, pool_id, ((size_t) sizeof(struct jvirt_barray_control)));
+    result->mem_buffer = ((void *) 0);
+    result->rows_in_array = numrows;
+    result->blocksperrow = blocksperrow;
+    result->maxaccess = maxaccess;
+    result->pre_zero = pre_zero;
+    result->b_s_open = 0;
+    result->next = mem->virt_barray_list;
+    mem->virt_barray_list = result;
+    return result;
+}
+
+static void realize_virt_arrays(j_common_ptr cinfo)
+{
+    my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
+    long space_per_minheight, maximum_space, avail_mem;
+    long minheights, max_minheights;
+    jvirt_sarray_ptr sptr;
+    jvirt_barray_ptr bptr;
+    space_per_minheight = 0;
+    maximum_space = 0;
+    for (sptr = mem->virt_sarray_list; sptr != ((void *) 0); sptr = sptr->next) {
+	if (sptr->mem_buffer == ((void *) 0)) {
+	    space_per_minheight += (long) sptr->maxaccess * (long) sptr->samplesperrow * ((size_t) sizeof(JSAMPLE));
+	    maximum_space += (long) sptr->rows_in_array * (long) sptr->samplesperrow * ((size_t) sizeof(JSAMPLE));
+	}
+    }
+    for (bptr = mem->virt_barray_list; bptr != ((void *) 0); bptr = bptr->next) {
+	if (bptr->mem_buffer == ((void *) 0)) {
+	    space_per_minheight += (long) bptr->maxaccess * (long) bptr->blocksperrow * ((size_t) sizeof(JBLOCK));
+	    maximum_space += (long) bptr->rows_in_array * (long) bptr->blocksperrow * ((size_t) sizeof(JBLOCK));
+	}
+    }
+    if (space_per_minheight <= 0)
+	return;
+    avail_mem = jpeg_mem_available(cinfo, space_per_minheight, maximum_space, mem->total_space_allocated);
+    if (avail_mem >= maximum_space)
+	max_minheights = 1000000000L;
+    else {
+	max_minheights = avail_mem / space_per_minheight;
+	if (max_minheights <= 0)
+	    max_minheights = 1;
+    }
+    for (sptr = mem->virt_sarray_list; sptr != ((void *) 0); sptr = sptr->next) {
+	if (sptr->mem_buffer == ((void *) 0)) {
+	    minheights = ((long) sptr->rows_in_array - 1L) / sptr->maxaccess + 1L;
+	    if (minheights <= max_minheights) {
+		sptr->rows_in_mem = sptr->rows_in_array;
+	    } else {
+		sptr->rows_in_mem = (JDIMENSION) (max_minheights * sptr->maxaccess);
+		jpeg_open_backing_store(cinfo, &sptr->b_s_info, (long) sptr->rows_in_array * (long) sptr->samplesperrow * (long) ((size_t) sizeof(JSAMPLE)));
+		sptr->b_s_open = 1;
+	    }
+	    sptr->mem_buffer = alloc_sarray(cinfo, 1, sptr->samplesperrow, sptr->rows_in_mem);
+	    sptr->rowsperchunk = mem->last_rowsperchunk;
+	    sptr->cur_start_row = 0;
+	    sptr->first_undef_row = 0;
+	    sptr->dirty = 0;
+	}
+    }
+    for (bptr = mem->virt_barray_list; bptr != ((void *) 0); bptr = bptr->next) {
+	if (bptr->mem_buffer == ((void *) 0)) {
+	    minheights = ((long) bptr->rows_in_array - 1L) / bptr->maxaccess + 1L;
+	    if (minheights <= max_minheights) {
+		bptr->rows_in_mem = bptr->rows_in_array;
+	    } else {
+		bptr->rows_in_mem = (JDIMENSION) (max_minheights * bptr->maxaccess);
+		jpeg_open_backing_store(cinfo, &bptr->b_s_info, (long) bptr->rows_in_array * (long) bptr->blocksperrow * (long) ((size_t) sizeof(JBLOCK)));
+		bptr->b_s_open = 1;
+	    }
+	    bptr->mem_buffer = alloc_barray(cinfo, 1, bptr->blocksperrow, bptr->rows_in_mem);
+	    bptr->rowsperchunk = mem->last_rowsperchunk;
+	    bptr->cur_start_row = 0;
+	    bptr->first_undef_row = 0;
+	    bptr->dirty = 0;
+	}
     }
 }
 
-static void finish_output_tga(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+//complexity is O(n) inferred by loopus
+static void do_sarray_io(j_common_ptr cinfo, jvirt_sarray_ptr ptr, boolean writing)
 {
-    fflush(dinfo->output_file);
-    if (ferror(dinfo->output_file))
-	((cinfo)->err->msg_code = (JERR_FILE_WRITE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    long bytesperrow, file_offset, byte_count, rows, thisrow, i;
+    bytesperrow = (long) ptr->samplesperrow * ((size_t) sizeof(JSAMPLE));
+    file_offset = ptr->cur_start_row * bytesperrow;
+    for (i = 0; i < (long) ptr->rows_in_mem; i += ptr->rowsperchunk) {
+	rows = (((long) ptr->rowsperchunk) < ((long) ptr->rows_in_mem - i) ? ((long) ptr->rowsperchunk) : ((long) ptr->rows_in_mem - i));
+	thisrow = (long) ptr->cur_start_row + i;
+	rows = ((rows) < ((long) ptr->first_undef_row - thisrow) ? (rows) : ((long) ptr->first_undef_row - thisrow));
+	rows = ((rows) < ((long) ptr->rows_in_array - thisrow) ? (rows) : ((long) ptr->rows_in_array - thisrow));
+	if (rows <= 0)
+	    break;
+	byte_count = rows * bytesperrow;
+	if (writing)
+	    (*ptr->b_s_info.write_backing_store) (cinfo, &ptr->b_s_info, (void *) ptr->mem_buffer[i], file_offset, byte_count);
+	else
+	    (*ptr->b_s_info.read_backing_store) (cinfo, &ptr->b_s_info, (void *) ptr->mem_buffer[i], file_offset, byte_count);
+	file_offset += byte_count;
+}} 
+// complexity is O(n) inferred by loopus
+static void do_barray_io(j_common_ptr cinfo, jvirt_barray_ptr ptr, boolean writing)
+{
+    long bytesperrow, file_offset, byte_count, rows, thisrow, i;
+    bytesperrow = (long) ptr->blocksperrow * ((size_t) sizeof(JBLOCK));
+    file_offset = ptr->cur_start_row * bytesperrow;
+    for (i = 0; i < (long) ptr->rows_in_mem; i += ptr->rowsperchunk) {
+	rows = (((long) ptr->rowsperchunk) < ((long) ptr->rows_in_mem - i) ? ((long) ptr->rowsperchunk) : ((long) ptr->rows_in_mem - i));
+	thisrow = (long) ptr->cur_start_row + i;
+	rows = ((rows) < ((long) ptr->first_undef_row - thisrow) ? (rows) : ((long) ptr->first_undef_row - thisrow));
+	rows = ((rows) < ((long) ptr->rows_in_array - thisrow) ? (rows) : ((long) ptr->rows_in_array - thisrow));
+	if (rows <= 0)
+	    break;
+	byte_count = rows * bytesperrow;
+	if (writing)
+	    (*ptr->b_s_info.write_backing_store) (cinfo, &ptr->b_s_info, (void *) ptr->mem_buffer[i], file_offset, byte_count);
+	else
+	    (*ptr->b_s_info.read_backing_store) (cinfo, &ptr->b_s_info, (void *) ptr->mem_buffer[i], file_offset, byte_count);
+	file_offset += byte_count;
+}} static JSAMPARRAY access_virt_sarray(j_common_ptr cinfo, jvirt_sarray_ptr ptr, JDIMENSION start_row, JDIMENSION num_rows, boolean writable)
+{
+    JDIMENSION end_row = start_row + num_rows;
+    JDIMENSION undef_row;
+    if (end_row > ptr->rows_in_array || num_rows > ptr->maxaccess || ptr->mem_buffer == ((void *) 0))
+	((cinfo)->err->msg_code = (JERR_BAD_VIRTUAL_ACCESS), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    if (start_row < ptr->cur_start_row || end_row > ptr->cur_start_row + ptr->rows_in_mem) {
+	if (!ptr->b_s_open)
+	    ((cinfo)->err->msg_code = (JERR_VIRTUAL_BUG), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+	if (ptr->dirty) {
+	    do_sarray_io(cinfo, ptr, 1);
+	    ptr->dirty = 0;
+	}
+	if (start_row > ptr->cur_start_row) {
+	    ptr->cur_start_row = start_row;
+	} else {
+	    long ltemp;
+	    ltemp = (long) end_row - (long) ptr->rows_in_mem;
+	    if (ltemp < 0)
+		ltemp = 0;
+	    ptr->cur_start_row = (JDIMENSION) ltemp;
+	}
+	do_sarray_io(cinfo, ptr, 0);
+    }
+    if (ptr->first_undef_row < end_row) {
+	if (ptr->first_undef_row < start_row) {
+	    if (writable)
+		((cinfo)->err->msg_code = (JERR_BAD_VIRTUAL_ACCESS), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+	    undef_row = start_row;
+	} else {
+	    undef_row = ptr->first_undef_row;
+	}
+	if (writable)
+	    ptr->first_undef_row = end_row;
+	if (ptr->pre_zero) {
+	    size_t bytesperrow = (size_t) ptr->samplesperrow * ((size_t) sizeof(JSAMPLE));
+	    undef_row -= ptr->cur_start_row;
+	    end_row -= ptr->cur_start_row;
+	    while (undef_row < end_row) {
+		jzero_far((void *) ptr->mem_buffer[undef_row], bytesperrow);
+		undef_row++;
+	}} else {
+	    if (!writable)
+		((cinfo)->err->msg_code = (JERR_BAD_VIRTUAL_ACCESS), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+	}
+    }
+    if (writable)
+	ptr->dirty = 1;
+    return ptr->mem_buffer + (start_row - ptr->cur_start_row);
 }
 
-djpeg_dest_ptr jinit_write_targa(j_decompress_ptr cinfo)
+static JBLOCKARRAY access_virt_barray(j_common_ptr cinfo, jvirt_barray_ptr ptr, JDIMENSION start_row, JDIMENSION num_rows, boolean writable)
 {
-    tga_dest_ptr dest;
-    dest = (tga_dest_ptr) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, ((size_t) sizeof(tga_dest_struct)));
-    dest->pub.start_output = start_output_tga;
-    dest->pub.finish_output = finish_output_tga;
-    jpeg_calc_output_dimensions(cinfo);
-    dest->buffer_width = cinfo->output_width * cinfo->output_components;
-    dest->iobuffer = (char *) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, (size_t) (dest->buffer_width * ((size_t) sizeof(char))));
-    dest->pub.buffer = (*cinfo->mem->alloc_sarray) ((j_common_ptr) cinfo, 1, dest->buffer_width, (JDIMENSION) 1);
-    dest->pub.buffer_height = 1;
-    return (djpeg_dest_ptr) dest;
+    JDIMENSION end_row = start_row + num_rows;
+    JDIMENSION undef_row;
+    if (end_row > ptr->rows_in_array || num_rows > ptr->maxaccess || ptr->mem_buffer == ((void *) 0))
+	((cinfo)->err->msg_code = (JERR_BAD_VIRTUAL_ACCESS), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    if (start_row < ptr->cur_start_row || end_row > ptr->cur_start_row + ptr->rows_in_mem) {
+	if (!ptr->b_s_open)
+	    ((cinfo)->err->msg_code = (JERR_VIRTUAL_BUG), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+	if (ptr->dirty) {
+	    do_barray_io(cinfo, ptr, 1);
+	    ptr->dirty = 0;
+	}
+	if (start_row > ptr->cur_start_row) {
+	    ptr->cur_start_row = start_row;
+	} else {
+	    long ltemp;
+	    ltemp = (long) end_row - (long) ptr->rows_in_mem;
+	    if (ltemp < 0)
+		ltemp = 0;
+	    ptr->cur_start_row = (JDIMENSION) ltemp;
+	}
+	do_barray_io(cinfo, ptr, 0);
+    }
+    if (ptr->first_undef_row < end_row) {
+	if (ptr->first_undef_row < start_row) {
+	    if (writable)
+		((cinfo)->err->msg_code = (JERR_BAD_VIRTUAL_ACCESS), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+	    undef_row = start_row;
+	} else {
+	    undef_row = ptr->first_undef_row;
+	}
+	if (writable)
+	    ptr->first_undef_row = end_row;
+	if (ptr->pre_zero) {
+	    size_t bytesperrow = (size_t) ptr->blocksperrow * ((size_t) sizeof(JBLOCK));
+	    undef_row -= ptr->cur_start_row;
+	    end_row -= ptr->cur_start_row;
+	    while (undef_row < end_row) {
+		jzero_far((void *) ptr->mem_buffer[undef_row], bytesperrow);
+		undef_row++;
+	}} else {
+	    if (!writable)
+		((cinfo)->err->msg_code = (JERR_BAD_VIRTUAL_ACCESS), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+	}
+    }
+    if (writable)
+	ptr->dirty = 1;
+    return ptr->mem_buffer + (start_row - ptr->cur_start_row);
 }
-int main(){
-    j_decompress_ptr cinfo; // Declare cinfo
-    cinfo = (j_decompress_ptr)malloc(sizeof(struct jpeg_decompress_struct));
-    jpeg_create_decompress(cinfo);
-    
 
-    djpeg_dest_ptr dinfo = jinit_write_targa(cinfo); 
-    
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    register JSAMPROW inptr;
-    register char *outptr;
-    register JDIMENSION col;
-    inptr = dest->pub.buffer[0];
-    outptr = dest->iobuffer;
-    for (col = cinfo->output_width; col > 0; col--) { // Use cinfo here
-        outptr[0] = (char) ((int) (inptr[2]));
-        outptr[1] = (char) ((int) (inptr[1]));
-        outptr[2] = (char) ((int) (inptr[0]));
-        inptr += 3, outptr += 3;
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
+static void free_pool(j_common_ptr cinfo, int pool_id)
+{
+    my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
+    small_pool_ptr shdr_ptr;
+    large_pool_ptr lhdr_ptr;
+    size_t space_freed;
+    if (pool_id < 0 || pool_id >= 2)
+	((cinfo)->err->msg_code = (JERR_BAD_POOL_ID), (cinfo)->err->msg_parm.i[0] = (pool_id), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    if (pool_id == 1) {
+	jvirt_sarray_ptr sptr;
+	jvirt_barray_ptr bptr;
+	for (sptr = mem->virt_sarray_list; sptr != ((void *) 0); sptr = sptr->next) {
+	    if (sptr->b_s_open) {
+		sptr->b_s_open = 0;
+		(*sptr->b_s_info.close_backing_store) (cinfo, &sptr->b_s_info);
+	    }
+	}
+	mem->virt_sarray_list = ((void *) 0);
+	for (bptr = mem->virt_barray_list; bptr != ((void *) 0); bptr = bptr->next) {
+	    if (bptr->b_s_open) {
+		bptr->b_s_open = 0;
+		(*bptr->b_s_info.close_backing_store) (cinfo, &bptr->b_s_info);
+	    }
+	}
+	mem->virt_barray_list = ((void *) 0);
+    }
+    lhdr_ptr = mem->large_list[pool_id];
+    mem->large_list[pool_id] = ((void *) 0);
+    while (lhdr_ptr != ((void *) 0)) {
+	large_pool_ptr next_lhdr_ptr = lhdr_ptr->hdr.next;
+	space_freed = lhdr_ptr->hdr.bytes_used + lhdr_ptr->hdr.bytes_left + ((size_t) sizeof(large_pool_hdr));
+	jpeg_free_large(cinfo, (void *) lhdr_ptr, space_freed);
+	mem->total_space_allocated -= space_freed;
+	lhdr_ptr = next_lhdr_ptr;
+    } shdr_ptr = mem->small_list[pool_id];
+    mem->small_list[pool_id] = ((void *) 0);
+    while (shdr_ptr != ((void *) 0)) {
+	small_pool_ptr next_shdr_ptr = shdr_ptr->hdr.next;
+	space_freed = shdr_ptr->hdr.bytes_used + shdr_ptr->hdr.bytes_left + ((size_t) sizeof(small_pool_hdr));
+	jpeg_free_small(cinfo, (void *) shdr_ptr, space_freed);
+	mem->total_space_allocated -= space_freed;
+	shdr_ptr = next_shdr_ptr;
+}} static void self_destruct(j_common_ptr cinfo)
+{
+    int pool;
+    for (pool = 2 - 1; pool >= 0; pool--) {
+	free_pool(cinfo, pool);
+    }
+    jpeg_free_small(cinfo, (void *) cinfo->mem, ((size_t) sizeof(my_memory_mgr)));
+    cinfo->mem = ((void *) 0);
+    jpeg_mem_term(cinfo);
+} void jinit_memory_mgr(j_common_ptr cinfo)
+{
+    my_mem_ptr mem;
+    long max_to_use;
+    int pool;
+    size_t test_mac;
+    cinfo->mem = ((void *) 0);
+    if ((((size_t) sizeof(double)) & (((size_t) sizeof(double)) - 1)) != 0)
+	((cinfo)->err->msg_code = (JERR_BAD_ALIGN_TYPE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    test_mac = (size_t) 1000000000L;
+    if ((long) test_mac != 1000000000L || (1000000000L % ((size_t) sizeof(double))) != 0)
+	((cinfo)->err->msg_code = (JERR_BAD_ALLOC_CHUNK), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    max_to_use = jpeg_mem_init(cinfo);
+    mem = (my_mem_ptr) jpeg_get_small(cinfo, ((size_t) sizeof(my_memory_mgr)));
+    if (mem == ((void *) 0)) {
+	jpeg_mem_term(cinfo);
+	((cinfo)->err->msg_code = (JERR_OUT_OF_MEMORY), (cinfo)->err->msg_parm.i[0] = (0), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    }
+    mem->pub.alloc_small = alloc_small;
+    mem->pub.alloc_large = alloc_large;
+    mem->pub.alloc_sarray = alloc_sarray;
+    mem->pub.alloc_barray = alloc_barray;
+    mem->pub.request_virt_sarray = request_virt_sarray;
+    mem->pub.request_virt_barray = request_virt_barray;
+    mem->pub.realize_virt_arrays = realize_virt_arrays;
+    mem->pub.access_virt_sarray = access_virt_sarray;
+    mem->pub.access_virt_barray = access_virt_barray;
+    mem->pub.free_pool = free_pool;
+    mem->pub.self_destruct = self_destruct;
+    mem->pub.max_memory_to_use = max_to_use;
+    for (pool = 2 - 1; pool >= 0; pool--) {
+	mem->small_list[pool] = ((void *) 0);
+	mem->large_list[pool] = ((void *) 0);
+    } mem->virt_sarray_list = ((void *) 0);
+    mem->virt_barray_list = ((void *) 0);
+    mem->total_space_allocated = ((size_t) sizeof(my_memory_mgr));
+    cinfo->mem = &mem->pub; {
+	char *memenv;
+	if ((memenv = getenv("JPEGMEM")) != ((void *) 0)) {
+	    char ch = 'x';
+	    if (sscanf(memenv, "%ld%c", &max_to_use, &ch) > 0) {
+		if (ch == 'm' || ch == 'M')
+		    max_to_use *= 1000L;
+		mem->pub.max_memory_to_use = max_to_use * 1000L;
+	    }
+	}
+    }
 }

@@ -14,3 +14,4 @@ test
 *logs/
 
 __pycache__/
+experiments/.vscode

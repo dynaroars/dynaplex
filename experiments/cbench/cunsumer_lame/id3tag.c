@@ -239,21 +239,137 @@ extern char *ctermid(char *__s) __attribute__ ((__nothrow__));
 extern void flockfile(FILE * __stream) __attribute__ ((__nothrow__));
 extern int ftrylockfile(FILE * __stream) __attribute__ ((__nothrow__));
 extern void funlockfile(FILE * __stream) __attribute__ ((__nothrow__));
-int main1(int argc, char *argv[], int print);
-
-// complexity is O(n) inferred by loopus
-int main(int argc, char *argv[])
+extern void *memcpy(void *__restrict __dest, __const void *__restrict __src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
+extern void *memmove(void *__dest, __const void *__src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
+extern void *memccpy(void *__restrict __dest, __const void *__restrict __src, int __c, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
+extern void *memset(void *__s, int __c, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1)));
+extern int memcmp(__const void *__s1, __const void *__s2, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
+extern void *memchr(__const void *__s, int __c, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1)));
+extern char *strcpy(char *__restrict __dest, __const char *__restrict __src) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
+extern char *strncpy(char *__restrict __dest, __const char *__restrict __src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
+extern char *strcat(char *__restrict __dest, __const char *__restrict __src) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
+extern char *strncat(char *__restrict __dest, __const char *__restrict __src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
+extern int strcmp(__const char *__s1, __const char *__s2) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
+extern int strncmp(__const char *__s1, __const char *__s2, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
+extern int strcoll(__const char *__s1, __const char *__s2) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
+extern size_t strxfrm(char *__restrict __dest, __const char *__restrict __src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(2)));
+typedef struct __locale_struct {
+    struct locale_data *__locales[13];
+    const unsigned short int *__ctype_b;
+    const int *__ctype_tolower;
+    const int *__ctype_toupper;
+    const char *__names[13];
+} *__locale_t;
+typedef __locale_t locale_t;
+extern int strcoll_l(__const char *__s1, __const char *__s2, __locale_t __l) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2, 3)));
+extern size_t strxfrm_l(char *__dest, __const char *__src, size_t __n, __locale_t __l) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(2, 4)));
+extern char *strdup(__const char *__s) __attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) __attribute__ ((__nonnull__(1)));
+extern char *strndup(__const char *__string, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) __attribute__ ((__nonnull__(1)));
+extern char *strchr(__const char *__s, int __c) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1)));
+extern char *strrchr(__const char *__s, int __c) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1)));
+extern size_t strcspn(__const char *__s, __const char *__reject) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
+extern size_t strspn(__const char *__s, __const char *__accept) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
+extern char *strpbrk(__const char *__s, __const char *__accept) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
+extern char *strstr(__const char *__haystack, __const char *__needle) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
+extern char *strtok(char *__restrict __s, __const char *__restrict __delim) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(2)));
+extern char *__strtok_r(char *__restrict __s, __const char *__restrict __delim, char **__restrict __save_ptr) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(2, 3)));
+extern char *strtok_r(char *__restrict __s, __const char *__restrict __delim, char **__restrict __save_ptr) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(2, 3)));
+extern size_t strlen(__const char *__s) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1)));
+extern size_t strnlen(__const char *__string, size_t __maxlen) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1)));
+extern char *strerror(int __errnum) __attribute__ ((__nothrow__));
+extern int strerror_r(int __errnum, char *__buf, size_t __buflen) __asm__("" "__xpg_strerror_r") __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(2)));
+extern char *strerror_l(int __errnum, __locale_t __l) __attribute__ ((__nothrow__));
+extern void __bzero(void *__s, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1)));
+extern void bcopy(__const void *__src, void *__dest, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
+extern void bzero(void *__s, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1)));
+extern int bcmp(__const void *__s1, __const void *__s2, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
+extern char *index(__const char *__s, int __c) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1)));
+extern char *rindex(__const char *__s, int __c) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1)));
+extern int ffs(int __i) __attribute__ ((__nothrow__)) __attribute__ ((__const__));
+extern int strcasecmp(__const char *__s1, __const char *__s2) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
+extern int strncasecmp(__const char *__s1, __const char *__s2, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__(1, 2)));
+extern char *strsep(char **__restrict __stringp, __const char *__restrict __delim) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
+extern char *strsignal(int __sig) __attribute__ ((__nothrow__));
+extern char *__stpcpy(char *__restrict __dest, __const char *__restrict __src) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
+extern char *stpcpy(char *__restrict __dest, __const char *__restrict __src) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
+extern char *__stpncpy(char *__restrict __dest, __const char *__restrict __src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
+extern char *stpncpy(char *__restrict __dest, __const char *__restrict __src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
+typedef struct {
+    int used;
+    int valid;
+    char title[31];
+    char artist[31];
+    char album[31];
+    char year[5];
+    char comment[31];
+    char tagtext[128];
+    char genre[1];
+    unsigned char track;
+} ID3TAGDATA;
+void id3_inittag(ID3TAGDATA * tag);
+void id3_buildtag(ID3TAGDATA * tag);
+int id3_writetag(char *filename, ID3TAGDATA * tag);
+extern ID3TAGDATA id3tag;
+extern int genre_last;
+extern char *genre_list[];
+ID3TAGDATA id3tag;
+//complexity is O(n) inferred by loopus
+static void id3_pad(char *string, int length)
 {
-    FILE *loop_wrap = ((void *) 0);
-    long loop_wrap1, loop_wrap2;
-    if ((loop_wrap = fopen("_finfo_dataset", "rt")) == ((void *) 0)) {
-	fprintf(stderr, "\nError: Can't find dataset!\n");
-	return 1;
+    int l;
+    l = strlen(string);
+    while (l < length) {
+	string[l] = ' ';
+	l++;
     }
-    fscanf(loop_wrap, "%ld", &loop_wrap2);
-    fclose(loop_wrap);
-    for (loop_wrap1 = 0; loop_wrap1 < loop_wrap2; loop_wrap1++) {
-	main1(argc, argv, loop_wrap1 + 1 == loop_wrap2);
+    string[l] = '\0';
+}
+
+void id3_inittag(ID3TAGDATA * tag)
+{
+    strcpy(tag->title, "");
+    strcpy(tag->artist, "");
+    strcpy(tag->album, "");
+    strcpy(tag->year, "");
+    strcpy(tag->comment, "");
+    strcpy(tag->genre, "�");
+    tag->track = 0;
+    tag->valid = 0;
+} void id3_buildtag(ID3TAGDATA * tag)
+{
+    strcpy(tag->tagtext, "TAG");
+    id3_pad(tag->title, 30);
+    strncat(tag->tagtext, tag->title, 30);
+    id3_pad(tag->artist, 30);
+    strncat(tag->tagtext, tag->artist, 30);
+    id3_pad(tag->album, 30);
+    strncat(tag->tagtext, tag->album, 30);
+    id3_pad(tag->year, 4);
+    strncat(tag->tagtext, tag->year, 4);
+    id3_pad(tag->comment, 30);
+    strncat(tag->tagtext, tag->comment, 30);
+    id3_pad(tag->genre, 1);
+    strncat(tag->tagtext, tag->genre, 1);
+    if (tag->track != 0) {
+	tag->tagtext[125] = '\0';
+	tag->tagtext[126] = tag->track;
     }
+    tag->valid = 1;
+}
+
+int id3_writetag(char *filename, ID3TAGDATA * tag)
+{
+    FILE *f;
+    if (!tag->valid)
+	return -1;
+    f = fopen(filename, "rb+");
+    if (!f)
+	return -1;
+    fseek(f, 0, 2);
+    fwrite(tag->tagtext, 1, 128, f);
+    fclose(f);
     return 0;
 }
+
+int genre_last = 147;
+char *genre_list[] = { "Blues", "Classic Rock", "Country", "Dance", "Disco", "Funk", "Grunge", "Hip-Hop", "Jazz", "Metal", "New Age", "Oldies", "Other", "Pop", "R&B", "Rap", "Reggae", "Rock", "Techno", "Industrial", "Alternative", "Ska", "Death Metal", "Pranks", "Soundtrack", "Euro-Techno", "Ambient", "Trip-Hop", "Vocal", "Jazz+Funk", "Fusion", "Trance", "Classical", "Instrumental", "Acid", "House", "Game", "Sound Clip", "Gospel", "Noise", "AlternRock", "Bass", "Soul", "Punk", "Space", "Meditative", "Instrumental Pop", "Instrumental Rock", "Ethnic", "Gothic", "Darkwave", "Techno-Industrial", "Electronic", "Pop-Folk", "Eurodance", "Dream", "Southern Rock", "Comedy", "Cult", "Gangsta", "Top 40", "Christian Rap", "Pop/Funk", "Jungle", "Native American", "Cabaret", "New Wave", "Psychadelic", "Rave", "Showtunes", "Trailer", "Lo-Fi", "Tribal", "Acid Punk", "Acid Jazz", "Polka", "Retro", "Musical", "Rock & Roll", "Hard Rock", "Folk", "Folk/Rock", "National Folk", "Swing", "Fast-Fusion", "Bebob", "Latin", "Revival", "Celtic", "Bluegrass", "Avantgarde", "Gothic Rock", "Progressive Rock", "Psychedelic Rock", "Symphonic Rock", "Slow Rock", "Big Band", "Chorus", "Easy Listening", "Acoustic", "Humour", "Speech", "Chanson", "Opera", "Chamber Music", "Sonata", "Symphony", "Booty Bass", "Primus", "Porn Groove", "Satire", "Slow Jam", "Club", "Tango", "Samba", "Folklore", "Ballad", "Power Ballad", "Rhythmic Soul", "Freestyle", "Duet", "Punk Rock", "Drum Solo", "A capella", "Euro-House", "Dance Hall", "Goa", "Drum & Bass", "Club House", "Hardcore", "Terror", "Indie", "BritPop", "NegerPunk", "Polsk Punk", "Beat", "Christian Gangsta", "Heavy Metal", "Black Metal", "Crossover", "Contemporary C", "Christian Rock", "Merengue", "Salsa", "Thrash Metal", "Anime", "JPop", "SynthPop", };

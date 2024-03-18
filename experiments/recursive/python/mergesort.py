@@ -1,10 +1,10 @@
-def merge_sort(myList: list[int]) -> list:
+def mergesort(myList: list[int]) -> list:
     if len(myList) > 1:
         mid = len(myList) // 2
         left = myList[:mid]
         right = myList[mid:]
-        merge_sort(left)
-        merge_sort(right)
+        mergesort(left)
+        mergesort(right)
 
         i = 0
         j = 0

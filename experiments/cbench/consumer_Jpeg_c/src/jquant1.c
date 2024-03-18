@@ -873,204 +873,554 @@ extern void jpeg_abort_decompress(j_decompress_ptr cinfo);
 extern void jpeg_abort(j_common_ptr cinfo);
 extern void jpeg_destroy(j_common_ptr cinfo);
 extern boolean jpeg_resync_to_restart(j_decompress_ptr cinfo, int desired);
+typedef enum { JBUF_PASS_THRU, JBUF_SAVE_SOURCE, JBUF_CRANK_DEST, JBUF_SAVE_AND_PASS } J_BUF_MODE;
+struct jpeg_comp_master {
+    void (*prepare_for_pass) (j_compress_ptr cinfo);
+    void (*pass_startup) (j_compress_ptr cinfo);
+    void (*finish_pass) (j_compress_ptr cinfo);
+    boolean call_pass_startup;
+    boolean is_last_pass;
+};
+struct jpeg_c_main_controller {
+    void (*start_pass) (j_compress_ptr cinfo, J_BUF_MODE pass_mode);
+    void (*process_data) (j_compress_ptr cinfo, JSAMPARRAY input_buf, JDIMENSION * in_row_ctr, JDIMENSION in_rows_avail);
+};
+struct jpeg_c_prep_controller {
+    void (*start_pass) (j_compress_ptr cinfo, J_BUF_MODE pass_mode);
+    void (*pre_process_data) (j_compress_ptr cinfo, JSAMPARRAY input_buf, JDIMENSION * in_row_ctr, JDIMENSION in_rows_avail, JSAMPIMAGE output_buf, JDIMENSION * out_row_group_ctr, JDIMENSION out_row_groups_avail);
+};
+struct jpeg_c_coef_controller {
+    void (*start_pass) (j_compress_ptr cinfo, J_BUF_MODE pass_mode);
+    boolean(*compress_data) (j_compress_ptr cinfo, JSAMPIMAGE input_buf);
+};
+struct jpeg_color_converter {
+    void (*start_pass) (j_compress_ptr cinfo);
+    void (*color_convert) (j_compress_ptr cinfo, JSAMPARRAY input_buf, JSAMPIMAGE output_buf, JDIMENSION output_row, int num_rows);
+};
+struct jpeg_downsampler {
+    void (*start_pass) (j_compress_ptr cinfo);
+    void (*downsample) (j_compress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION in_row_index, JSAMPIMAGE output_buf, JDIMENSION out_row_group_index);
+    boolean need_context_rows;
+};
+struct jpeg_forward_dct {
+    void (*start_pass) (j_compress_ptr cinfo);
+    void (*forward_DCT) (j_compress_ptr cinfo, jpeg_component_info * compptr, JSAMPARRAY sample_data, JBLOCKROW coef_blocks, JDIMENSION start_row, JDIMENSION start_col, JDIMENSION num_blocks);
+};
+struct jpeg_entropy_encoder {
+    void (*start_pass) (j_compress_ptr cinfo, boolean gather_statistics);
+    boolean(*encode_mcu) (j_compress_ptr cinfo, JBLOCKROW * MCU_data);
+    void (*finish_pass) (j_compress_ptr cinfo);
+};
+struct jpeg_marker_writer {
+    void (*write_any_marker) (j_compress_ptr cinfo, int marker, const JOCTET * dataptr, unsigned int datalen);
+    void (*write_file_header) (j_compress_ptr cinfo);
+    void (*write_frame_header) (j_compress_ptr cinfo);
+    void (*write_scan_header) (j_compress_ptr cinfo);
+    void (*write_file_trailer) (j_compress_ptr cinfo);
+    void (*write_tables_only) (j_compress_ptr cinfo);
+};
+struct jpeg_decomp_master {
+    void (*prepare_for_output_pass) (j_decompress_ptr cinfo);
+    void (*finish_output_pass) (j_decompress_ptr cinfo);
+    boolean is_dummy_pass;
+};
+struct jpeg_input_controller {
+    int (*consume_input) (j_decompress_ptr cinfo);
+    void (*reset_input_controller) (j_decompress_ptr cinfo);
+    void (*start_input_pass) (j_decompress_ptr cinfo);
+    void (*finish_input_pass) (j_decompress_ptr cinfo);
+    boolean has_multiple_scans;
+    boolean eoi_reached;
+};
+struct jpeg_d_main_controller {
+    void (*start_pass) (j_decompress_ptr cinfo, J_BUF_MODE pass_mode);
+    void (*process_data) (j_decompress_ptr cinfo, JSAMPARRAY output_buf, JDIMENSION * out_row_ctr, JDIMENSION out_rows_avail);
+};
+struct jpeg_d_coef_controller {
+    void (*start_input_pass) (j_decompress_ptr cinfo);
+    int (*consume_data) (j_decompress_ptr cinfo);
+    void (*start_output_pass) (j_decompress_ptr cinfo);
+    int (*decompress_data) (j_decompress_ptr cinfo, JSAMPIMAGE output_buf);
+    jvirt_barray_ptr *coef_arrays;
+};
+struct jpeg_d_post_controller {
+    void (*start_pass) (j_decompress_ptr cinfo, J_BUF_MODE pass_mode);
+    void (*post_process_data) (j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION * in_row_group_ctr, JDIMENSION in_row_groups_avail, JSAMPARRAY output_buf, JDIMENSION * out_row_ctr, JDIMENSION out_rows_avail);
+};
+struct jpeg_marker_reader {
+    void (*reset_marker_reader) (j_decompress_ptr cinfo);
+    int (*read_markers) (j_decompress_ptr cinfo);
+    jpeg_marker_parser_method read_restart_marker;
+    jpeg_marker_parser_method process_COM;
+    jpeg_marker_parser_method process_APPn[16];
+    boolean saw_SOI;
+    boolean saw_SOF;
+    int next_restart_num;
+    unsigned int discarded_bytes;
+};
+struct jpeg_entropy_decoder {
+    void (*start_pass) (j_decompress_ptr cinfo);
+    boolean(*decode_mcu) (j_decompress_ptr cinfo, JBLOCKROW * MCU_data);
+};
+typedef void (*inverse_DCT_method_ptr) (j_decompress_ptr cinfo, jpeg_component_info * compptr, JCOEFPTR coef_block, JSAMPARRAY output_buf, JDIMENSION output_col);
+struct jpeg_inverse_dct {
+    void (*start_pass) (j_decompress_ptr cinfo);
+    inverse_DCT_method_ptr inverse_DCT[10];
+};
+struct jpeg_upsampler {
+    void (*start_pass) (j_decompress_ptr cinfo);
+    void (*upsample) (j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION * in_row_group_ctr, JDIMENSION in_row_groups_avail, JSAMPARRAY output_buf, JDIMENSION * out_row_ctr, JDIMENSION out_rows_avail);
+    boolean need_context_rows;
+};
+struct jpeg_color_deconverter {
+    void (*start_pass) (j_decompress_ptr cinfo);
+    void (*color_convert) (j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows);
+};
+struct jpeg_color_quantizer {
+    void (*start_pass) (j_decompress_ptr cinfo, boolean is_pre_scan);
+    void (*color_quantize) (j_decompress_ptr cinfo, JSAMPARRAY input_buf, JSAMPARRAY output_buf, int num_rows);
+    void (*finish_pass) (j_decompress_ptr cinfo);
+    void (*new_color_map) (j_decompress_ptr cinfo);
+};
+extern void jinit_compress_master(j_compress_ptr cinfo);
+extern void jinit_c_master_control(j_compress_ptr cinfo, boolean transcode_only);
+extern void jinit_c_main_controller(j_compress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_c_prep_controller(j_compress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_c_coef_controller(j_compress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_color_converter(j_compress_ptr cinfo);
+extern void jinit_downsampler(j_compress_ptr cinfo);
+extern void jinit_forward_dct(j_compress_ptr cinfo);
+extern void jinit_huff_encoder(j_compress_ptr cinfo);
+extern void jinit_phuff_encoder(j_compress_ptr cinfo);
+extern void jinit_marker_writer(j_compress_ptr cinfo);
+extern void jinit_master_decompress(j_decompress_ptr cinfo);
+extern void jinit_d_main_controller(j_decompress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_d_coef_controller(j_decompress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_d_post_controller(j_decompress_ptr cinfo, boolean need_full_buffer);
+extern void jinit_input_controller(j_decompress_ptr cinfo);
+extern void jinit_marker_reader(j_decompress_ptr cinfo);
+extern void jinit_huff_decoder(j_decompress_ptr cinfo);
+extern void jinit_phuff_decoder(j_decompress_ptr cinfo);
+extern void jinit_inverse_dct(j_decompress_ptr cinfo);
+extern void jinit_upsampler(j_decompress_ptr cinfo);
+extern void jinit_color_deconverter(j_decompress_ptr cinfo);
+extern void jinit_1pass_quantizer(j_decompress_ptr cinfo);
+extern void jinit_2pass_quantizer(j_decompress_ptr cinfo);
+extern void jinit_merged_upsampler(j_decompress_ptr cinfo);
+extern void jinit_memory_mgr(j_common_ptr cinfo);
+extern long jdiv_round_up(long a, long b);
+extern long jround_up(long a, long b);
+extern void jcopy_sample_rows(JSAMPARRAY input_array, int source_row, JSAMPARRAY output_array, int dest_row, int num_rows, JDIMENSION num_cols);
+extern void jcopy_block_row(JBLOCKROW input_row, JBLOCKROW output_row, JDIMENSION num_blocks);
+extern void jzero_far(void *target, size_t bytestozero);
+extern const int jpeg_zigzag_order[];
+extern const int jpeg_natural_order[];
 typedef enum { JMSG_NOMESSAGE, JERR_ARITH_NOTIMPL, JERR_BAD_ALIGN_TYPE, JERR_BAD_ALLOC_CHUNK, JERR_BAD_BUFFER_MODE, JERR_BAD_COMPONENT_ID, JERR_BAD_DCTSIZE, JERR_BAD_IN_COLORSPACE, JERR_BAD_J_COLORSPACE, JERR_BAD_LENGTH, JERR_BAD_LIB_VERSION, JERR_BAD_MCU_SIZE, JERR_BAD_POOL_ID, JERR_BAD_PRECISION, JERR_BAD_PROGRESSION, JERR_BAD_PROG_SCRIPT, JERR_BAD_SAMPLING, JERR_BAD_SCAN_SCRIPT, JERR_BAD_STATE, JERR_BAD_STRUCT_SIZE, JERR_BAD_VIRTUAL_ACCESS, JERR_BUFFER_SIZE, JERR_CANT_SUSPEND, JERR_CCIR601_NOTIMPL, JERR_COMPONENT_COUNT, JERR_CONVERSION_NOTIMPL, JERR_DAC_INDEX, JERR_DAC_VALUE, JERR_DHT_COUNTS, JERR_DHT_INDEX, JERR_DQT_INDEX, JERR_EMPTY_IMAGE, JERR_EMS_READ, JERR_EMS_WRITE, JERR_EOI_EXPECTED, JERR_FILE_READ, JERR_FILE_WRITE, JERR_FRACT_SAMPLE_NOTIMPL, JERR_HUFF_CLEN_OVERFLOW, JERR_HUFF_MISSING_CODE, JERR_IMAGE_TOO_BIG, JERR_INPUT_EMPTY, JERR_INPUT_EOF, JERR_MISMATCHED_QUANT_TABLE, JERR_MISSING_DATA, JERR_MODE_CHANGE, JERR_NOTIMPL, JERR_NOT_COMPILED, JERR_NO_BACKING_STORE, JERR_NO_HUFF_TABLE, JERR_NO_IMAGE, JERR_NO_QUANT_TABLE, JERR_NO_SOI, JERR_OUT_OF_MEMORY, JERR_QUANT_COMPONENTS, JERR_QUANT_FEW_COLORS, JERR_QUANT_MANY_COLORS, JERR_SOF_DUPLICATE, JERR_SOF_NO_SOS, JERR_SOF_UNSUPPORTED, JERR_SOI_DUPLICATE, JERR_SOS_NO_SOF, JERR_TFILE_CREATE, JERR_TFILE_READ, JERR_TFILE_SEEK, JERR_TFILE_WRITE, JERR_TOO_LITTLE_DATA, JERR_UNKNOWN_MARKER, JERR_VIRTUAL_BUG, JERR_WIDTH_OVERFLOW, JERR_XMS_READ, JERR_XMS_WRITE, JMSG_COPYRIGHT, JMSG_VERSION, JTRC_16BIT_TABLES, JTRC_ADOBE, JTRC_APP0, JTRC_APP14, JTRC_DAC, JTRC_DHT, JTRC_DQT, JTRC_DRI, JTRC_EMS_CLOSE, JTRC_EMS_OPEN, JTRC_EOI, JTRC_HUFFBITS, JTRC_JFIF, JTRC_JFIF_BADTHUMBNAILSIZE, JTRC_JFIF_MINOR, JTRC_JFIF_THUMBNAIL, JTRC_MISC_MARKER, JTRC_PARMLESS_MARKER, JTRC_QUANTVALS, JTRC_QUANT_3_NCOLORS, JTRC_QUANT_NCOLORS, JTRC_QUANT_SELECTED, JTRC_RECOVERY_ACTION, JTRC_RST, JTRC_SMOOTH_NOTIMPL, JTRC_SOF, JTRC_SOF_COMPONENT, JTRC_SOI, JTRC_SOS, JTRC_SOS_COMPONENT, JTRC_SOS_PARAMS, JTRC_TFILE_CLOSE, JTRC_TFILE_OPEN, JTRC_UNKNOWN_IDS, JTRC_XMS_CLOSE, JTRC_XMS_OPEN, JWRN_ADOBE_XFORM, JWRN_BOGUS_PROGRESSION, JWRN_EXTRANEOUS_DATA, JWRN_HIT_MARKER, JWRN_HUFF_BAD_CODE, JWRN_JFIF_MAJOR, JWRN_JPEG_EOF, JWRN_MUST_RESYNC, JWRN_NOT_SEQUENTIAL, JWRN_TOO_MUCH_DATA, JMSG_LASTMSGCODE } J_MESSAGE_CODE;
-typedef enum { JMSG_FIRSTADDONCODE = 1000, JERR_BMP_BADCMAP, JERR_BMP_BADDEPTH, JERR_BMP_BADHEADER, JERR_BMP_BADPLANES, JERR_BMP_COLORSPACE, JERR_BMP_COMPRESSED, JERR_BMP_NOT, JTRC_BMP, JTRC_BMP_MAPPED, JTRC_BMP_OS2, JTRC_BMP_OS2_MAPPED, JERR_GIF_BUG, JERR_GIF_CODESIZE, JERR_GIF_COLORSPACE, JERR_GIF_IMAGENOTFOUND, JERR_GIF_NOT, JTRC_GIF, JTRC_GIF_BADVERSION, JTRC_GIF_EXTENSION, JTRC_GIF_NONSQUARE, JWRN_GIF_BADDATA, JWRN_GIF_CHAR, JWRN_GIF_ENDCODE, JWRN_GIF_NOMOREDATA, JERR_PPM_COLORSPACE, JERR_PPM_NONNUMERIC, JERR_PPM_NOT, JTRC_PGM, JTRC_PGM_TEXT, JTRC_PPM, JTRC_PPM_TEXT, JERR_TGA_BADCMAP, JERR_TGA_BADPARMS, JERR_TGA_COLORSPACE, JTRC_TGA, JTRC_TGA_GRAY, JTRC_TGA_MAPPED, JERR_BAD_CMAP_FILE, JERR_TOO_MANY_COLORS, JERR_UNGETC_FAILED, JERR_UNKNOWN_FORMAT, JERR_UNSUPPORTED_FORMAT, JMSG_LASTADDONCODE } ADDON_MESSAGE_CODE;
-typedef struct cjpeg_source_struct *cjpeg_source_ptr;
-struct cjpeg_source_struct {
-    void (*start_input) (j_compress_ptr cinfo, cjpeg_source_ptr sinfo);
-    JDIMENSION(*get_pixel_rows) (j_compress_ptr cinfo, cjpeg_source_ptr sinfo);
-    void (*finish_input) (j_compress_ptr cinfo, cjpeg_source_ptr sinfo);
-    FILE *input_file;
-    JSAMPARRAY buffer;
-    JDIMENSION buffer_height;
-};
-typedef struct djpeg_dest_struct *djpeg_dest_ptr;
-struct djpeg_dest_struct {
-    void (*start_output) (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo);
-    void (*put_pixel_rows) (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied);
-    void (*finish_output) (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo);
-    FILE *output_file;
-    JSAMPARRAY buffer;
-    JDIMENSION buffer_height;
-};
-struct cdjpeg_progress_mgr {
-    struct jpeg_progress_mgr pub;
-    int completed_extra_passes;
-    int total_extra_passes;
-    int percent_done;
-};
-typedef struct cdjpeg_progress_mgr *cd_progress_ptr;
-extern cjpeg_source_ptr jinit_read_bmp(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_bmp(j_decompress_ptr cinfo, boolean is_os2);
-extern cjpeg_source_ptr jinit_read_gif(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_gif(j_decompress_ptr cinfo);
-extern cjpeg_source_ptr jinit_read_ppm(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_ppm(j_decompress_ptr cinfo);
-extern cjpeg_source_ptr jinit_read_rle(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_rle(j_decompress_ptr cinfo);
-extern cjpeg_source_ptr jinit_read_targa(j_compress_ptr cinfo);
-extern djpeg_dest_ptr jinit_write_targa(j_decompress_ptr cinfo);
-extern boolean read_quant_tables(j_compress_ptr cinfo, char *filename, int scale_factor, boolean force_baseline);
-extern boolean read_scan_script(j_compress_ptr cinfo, char *filename);
-extern boolean set_quant_slots(j_compress_ptr cinfo, char *arg);
-extern boolean set_sample_factors(j_compress_ptr cinfo, char *arg);
-extern void read_color_map(j_decompress_ptr cinfo, FILE * infile);
-extern void enable_signal_catcher(j_common_ptr cinfo);
-extern void start_progress_monitor(j_common_ptr cinfo, cd_progress_ptr progress);
-extern void end_progress_monitor(j_common_ptr cinfo);
-extern boolean keymatch(char *arg, const char *keyword, int minchars);
-extern FILE *read_stdin(void);
-extern FILE *write_stdout(void);
+typedef int ODITHER_MATRIX[16][16];
+typedef int (*ODITHER_MATRIX_PTR)[16];
+static const UINT8 base_dither_matrix[16][16] = { {0, 192, 48, 240, 12, 204, 60, 252, 3, 195, 51, 243, 15, 207, 63, 255}, {128, 64, 176, 112, 140, 76, 188, 124, 131, 67, 179, 115, 143, 79, 191, 127}, {32, 224, 16, 208, 44, 236, 28, 220, 35, 227, 19, 211, 47, 239, 31, 223}, {160, 96, 144, 80, 172, 108, 156, 92, 163, 99, 147, 83, 175, 111, 159, 95}, {8, 200, 56, 248, 4, 196, 52, 244, 11, 203, 59, 251, 7, 199, 55, 247}, {136, 72, 184, 120, 132, 68, 180, 116, 139, 75, 187, 123, 135, 71, 183, 119}, {40, 232, 24, 216, 36, 228, 20, 212, 43, 235, 27, 219, 39, 231, 23, 215}, {168, 104, 152, 88, 164, 100, 148, 84, 171, 107, 155, 91, 167, 103, 151, 87}, {2, 194, 50, 242, 14, 206, 62, 254, 1, 193, 49, 241, 13, 205, 61, 253}, {130, 66, 178, 114, 142, 78, 190, 126, 129, 65, 177, 113, 141, 77, 189, 125}, {34, 226, 18, 210, 46, 238, 30, 222, 33, 225, 17, 209, 45, 237, 29, 221}, {162, 98, 146, 82, 174, 110, 158, 94, 161, 97, 145, 81, 173, 109, 157, 93}, {10, 202, 58, 250, 6, 198, 54, 246, 9, 201, 57, 249, 5, 197, 53, 245}, {138, 74, 186, 122, 134, 70, 182, 118, 137, 73, 185, 121, 133, 69, 181, 117}, {42, 234, 26, 218, 38, 230, 22, 214, 41, 233, 25, 217, 37, 229, 21, 213}, {170, 106, 154, 90, 166, 102, 150, 86, 169, 105, 153, 89, 165, 101, 149, 85} };
+
+typedef INT16 FSERROR;
+typedef int LOCFSERROR;
+typedef FSERROR *FSERRPTR;
 typedef struct {
-    struct djpeg_dest_struct pub;
-    char *iobuffer;
-    JDIMENSION buffer_width;
-} tga_dest_struct;
-typedef tga_dest_struct *tga_dest_ptr;
-static void write_header(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, int num_colors)
+    struct jpeg_color_quantizer pub;
+    JSAMPARRAY sv_colormap;
+    int sv_actual;
+    JSAMPARRAY colorindex;
+    boolean is_padded;
+    int Ncolors[4];
+    int row_index;
+    ODITHER_MATRIX_PTR odither[4];
+    FSERRPTR fserrors[4];
+    boolean on_odd_row;
+} my_cquantizer;
+typedef my_cquantizer *my_cquantize_ptr;
+static int select_ncolors(j_decompress_ptr cinfo, int Ncolors[])
 {
-    char targaheader[18];
-    memset((void *) (targaheader), 0, (size_t) (((size_t) sizeof(targaheader))));
-    if (num_colors > 0) {
-	targaheader[1] = 1;
-	targaheader[5] = (char) (num_colors & 0xFF);
-	targaheader[6] = (char) (num_colors >> 8);
-	targaheader[7] = 24;
+    int nc = cinfo->out_color_components;
+    int max_colors = cinfo->desired_number_of_colors;
+    int total_colors, iroot, i, j;
+    boolean changed;
+    long temp;
+    static const int RGB_order[3] = { 1, 0, 2 };
+    iroot = 1;
+    do {
+	iroot++;
+	temp = iroot;
+	for (i = 1; i < nc; i++)
+	    temp *= iroot;
+    } while (temp <= (long) max_colors);
+    iroot--;
+    if (iroot < 2)
+	((cinfo)->err->msg_code = (JERR_QUANT_FEW_COLORS), (cinfo)->err->msg_parm.i[0] = ((int) temp), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    total_colors = 1;
+    for (i = 0; i < nc; i++) {
+	Ncolors[i] = iroot;
+	total_colors *= iroot;
     }
-    targaheader[12] = (char) (cinfo->output_width & 0xFF);
-    targaheader[13] = (char) (cinfo->output_width >> 8);
-    targaheader[14] = (char) (cinfo->output_height & 0xFF);
-    targaheader[15] = (char) (cinfo->output_height >> 8);
-    targaheader[17] = 0x20;
-    if (cinfo->out_color_space == JCS_GRAYSCALE) {
-	targaheader[2] = 3;
-	targaheader[16] = 8;
-    } else {
-	if (num_colors > 0) {
-	    targaheader[2] = 1;
-	    targaheader[16] = 8;
-	} else {
-	    targaheader[2] = 2;
-	    targaheader[16] = 24;
-	}
-    }
-    if (((size_t) fwrite((const void *) (targaheader), (size_t) 1, (size_t) (18), (dinfo->output_file))) != (size_t) 18)
-	((cinfo)->err->msg_code = (JERR_FILE_WRITE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
-} 
-//complexity is O(n) inferred by loopus
-static void put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
-{
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    register JSAMPROW inptr;
-    register char *outptr;
-    register JDIMENSION col;
-    inptr = dest->pub.buffer[0];
-    outptr = dest->iobuffer;
-    for (col = cinfo->output_width; col > 0; col--) {
-	outptr[0] = (char) ((int) (inptr[2]));
-	outptr[1] = (char) ((int) (inptr[1]));
-	outptr[2] = (char) ((int) (inptr[0]));
-	inptr += 3, outptr += 3;
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
-} 
-//complexity is O(n) inferred by loopus
-static void put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
-{
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    register JSAMPROW inptr;
-    register char *outptr;
-    register JDIMENSION col;
-    inptr = dest->pub.buffer[0];
-    outptr = dest->iobuffer;
-    for (col = cinfo->output_width; col > 0; col--) {
-	*outptr++ = (char) ((int) (*inptr++));
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
+    do {
+	changed = 0;
+	for (i = 0; i < nc; i++) {
+	    j = (cinfo->out_color_space == JCS_RGB ? RGB_order[i] : i);
+	    temp = total_colors / Ncolors[j];
+	    temp *= Ncolors[j] + 1;
+	    if (temp > (long) max_colors)
+		break;
+	    Ncolors[j]++;
+	    total_colors = (int) temp;
+	    changed = 1;
+    }} while (changed);
+    return total_colors;
 }
-// complexity is O(n) inferred by loopus
- static void put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
+
+static int output_value(j_decompress_ptr cinfo, int ci, int j, int maxj)
 {
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    register JSAMPROW inptr;
-    register char *outptr;
-    register JSAMPROW color_map0 = cinfo->colormap[0];
-    register JDIMENSION col;
-    inptr = dest->pub.buffer[0];
-    outptr = dest->iobuffer;
-    for (col = cinfo->output_width; col > 0; col--) {
-	*outptr++ = (char) ((int) (color_map0[((int) (*inptr++))]));
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
-} 
-// complexity is O(n) inferred by loopus
-static void start_output_tga(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+    return (int) (((INT32) j * 255 + maxj / 2) / maxj);
+} static int largest_input_value(j_decompress_ptr cinfo, int ci, int j, int maxj)
 {
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    int num_colors, i;
-    FILE *outfile;
-    if (cinfo->out_color_space == JCS_GRAYSCALE) {
-	write_header(cinfo, dinfo, 0);
-	if (cinfo->quantize_colors)
-	    dest->pub.put_pixel_rows = put_demapped_gray;
+    return (int) (((INT32) (2 * j + 1) * 255 + maxj) / (2 * maxj));
+} static void create_colormap(j_decompress_ptr cinfo)
+{
+    my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
+    JSAMPARRAY colormap;
+    int total_colors;
+    int i, j, k, nci, blksize, blkdist, ptr, val;
+    total_colors = select_ncolors(cinfo, cquantize->Ncolors);
+    if (cinfo->out_color_components == 3)
+	do {
+	    int *_mp = (cinfo)->err->msg_parm.i;
+	    _mp[0] = (total_colors);
+	    _mp[1] = (cquantize->Ncolors[0]);
+	    _mp[2] = (cquantize->Ncolors[1]);
+	    _mp[3] = (cquantize->Ncolors[2]);
+	    (cinfo)->err->msg_code = (JTRC_QUANT_3_NCOLORS);
+	    (*(cinfo)->err->emit_message) ((j_common_ptr) (cinfo), (1));
+	} while (0);
+    else
+	((cinfo)->err->msg_code = (JTRC_QUANT_NCOLORS), (cinfo)->err->msg_parm.i[0] = (total_colors), (*(cinfo)->err->emit_message) ((j_common_ptr) (cinfo), (1)));
+    colormap = (*cinfo->mem->alloc_sarray) ((j_common_ptr) cinfo, 1, (JDIMENSION) total_colors, (JDIMENSION) cinfo->out_color_components);
+    blkdist = total_colors;
+    for (i = 0; i < cinfo->out_color_components; i++) {
+	nci = cquantize->Ncolors[i];
+	blksize = blkdist / nci;
+	for (j = 0; j < nci; j++) {
+	    val = output_value(cinfo, i, j, nci - 1);
+	    for (ptr = j * blksize; ptr < total_colors; ptr += blkdist) {
+		for (k = 0; k < blksize; k++)
+		    colormap[i][ptr + k] = (JSAMPLE) val;
+	    }
+	}
+	blkdist = blksize;
+    }
+    cquantize->sv_colormap = colormap;
+    cquantize->sv_actual = total_colors;
+}
+
+static void create_colorindex(j_decompress_ptr cinfo)
+{
+    my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
+    JSAMPROW indexptr;
+    int i, j, k, nci, blksize, val, pad;
+    if (cinfo->dither_mode == JDITHER_ORDERED) {
+	pad = 255 * 2;
+	cquantize->is_padded = 1;
+    } else {
+	pad = 0;
+	cquantize->is_padded = 0;
+    }
+    cquantize->colorindex = (*cinfo->mem->alloc_sarray) ((j_common_ptr) cinfo, 1, (JDIMENSION) (255 + 1 + pad), (JDIMENSION) cinfo->out_color_components);
+    blksize = cquantize->sv_actual;
+    for (i = 0; i < cinfo->out_color_components; i++) {
+	nci = cquantize->Ncolors[i];
+	blksize = blksize / nci;
+	if (pad)
+	    cquantize->colorindex[i] += 255;
+	indexptr = cquantize->colorindex[i];
+	val = 0;
+	k = largest_input_value(cinfo, i, 0, nci - 1);
+	for (j = 0; j <= 255; j++) {
+	    while (j > k)
+		k = largest_input_value(cinfo, i, ++val, nci - 1);
+	    indexptr[j] = (JSAMPLE) (val * blksize);
+	}
+	if (pad)
+	    for (j = 1; j <= 255; j++) {
+		indexptr[-j] = indexptr[0];
+		indexptr[255 + j] = indexptr[255];
+	    }
+    }
+}
+
+static ODITHER_MATRIX_PTR make_odither_array(j_decompress_ptr cinfo, int ncolors)
+{
+    ODITHER_MATRIX_PTR odither;
+    int j, k;
+    INT32 num, den;
+    odither = (ODITHER_MATRIX_PTR) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, ((size_t) sizeof(ODITHER_MATRIX)));
+    den = 2 * (16 * 16) * ((INT32) (ncolors - 1));
+    for (j = 0; j < 16; j++) {
+	for (k = 0; k < 16; k++) {
+	    num = ((INT32) ((16 * 16) - 1 - 2 * ((int) base_dither_matrix[j][k]))) * 255;
+	    odither[j][k] = (int) (num < 0 ? -((-num) / den) : num / den);
+    }} return odither;
+}
+
+// complexity is O(n^2) inferred by loopus 
+static void create_odither_tables(j_decompress_ptr cinfo)
+{
+    my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
+    ODITHER_MATRIX_PTR odither;
+    int i, j, nci;
+    for (i = 0; i < cinfo->out_color_components; i++) {
+	nci = cquantize->Ncolors[i];
+	odither = ((void *) 0);
+	for (j = 0; j < i; j++) {
+	    if (nci == cquantize->Ncolors[j]) {
+		odither = cquantize->odither[j];
+		break;
+	    }
+	}
+	if (odither == ((void *) 0))
+	    odither = make_odither_array(cinfo, nci);
+	cquantize->odither[i] = odither;
+}} 
+//complexity is O(n^3) inferred by loopus
+static void color_quantize(j_decompress_ptr cinfo, JSAMPARRAY input_buf, JSAMPARRAY output_buf, int num_rows)
+{
+    my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
+    JSAMPARRAY colorindex = cquantize->colorindex;
+    register int pixcode, ci;
+    register JSAMPROW ptrin, ptrout;
+    int row;
+    JDIMENSION col;
+    JDIMENSION width = cinfo->output_width;
+    register int nc = cinfo->out_color_components;
+    for (row = 0; row < num_rows; row++) {
+	ptrin = input_buf[row];
+	ptrout = output_buf[row];
+	for (col = width; col > 0; col--) {
+	    pixcode = 0;
+	    for (ci = 0; ci < nc; ci++) {
+		pixcode += ((int) (colorindex[ci][((int) (*ptrin++))]));
+	    } *ptrout++ = (JSAMPLE) pixcode;
+}}} 
+//complexity is O(n^2) inferred by loopus
+static void color_quantize3(j_decompress_ptr cinfo, JSAMPARRAY input_buf, JSAMPARRAY output_buf, int num_rows)
+{
+    my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
+    register int pixcode;
+    register JSAMPROW ptrin, ptrout;
+    JSAMPROW colorindex0 = cquantize->colorindex[0];
+    JSAMPROW colorindex1 = cquantize->colorindex[1];
+    JSAMPROW colorindex2 = cquantize->colorindex[2];
+    int row;
+    JDIMENSION col;
+    JDIMENSION width = cinfo->output_width;
+    for (row = 0; row < num_rows; row++) {
+	ptrin = input_buf[row];
+	ptrout = output_buf[row];
+	for (col = width; col > 0; col--) {
+	    pixcode = ((int) (colorindex0[((int) (*ptrin++))]));
+	    pixcode += ((int) (colorindex1[((int) (*ptrin++))]));
+	    pixcode += ((int) (colorindex2[((int) (*ptrin++))]));
+	    *ptrout++ = (JSAMPLE) pixcode;
+}}} static void quantize_ord_dither(j_decompress_ptr cinfo, JSAMPARRAY input_buf, JSAMPARRAY output_buf, int num_rows)
+{
+    my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
+    register JSAMPROW input_ptr;
+    register JSAMPROW output_ptr;
+    JSAMPROW colorindex_ci;
+    int *dither;
+    int row_index, col_index;
+    int nc = cinfo->out_color_components;
+    int ci;
+    int row;
+    JDIMENSION col;
+    JDIMENSION width = cinfo->output_width;
+    for (row = 0; row < num_rows; row++) {
+	jzero_far((void *) output_buf[row], (size_t) (width * ((size_t) sizeof(JSAMPLE))));
+	row_index = cquantize->row_index;
+	for (ci = 0; ci < nc; ci++) {
+	    input_ptr = input_buf[row] + ci;
+	    output_ptr = output_buf[row];
+	    colorindex_ci = cquantize->colorindex[ci];
+	    dither = cquantize->odither[ci][row_index];
+	    col_index = 0;
+	    for (col = width; col > 0; col--) {
+		*output_ptr += colorindex_ci[((int) (*input_ptr)) + dither[col_index]];
+		input_ptr += nc;
+		output_ptr++;
+		col_index = (col_index + 1) & (16 - 1);
+	}} row_index = (row_index + 1) & (16 - 1);
+	cquantize->row_index = row_index;
+}} static void quantize3_ord_dither(j_decompress_ptr cinfo, JSAMPARRAY input_buf, JSAMPARRAY output_buf, int num_rows)
+{
+    my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
+    register int pixcode;
+    register JSAMPROW input_ptr;
+    register JSAMPROW output_ptr;
+    JSAMPROW colorindex0 = cquantize->colorindex[0];
+    JSAMPROW colorindex1 = cquantize->colorindex[1];
+    JSAMPROW colorindex2 = cquantize->colorindex[2];
+    int *dither0;
+    int *dither1;
+    int *dither2;
+    int row_index, col_index;
+    int row;
+    JDIMENSION col;
+    JDIMENSION width = cinfo->output_width;
+    for (row = 0; row < num_rows; row++) {
+	row_index = cquantize->row_index;
+	input_ptr = input_buf[row];
+	output_ptr = output_buf[row];
+	dither0 = cquantize->odither[0][row_index];
+	dither1 = cquantize->odither[1][row_index];
+	dither2 = cquantize->odither[2][row_index];
+	col_index = 0;
+	for (col = width; col > 0; col--) {
+	    pixcode = ((int) (colorindex0[((int) (*input_ptr++)) + dither0[col_index]]));
+	    pixcode += ((int) (colorindex1[((int) (*input_ptr++)) + dither1[col_index]]));
+	    pixcode += ((int) (colorindex2[((int) (*input_ptr++)) + dither2[col_index]]));
+	    *output_ptr++ = (JSAMPLE) pixcode;
+	    col_index = (col_index + 1) & (16 - 1);
+	} row_index = (row_index + 1) & (16 - 1);
+	cquantize->row_index = row_index;
+}} static void quantize_fs_dither(j_decompress_ptr cinfo, JSAMPARRAY input_buf, JSAMPARRAY output_buf, int num_rows)
+{
+    my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
+    register LOCFSERROR cur;
+    LOCFSERROR belowerr;
+    LOCFSERROR bpreverr;
+    LOCFSERROR bnexterr;
+    LOCFSERROR delta;
+    register FSERRPTR errorptr;
+    register JSAMPROW input_ptr;
+    register JSAMPROW output_ptr;
+    JSAMPROW colorindex_ci;
+    JSAMPROW colormap_ci;
+    int pixcode;
+    int nc = cinfo->out_color_components;
+    int dir;
+    int dirnc;
+    int ci;
+    int row;
+    JDIMENSION col;
+    JDIMENSION width = cinfo->output_width;
+    JSAMPLE *range_limit = cinfo->sample_range_limit;
+    for (row = 0; row < num_rows; row++) {
+	jzero_far((void *) output_buf[row], (size_t) (width * ((size_t) sizeof(JSAMPLE))));
+	for (ci = 0; ci < nc; ci++) {
+	    input_ptr = input_buf[row] + ci;
+	    output_ptr = output_buf[row];
+	    if (cquantize->on_odd_row) {
+		input_ptr += (width - 1) * nc;
+		output_ptr += width - 1;
+		dir = -1;
+		dirnc = -nc;
+		errorptr = cquantize->fserrors[ci] + (width + 1);
+	    } else {
+		dir = 1;
+		dirnc = nc;
+		errorptr = cquantize->fserrors[ci];
+	    }
+	    colorindex_ci = cquantize->colorindex[ci];
+	    colormap_ci = cquantize->sv_colormap[ci];
+	    cur = 0;
+	    belowerr = bpreverr = 0;
+	    for (col = width; col > 0; col--) {
+		cur = ((cur + errorptr[dir] + 8) >> (4));
+		cur += ((int) (*input_ptr));
+		cur = ((int) (range_limit[cur]));
+		pixcode = ((int) (colorindex_ci[cur]));
+		*output_ptr += (JSAMPLE) pixcode;
+		cur -= ((int) (colormap_ci[pixcode]));
+		bnexterr = cur;
+		delta = cur * 2;
+		cur += delta;
+		errorptr[0] = (FSERROR) (bpreverr + cur);
+		cur += delta;
+		bpreverr = belowerr + cur;
+		belowerr = bnexterr;
+		cur += delta;
+		input_ptr += dirnc;
+		output_ptr += dir;
+		errorptr += dir;
+	    } errorptr[0] = (FSERROR) bpreverr;
+	} cquantize->on_odd_row = (cquantize->on_odd_row ? 0 : 1);
+}} static void alloc_fs_workspace(j_decompress_ptr cinfo)
+{
+    my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
+    size_t arraysize;
+    int i;
+    arraysize = (size_t) ((cinfo->output_width + 2) * ((size_t) sizeof(FSERROR)));
+    for (i = 0; i < cinfo->out_color_components; i++) {
+	cquantize->fserrors[i] = (FSERRPTR) (*cinfo->mem->alloc_large) ((j_common_ptr) cinfo, 1, arraysize);
+    }
+}
+
+//complexity is O(n) inferred by loopus
+static void start_pass_1_quant(j_decompress_ptr cinfo, boolean is_pre_scan)
+{
+    my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
+    size_t arraysize;
+    int i;
+    cinfo->colormap = cquantize->sv_colormap;
+    cinfo->actual_number_of_colors = cquantize->sv_actual;
+    switch (cinfo->dither_mode) {
+    case JDITHER_NONE:
+	if (cinfo->out_color_components == 3)
+	    cquantize->pub.color_quantize = color_quantize3;
 	else
-	    dest->pub.put_pixel_rows = put_gray_rows;
-    } else if (cinfo->out_color_space == JCS_RGB) {
-	if (cinfo->quantize_colors) {
-	    num_colors = cinfo->actual_number_of_colors;
-	    if (num_colors > 256)
-		((cinfo)->err->msg_code = (JERR_TOO_MANY_COLORS), (cinfo)->err->msg_parm.i[0] = (num_colors), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
-	    write_header(cinfo, dinfo, num_colors);
-	    outfile = dest->pub.output_file;
-	    for (i = 0; i < num_colors; i++) {
-		_IO_putc(((int) (cinfo->colormap[2][i])), outfile);
-		_IO_putc(((int) (cinfo->colormap[1][i])), outfile);
-		_IO_putc(((int) (cinfo->colormap[0][i])), outfile);
-	    } dest->pub.put_pixel_rows = put_gray_rows;
-	} else {
-	    write_header(cinfo, dinfo, 0);
-	    dest->pub.put_pixel_rows = put_pixel_rows;
-	}
-    } else {
-	((cinfo)->err->msg_code = (JERR_TGA_COLORSPACE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+	    cquantize->pub.color_quantize = color_quantize;
+	break;
+    case JDITHER_ORDERED:
+	if (cinfo->out_color_components == 3)
+	    cquantize->pub.color_quantize = quantize3_ord_dither;
+	else
+	    cquantize->pub.color_quantize = quantize_ord_dither;
+	cquantize->row_index = 0;
+	if (!cquantize->is_padded)
+	    create_colorindex(cinfo);
+	if (cquantize->odither[0] == ((void *) 0))
+	    create_odither_tables(cinfo);
+	break;
+    case JDITHER_FS:
+	cquantize->pub.color_quantize = quantize_fs_dither;
+	cquantize->on_odd_row = 0;
+	if (cquantize->fserrors[0] == ((void *) 0))
+	    alloc_fs_workspace(cinfo);
+	arraysize = (size_t) ((cinfo->output_width + 2) * ((size_t) sizeof(FSERROR)));
+	for (i = 0; i < cinfo->out_color_components; i++)
+	    jzero_far((void *) cquantize->fserrors[i], arraysize);
+	break;
+    default:
+	((cinfo)->err->msg_code = (JERR_NOT_COMPILED), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+	break;
     }
 }
 
-static void finish_output_tga(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
+static void finish_pass_1_quant(j_decompress_ptr cinfo)
 {
-    fflush(dinfo->output_file);
-    if (ferror(dinfo->output_file))
-	((cinfo)->err->msg_code = (JERR_FILE_WRITE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
-}
-
-djpeg_dest_ptr jinit_write_targa(j_decompress_ptr cinfo)
+} static void new_color_map_1_quant(j_decompress_ptr cinfo)
 {
-    tga_dest_ptr dest;
-    dest = (tga_dest_ptr) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, ((size_t) sizeof(tga_dest_struct)));
-    dest->pub.start_output = start_output_tga;
-    dest->pub.finish_output = finish_output_tga;
-    jpeg_calc_output_dimensions(cinfo);
-    dest->buffer_width = cinfo->output_width * cinfo->output_components;
-    dest->iobuffer = (char *) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, (size_t) (dest->buffer_width * ((size_t) sizeof(char))));
-    dest->pub.buffer = (*cinfo->mem->alloc_sarray) ((j_common_ptr) cinfo, 1, dest->buffer_width, (JDIMENSION) 1);
-    dest->pub.buffer_height = 1;
-    return (djpeg_dest_ptr) dest;
-}
-int main(){
-    j_decompress_ptr cinfo; // Declare cinfo
-    cinfo = (j_decompress_ptr)malloc(sizeof(struct jpeg_decompress_struct));
-    jpeg_create_decompress(cinfo);
-    
-
-    djpeg_dest_ptr dinfo = jinit_write_targa(cinfo); 
-    
-    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
-    register JSAMPROW inptr;
-    register char *outptr;
-    register JDIMENSION col;
-    inptr = dest->pub.buffer[0];
-    outptr = dest->iobuffer;
-    for (col = cinfo->output_width; col > 0; col--) { // Use cinfo here
-        outptr[0] = (char) ((int) (inptr[2]));
-        outptr[1] = (char) ((int) (inptr[1]));
-        outptr[2] = (char) ((int) (inptr[0]));
-        inptr += 3, outptr += 3;
-    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
+    ((cinfo)->err->msg_code = (JERR_MODE_CHANGE), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+} void jinit_1pass_quantizer(j_decompress_ptr cinfo)
+{
+    my_cquantize_ptr cquantize;
+    cquantize = (my_cquantize_ptr) (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, 1, ((size_t) sizeof(my_cquantizer)));
+    cinfo->cquantize = (struct jpeg_color_quantizer *) cquantize;
+    cquantize->pub.start_pass = start_pass_1_quant;
+    cquantize->pub.finish_pass = finish_pass_1_quant;
+    cquantize->pub.new_color_map = new_color_map_1_quant;
+    cquantize->fserrors[0] = ((void *) 0);
+    cquantize->odither[0] = ((void *) 0);
+    if (cinfo->out_color_components > 4)
+	((cinfo)->err->msg_code = (JERR_QUANT_COMPONENTS), (cinfo)->err->msg_parm.i[0] = (4), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    if (cinfo->desired_number_of_colors > (255 + 1))
+	((cinfo)->err->msg_code = (JERR_QUANT_MANY_COLORS), (cinfo)->err->msg_parm.i[0] = (255 + 1), (*(cinfo)->err->error_exit) ((j_common_ptr) (cinfo)));
+    create_colormap(cinfo);
+    create_colorindex(cinfo);
+    if (cinfo->dither_mode == JDITHER_FS)
+	alloc_fs_workspace(cinfo);
 }
