@@ -1,3 +1,6 @@
+extern void __assert_fail(__const char *__assertion, __const char *__file, unsigned int __line, __const char *__function) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
+extern void __assert_perror_fail(int __errnum, __const char *__file, unsigned int __line, __const char *__function) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
+extern void __assert(const char *__assertion, const char *__file, int __line) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
 typedef __typeof__(((int *) 0) - ((int *) 0)) ptrdiff_t;
 typedef __typeof__(sizeof(int)) size_t;
 typedef int wchar_t;
@@ -1062,389 +1065,653 @@ extern int posix_fallocate(int __fd, __off_t __offset, __off_t __len);
 extern int *__errno_location(void) __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 typedef float FLOAT;
 typedef double FLOAT8;
-void putMyBits(u_int value, u_int length);
+typedef enum sound_file_format_e { sf_unknown, sf_wave, sf_aiff, sf_mp3, sf_raw } sound_file_format;
 typedef struct {
-    u_int value;
-    u_short length;
-} BF_BitstreamElement;
+    unsigned long num_samples;
+    int num_channels;
+    int in_samplerate;
+    int out_samplerate;
+    int gtkflag;
+    int bWriteVbrTag;
+    int quality;
+    int silent;
+    int mode;
+    int mode_fixed;
+    int force_ms;
+    int brate;
+    int copyright;
+    int original;
+    int error_protection;
+    int padding_type;
+    int extension;
+    int disable_reservoir;
+    int experimentalX;
+    int experimentalY;
+    int experimentalZ;
+    int VBR;
+    int VBR_q;
+    int VBR_min_bitrate_kbps;
+    int VBR_max_bitrate_kbps;
+    int lowpassfreq;
+    int highpassfreq;
+    int lowpasswidth;
+    int highpasswidth;
+    sound_file_format input_format;
+    int swapbytes;
+    char *inPath;
+    char *outPath;
+    int ATHonly;
+    int noATH;
+    float cwlimit;
+    int allow_diff_short;
+    int no_short_blocks;
+    int emphasis;
+    long int frameNum;
+    long totalframes;
+    int encoder_delay;
+    int framesize;
+    int version;
+    int padding;
+    int mode_gr;
+    int stereo;
+    int VBR_min_bitrate;
+    int VBR_max_bitrate;
+    float resample_ratio;
+    int bitrate_index;
+    int samplerate_index;
+    int mode_ext;
+    float lowpass1, lowpass2;
+    float highpass1, highpass2;
+    int lowpass_band;
+    int highpass_band;
+    int filter_type;
+    int quantization;
+    int noise_shaping;
+    int noise_shaping_stop;
+    int psymodel;
+    int use_best_huffman;
+} lame_global_flags;
+void lame_init(lame_global_flags *);
+void lame_usage(lame_global_flags *, char *);
+void lame_help(lame_global_flags *, char *);
+void lame_version(lame_global_flags *, char *);
+void lame_parse_args(lame_global_flags *, int argc, char **argv);
+void lame_init_params(lame_global_flags *);
+void lame_print_config(lame_global_flags *);
+int lame_encode_buffer(lame_global_flags *, short int leftpcm[], short int rightpcm[], int num_samples, char *mp3buffer, int mp3buffer_size);
+int lame_encode_buffer_interleaved(lame_global_flags *, short int pcm[], int num_samples, char *mp3buffer, int mp3buffer_size);
+int lame_encode(lame_global_flags *, short int Buffer[2][1152], char *mp3buffer, int mp3buffer_size);
+int lame_encode_finish(lame_global_flags *, char *mp3buffer, int size);
+void lame_mp3_tags(lame_global_flags *);
+void lame_init_infile(lame_global_flags *);
+int lame_readframe(lame_global_flags *, short int Buffer[2][1152]);
+void lame_close_infile(lame_global_flags *);
+int lame_decode_init(void);
+int lame_decode(char *mp3buf, int len, short pcm_l[], short pcm_r[]);
+int lame_decode_initfile(FILE * fd, int *stereo, int *samp, int *bitrate, unsigned long *nsamp);
+int lame_decode_fromfile(FILE * fd, short int pcm_l[], short int pcm_r[]);
 typedef struct {
-    u_int nrEntries;
-    BF_BitstreamElement *element;
-} BF_BitstreamPart;
-typedef struct BF_FrameData {
-    int frameLength;
-    int nGranules;
-    int nChannels;
-    BF_BitstreamPart *header;
-    BF_BitstreamPart *frameSI;
-    BF_BitstreamPart *channelSI[2];
-    BF_BitstreamPart *spectrumSI[2][2];
-    BF_BitstreamPart *scaleFactors[2][2];
-    BF_BitstreamPart *codedData[2][2];
-    BF_BitstreamPart *userSpectrum[2][2];
-    BF_BitstreamPart *userFrameData;
-} BF_FrameData;
-typedef struct BF_FrameResults {
-    int SILength;
-    int mainDataLength;
-    int nextBackPtr;
-} BF_FrameResults;
-void InitFormatBitStream(void);
-int BF_PartLength(BF_BitstreamPart * part);
-void BF_BitstreamFrame(BF_FrameData * frameInfo, BF_FrameResults * results);
-void BF_FlushBitstream(BF_FrameData * frameInfo, BF_FrameResults * results);
-typedef struct BF_PartHolder {
-    int max_elements;
-    BF_BitstreamPart *part;
-} BF_PartHolder;
-BF_PartHolder *BF_newPartHolder(int max_elements);
-BF_PartHolder *BF_resizePartHolder(BF_PartHolder * oldPH, int max_elements);
-BF_PartHolder *BF_addElement(BF_PartHolder * thePH, BF_BitstreamElement * theElement);
-BF_PartHolder *BF_addEntry(BF_PartHolder * thePH, u_int value, u_int length);
-BF_PartHolder *BF_NewHolderFromBitstreamPart(BF_BitstreamPart * thePart);
-BF_PartHolder *BF_LoadHolderFromBitstreamPart(BF_PartHolder * theHolder, BF_BitstreamPart * thePart);
-BF_PartHolder *BF_freePartHolder(BF_PartHolder * thePH);
-extern void __assert_fail(__const char *__assertion, __const char *__file, unsigned int __line, __const char *__function) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
-extern void __assert_perror_fail(int __errnum, __const char *__file, unsigned int __line, __const char *__function) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
-extern void __assert(const char *__assertion, const char *__file, int __line) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
-static int BitCount = 0;
-static int ThisFrameSize = 0;
-static int BitsRemaining = 0;
-void InitFormatBitStream(void)
-{
-    BitCount = 0;
-    ThisFrameSize = 0;
-    BitsRemaining = 0;
-} static int store_side_info(BF_FrameData * frameInfo);
+    unsigned int steps;
+    unsigned int bits;
+    unsigned int group;
+    unsigned int quant;
+} sb_alloc, *alloc_ptr;
+typedef sb_alloc al_table[32][16];
+enum byte_order { order_unknown, order_bigEndian, order_littleEndian };
+extern enum byte_order NativeByteOrder;
+typedef struct bit_stream_struc {
+    unsigned char *pbtOutBuf;
+    int nOutBufPos;
+    FILE *pt;
+    unsigned char *buf;
+    int buf_size;
+    unsigned long totbit;
+    int buf_byte_idx;
+    int buf_bit_idx;
+} Bit_stream_struc;
+typedef FLOAT8 D576[576];
+typedef int I576[576];
+typedef FLOAT8 D192_3[192][3];
+typedef int I192_3[192][3];
+typedef struct {
+    FLOAT8 l[21 + 1];
+    FLOAT8 s[12 + 1][3];
+} III_psy_xmin;
+typedef struct {
+    III_psy_xmin thm;
+    III_psy_xmin en;
+} III_psy_ratio;
+typedef struct {
+    unsigned part2_3_length;
+    unsigned big_values;
+    unsigned count1;
+    unsigned global_gain;
+    unsigned scalefac_compress;
+    unsigned window_switching_flag;
+    unsigned block_type;
+    unsigned mixed_block_flag;
+    unsigned table_select[3];
+    int subblock_gain[3];
+    unsigned region0_count;
+    unsigned region1_count;
+    unsigned preflag;
+    unsigned scalefac_scale;
+    unsigned count1table_select;
+    unsigned part2_length;
+    unsigned sfb_lmax;
+    unsigned sfb_smax;
+    unsigned count1bits;
+    unsigned *sfb_partition_table;
+    unsigned slen[4];
+} gr_info;
+typedef struct {
+    int main_data_begin;
+    unsigned private_bits;
+    int resvDrain;
+    unsigned scfsi[2][4];
+    struct {
+	struct gr_info_ss {
+	    gr_info tt;
+	} ch[2];
+    } gr[2];
+} III_side_info_t;
+typedef struct {
+    int l[22];
+    int s[13][3];
+} III_scalefac_t;
+extern int bitrate_table[2][15];
+extern void display_bitrates(FILE * out_fh);
+extern int BitrateIndex(int, int, int);
+extern int SmpFrqIndex(long, int *);
+extern void *mem_alloc(unsigned long, char *);
+extern int copy_buffer(char *buffer, int buffer_size, Bit_stream_struc * bs);
+extern void init_bit_stream_w(Bit_stream_struc *);
+extern void alloc_buffer(Bit_stream_struc *, int);
+extern void desalloc_buffer(Bit_stream_struc *);
+extern void putbits(Bit_stream_struc *, unsigned int, int);
+extern enum byte_order DetermineByteOrder(void);
+extern void SwapBytesInWords(short *loc, int words);
+extern void getframebits(lame_global_flags * gfp, int *bitsPerFrame, int *mean_bits);
+extern FLOAT8 psy_data[];
+struct huffcodetab {
+    unsigned int xlen;
+    unsigned int linmax;
+    unsigned long int *table;
+    unsigned char *hlen;
+};
+extern struct huffcodetab ht[34];
+int ResvFrameBegin(lame_global_flags * gfp, III_side_info_t * l3_side, int mean_bits, int frameLength);
+void ResvMaxBits(int mean_bits, int *targ_bits, int *max_bits, int gr);
+void ResvAdjust(lame_global_flags * gfp, gr_info * gi, III_side_info_t * l3_side, int mean_bits);
+void ResvFrameEnd(lame_global_flags * gfp, III_side_info_t * l3_side, int mean_bits);
+extern FLOAT masking_lower;
+extern int convert_mdct, convert_psy, reduce_sidechannel;
+extern unsigned nr_of_sfb_block[6][3][4];
+extern int pretab[21];
+struct scalefac_struct {
+    int l[1 + 22];
+    int s[1 + 13];
+};
+extern struct scalefac_struct scalefac_band;
+extern struct scalefac_struct sfBandIndex[6];
+extern FLOAT8 pow43[(8206 + 2)];
+extern FLOAT8 pow20[256];
+extern FLOAT8 ipow20[256];
+FLOAT8 ATHformula(lame_global_flags * gfp, FLOAT8 f);
+void compute_ath(lame_global_flags * gfp, FLOAT8 ATH_l[21], FLOAT8 ATH_s[21]);
+void ms_convert(FLOAT8 xr[2][576], FLOAT8 xr_org[2][576]);
+void on_pe(lame_global_flags * gfp, FLOAT8 pe[2][2], III_side_info_t * l3_side, int targ_bits[2], int mean_bits, int gr);
+void reduce_side(int targ_bits[2], FLOAT8 ms_ener_ratio, int mean_bits);
+void outer_loop(lame_global_flags * gfp, FLOAT8 xr[576], int bits, FLOAT8 noise[4], III_psy_xmin * l3_xmin, int l3_enc[576], III_scalefac_t * scalefac, gr_info *, FLOAT8 xfsf[4][21], int ch);
+void iteration_init(lame_global_flags * gfp, III_side_info_t * l3_side, int l3_enc[2][2][576]);
+int inner_loop(lame_global_flags * gfp, FLOAT8 xrpow[576], int l3_enc[576], int max_bits, gr_info * cod_info);
+int calc_xmin(lame_global_flags * gfp, FLOAT8 xr[576], III_psy_ratio * ratio, gr_info * cod_info, III_psy_xmin * l3_xmin);
+int scale_bitcount(III_scalefac_t * scalefac, gr_info * cod_info);
+int scale_bitcount_lsf(III_scalefac_t * scalefac, gr_info * cod_info);
+int calc_noise1(FLOAT8 xr[576], int ix[576], gr_info * cod_info, FLOAT8 xfsf[4][21], FLOAT8 distort[4][21], III_psy_xmin * l3_xmin, III_scalefac_t *, FLOAT8 * noise, FLOAT8 * tot_noise, FLOAT8 * max_noise);
+int loop_break(III_scalefac_t * scalefac, gr_info * cod_info);
+void amp_scalefac_bands(FLOAT8 xrpow[576], gr_info * cod_info, III_scalefac_t * scalefac, FLOAT8 distort[4][21]);
+void quantize_xrpow(FLOAT8 xr[576], int ix[576], gr_info * cod_info);
+void quantize_xrpow_ISO(FLOAT8 xr[576], int ix[576], gr_info * cod_info);
+int new_choose_table(int ix[576], unsigned int begin, unsigned int end, int *s);
+int bin_search_StepSize2(lame_global_flags * gfp, int desired_rate, int start, int ix[576], FLOAT8 xrspow[576], gr_info * cod_info);
+int count_bits(lame_global_flags * gfp, int *ix, FLOAT8 xr[576], gr_info * cod_info);
+int quant_compare(int type, int best_over, FLOAT8 best_tot_noise, FLOAT8 best_over_noise, FLOAT8 best_max_over, int over, FLOAT8 tot_noise, FLOAT8 over_noise, FLOAT8 max_noise);
+int VBR_compare(int best_over, FLOAT8 best_tot_noise, FLOAT8 best_over_noise, FLOAT8 best_max_over, int over, FLOAT8 tot_noise, FLOAT8 over_noise, FLOAT8 max_noise);
+void best_huffman_divide(int gr, int ch, gr_info * cod_info, int *ix);
+void best_scalefac_store(lame_global_flags * gfp, int gr, int ch, int l3_enc[2][2][576], III_side_info_t * l3_side, III_scalefac_t scalefac[2][2]);
+int init_outer_loop(lame_global_flags * gfp, FLOAT8 xr[576], gr_info * cod_info);
+FLOAT masking_lower = 1;
+int convert_mdct, reduce_sidechannel;
+unsigned nr_of_sfb_block[6][3][4] = { {{6, 5, 5, 5}, {9, 9, 9, 9}, {6, 9, 9, 9}}, {{6, 5, 7, 3}, {9, 9, 12, 6}, {6, 9, 12, 6}}, {{11, 10, 0, 0}, {18, 18, 0, 0}, {15, 18, 0, 0}}, {{7, 7, 7, 0}, {12, 12, 12, 0}, {6, 15, 12, 0}}, {{6, 6, 6, 3}, {12, 9, 9, 6}, {6, 12, 9, 6}}, {{8, 8, 5, 0}, {15, 12, 9, 0}, {6, 18, 9, 0}} };
+int pretab[21] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 3, 3, 2 };
+struct scalefac_struct sfBandIndex[6] = { {{0, 6, 12, 18, 24, 30, 36, 44, 54, 66, 80, 96, 116, 140, 168, 200, 238, 284, 336, 396, 464, 522, 576}, {0, 4, 8, 12, 18, 24, 32, 42, 56, 74, 100, 132, 174, 192}}, {{0, 6, 12, 18, 24, 30, 36, 44, 54, 66, 80, 96, 114, 136, 162, 194, 232, 278, 332, 394, 464, 540, 576}, {0, 4, 8, 12, 18, 26, 36, 48, 62, 80, 104, 136, 180, 192}}, {{0, 6, 12, 18, 24, 30, 36, 44, 54, 66, 80, 96, 116, 140, 168, 200, 238, 284, 336, 396, 464, 522, 576}, {0, 4, 8, 12, 18, 26, 36, 48, 62, 80, 104, 134, 174, 192}}, {{0, 4, 8, 12, 16, 20, 24, 30, 36, 44, 52, 62, 74, 90, 110, 134, 162, 196, 238, 288, 342, 418, 576}, {0, 4, 8, 12, 16, 22, 30, 40, 52, 66, 84, 106, 136, 192}}, {{0, 4, 8, 12, 16, 20, 24, 30, 36, 42, 50, 60, 72, 88, 106, 128, 156, 190, 230, 276, 330, 384, 576}, {0, 4, 8, 12, 16, 22, 28, 38, 50, 64, 80, 100, 126, 192}}, {{0, 4, 8, 12, 16, 20, 24, 30, 36, 44, 54, 66, 82, 102, 126, 156, 194, 240, 296, 364, 448, 550, 576}, {0, 4, 8, 12, 16, 22, 30, 42, 58, 78, 104, 138, 180, 192}} };
+
+struct scalefac_struct scalefac_band;
+FLOAT8 pow20[256];
+FLOAT8 ipow20[256];
+FLOAT8 pow43[(8206 + 2)];
+static FLOAT8 adj43[(8206 + 2)];
+static FLOAT8 adj43asm[(8206 + 2)];
+static FLOAT8 ATH_l[21];
+static FLOAT8 ATH_s[21];
+FLOAT8 ATH_mdct_long[576];
+FLOAT8 ATH_mdct_short[192];
 //complexity is O(n^2) inferred by loopus
-static int main_data(BF_FrameData * frameInfo, BF_FrameResults * results);
-static int side_queue_elements(int *forwardFrameLength, int *forwardSILength);
-static void free_side_queues(void);
-static void WriteMainDataBits(u_int val, u_int nbits, BF_FrameResults * results);
-static int elements, forwardFrameLength, forwardSILength;
-void BF_BitstreamFrame(BF_FrameData * frameInfo, BF_FrameResults * results)
+void iteration_init(lame_global_flags * gfp, III_side_info_t * l3_side, int l3_enc[2][2][576])
 {
-    ((frameInfo->nGranules <= 2) ? (void) (0) : __assert_fail("frameInfo->nGranules <= 2", "formatBitstream.c", 59, __PRETTY_FUNCTION__));
-    ((frameInfo->nChannels <= 2) ? (void) (0) : __assert_fail("frameInfo->nChannels <= 2", "formatBitstream.c", 60, __PRETTY_FUNCTION__));
-    results->SILength = store_side_info(frameInfo);
-    results->mainDataLength = main_data(frameInfo, results);
-    (((BitsRemaining % 8) == 0) ? (void) (0) : __assert_fail("(BitsRemaining % 8) == 0", "formatBitstream.c", 74, __PRETTY_FUNCTION__));
-    elements = side_queue_elements(&forwardFrameLength, &forwardSILength);
-    results->nextBackPtr = (BitsRemaining / 8) + (forwardFrameLength / 8) - (forwardSILength / 8);
-}
-
- void BF_FlushBitstream(BF_FrameData * frameInfo, BF_FrameResults * results)
-{
-    if (elements) {
-	int bitsRemaining = forwardFrameLength - forwardSILength;
-	int wordsRemaining = bitsRemaining / 32;
-	while (wordsRemaining--) {
-	    WriteMainDataBits(0, 32, results);
+    gr_info *cod_info;
+    int ch, gr, i;
+    l3_side->resvDrain = 0;
+    if (gfp->frameNum == 0) {
+	for (i = 0; i < 22 + 1; i++) {
+	    scalefac_band.l[i] = sfBandIndex[gfp->samplerate_index + (gfp->version * 3)].l[i];
 	}
-	WriteMainDataBits(0, (bitsRemaining % 32), results);
-    }
-    results->mainDataLength = forwardFrameLength - forwardSILength;
-    results->SILength = forwardSILength;
-    results->nextBackPtr = 0;
-    free_side_queues();
-    BitCount = 0;
-    ThisFrameSize = 0;
-    BitsRemaining = 0;
-    return;
-}
-// complexity is O(n) inferred by loopus
-int BF_PartLength(BF_BitstreamPart * part)
-{
-    BF_BitstreamElement *ep = part->element;
-    u_int i;
-    int bits = 0;
-    for (i = 0; i < part->nrEntries; i++, ep++)
-	bits += ep->length;
-    return bits;
-}
-
-typedef struct {
-    int frameLength;
-    int SILength;
-    int nGranules;
-    int nChannels;
-    BF_PartHolder *headerPH;
-    BF_PartHolder *frameSIPH;
-    BF_PartHolder *channelSIPH[2];
-    BF_PartHolder *spectrumSIPH[2][2];
-} MYSideInfo;
-static MYSideInfo *get_side_info(void);
-//complexity iis O(n^2) inferred by loopus
-static int write_side_info(void);
-typedef int (*PartWriteFcnPtr) (BF_BitstreamPart * part, BF_FrameResults * results);
-// complexity is O(n) inferred by loopus
-static int writePartMainData(BF_BitstreamPart * part, BF_FrameResults * results)
-{
-    BF_BitstreamElement *ep;
-    u_int i;
-    int bits = 0;
-    ((results) ? (void) (0) : __assert_fail("results", "formatBitstream.c", 157, __PRETTY_FUNCTION__));
-    ((part) ? (void) (0) : __assert_fail("part", "formatBitstream.c", 158, __PRETTY_FUNCTION__));
-    ep = part->element;
-    for (i = 0; i < part->nrEntries; i++, ep++) {
-	WriteMainDataBits(ep->value, ep->length, results);
-	bits += ep->length;
-    }
-    return bits;
-}
-// complexity is O(n) inferred by loopus 
-static int writePartSideInfo(BF_BitstreamPart * part, BF_FrameResults * results)
-{
-    BF_BitstreamElement *ep;
-    u_int i;
-    int bits = 0;
-    ((part) ? (void) (0) : __assert_fail("part", "formatBitstream.c", 176, __PRETTY_FUNCTION__));
-    ep = part->element;
-    for (i = 0; i < part->nrEntries; i++, ep++) {
-	putMyBits(ep->value, ep->length);
-	bits += ep->length;
-    }
-    return bits;
-}
-
-static int main_data(BF_FrameData * fi, BF_FrameResults * results)
-{
-    int gr, ch, bits;
-    PartWriteFcnPtr wp = writePartMainData;
-    bits = 0;
-    results->mainDataLength = 0;
-    for (gr = 0; gr < fi->nGranules; gr++)
-	for (ch = 0; ch < fi->nChannels; ch++) {
-	    bits += (*wp) (fi->scaleFactors[gr][ch], results);
-	    bits += (*wp) (fi->codedData[gr][ch], results);
-	    bits += (*wp) (fi->userSpectrum[gr][ch], results);
+	for (i = 0; i < 13 + 1; i++) {
+	    scalefac_band.s[i] = sfBandIndex[gfp->samplerate_index + (gfp->version * 3)].s[i];
 	}
-    bits += (*wp) (fi->userFrameData, results);
-    return bits;
-}
-
-static void WriteMainDataBits(u_int val, u_int nbits, BF_FrameResults * results)
-{
-    ((nbits <= 32) ? (void) (0) : __assert_fail("nbits <= 32", "formatBitstream.c", 217, __PRETTY_FUNCTION__));
-    if (nbits == 0)
-	return;
-    if (BitCount == ThisFrameSize) {
-	BitCount = write_side_info();
-	BitsRemaining = ThisFrameSize - BitCount;
+	l3_side->main_data_begin = 0;
+	compute_ath(gfp, ATH_l, ATH_s);
+	for (i = 0; i < (8206 + 2); i++)
+	    pow43[i] = pow((FLOAT8) i, 4.0 / 3.0);
+	for (i = 0; i < (8206 + 2) - 1; i++)
+	    adj43[i] = (i + 1) - pow(0.5 * (pow43[i] + pow43[i + 1]), 0.75);
+	adj43[i] = 0.5;
+	adj43asm[0] = 0.0;
+	for (i = 1; i < (8206 + 2); i++)
+	    adj43asm[i] = i - 0.5 - pow(0.5 * (pow43[i - 1] + pow43[i]), 0.75);
+	for (i = 0; i < 256; i++) {
+	    ipow20[i] = pow(2.0, (double) (i - 210) * -0.1875);
+	    pow20[i] = pow(2.0, (double) (i - 210) * 0.25);
+    }}
+    convert_mdct = 0;
+    reduce_sidechannel = 0;
+    if (gfp->mode_ext == 2) {
+	convert_mdct = 1;
+	reduce_sidechannel = 1;
     }
-    if (nbits > (u_int) BitsRemaining) {
-	unsigned extra = val >> (nbits - BitsRemaining);
-	nbits -= BitsRemaining;
-	putMyBits(extra, BitsRemaining);
-	BitCount = write_side_info();
-	BitsRemaining = ThisFrameSize - BitCount;
-	putMyBits(val, nbits);
-    } else
-	putMyBits(val, nbits);
-    BitCount += nbits;
-    BitsRemaining -= nbits;
-    ((BitCount <= ThisFrameSize) ? (void) (0) : __assert_fail("BitCount <= ThisFrameSize", "formatBitstream.c", 238, __PRETTY_FUNCTION__));
-    ((BitsRemaining >= 0) ? (void) (0) : __assert_fail("BitsRemaining >= 0", "formatBitstream.c", 239, __PRETTY_FUNCTION__));
-    (((BitCount + BitsRemaining) == ThisFrameSize) ? (void) (0) : __assert_fail("(BitCount + BitsRemaining) == ThisFrameSize", "formatBitstream.c", 240, __PRETTY_FUNCTION__));
-} static int write_side_info(void)
-{
-    MYSideInfo *si;
-    int bits, ch, gr;
-    PartWriteFcnPtr wp = writePartSideInfo;
-    bits = 0;
-    si = get_side_info();
-    ThisFrameSize = si->frameLength;
-    bits += (*wp) (si->headerPH->part, ((void *) 0));
-    bits += (*wp) (si->frameSIPH->part, ((void *) 0));
-    for (ch = 0; ch < si->nChannels; ch++)
-	bits += (*wp) (si->channelSIPH[ch]->part, ((void *) 0));
-    for (gr = 0; gr < si->nGranules; gr++)
-	for (ch = 0; ch < si->nChannels; ch++)
-	    bits += (*wp) (si->spectrumSIPH[gr][ch]->part, ((void *) 0));
-    return bits;
-}
-
-typedef struct side_info_link {
-    struct side_info_link *next;
-    MYSideInfo side_info;
-} side_info_link;
-static struct side_info_link *side_queue_head = ((void *) 0);
-static struct side_info_link *side_queue_free = ((void *) 0);
-static void free_side_info_link(side_info_link * l);
-static int side_queue_elements(int *frameLength, int *SILength)
-{
-    int elements = 0;
-    side_info_link *l;
-    *frameLength = 0;
-    *SILength = 0;
-    for (l = side_queue_head; l; l = l->next) {
-	elements++;
-	*frameLength += l->side_info.frameLength;
-	*SILength += l->side_info.SILength;
-    }
-    return elements;
-}
-
-static int store_side_info(BF_FrameData * info)
-{
-    int ch, gr;
-    side_info_link *l;
-    side_info_link *f = side_queue_free;
-    int bits = 0;
-    if (f == ((void *) 0)) {
-	l = (side_info_link *) calloc(1, sizeof(side_info_link));
-	if (l == ((void *) 0)) {
-	    fprintf(stderr, "cannot allocate side_info_link");
-	    exit(1);
+    for (gr = 0; gr < gfp->mode_gr; gr++) {
+	for (ch = 0; ch < gfp->stereo; ch++) {
+	    cod_info = (gr_info *) & (l3_side->gr[gr].ch[ch]);
+	    if (cod_info->block_type == 2) {
+		cod_info->sfb_lmax = 0;
+		cod_info->sfb_smax = 0;
+	    } else {
+		cod_info->sfb_lmax = 21;
+		cod_info->sfb_smax = 12;
+	    }
 	}
-	l->next = ((void *) 0);
-	l->side_info.headerPH = BF_newPartHolder(info->header->nrEntries);
-	l->side_info.frameSIPH = BF_newPartHolder(info->frameSI->nrEntries);
-	for (ch = 0; ch < info->nChannels; ch++)
-	    l->side_info.channelSIPH[ch] = BF_newPartHolder(info->channelSI[ch]->nrEntries);
-	for (gr = 0; gr < info->nGranules; gr++)
-	    for (ch = 0; ch < info->nChannels; ch++)
-		l->side_info.spectrumSIPH[gr][ch] = BF_newPartHolder(info->spectrumSI[gr][ch]->nrEntries);
+    }
+    for (ch = 0; ch < gfp->stereo; ch++)
+	for (i = 0; i < 4; i++)
+	    l3_side->scfsi[ch][i] = 0;
+}
+
+FLOAT8 ATHformula(lame_global_flags * gfp, FLOAT8 f)
+{
+    FLOAT8 ath;
+    f = ((0.02) > (f) ? (0.02) : (f));
+    ath = (3.640 * pow(f, -0.8) - 6.500 * exp(-0.6 * pow(f - 3.3, 2.0)) + 0.001 * pow(f, 4.0));
+    if (gfp->noATH)
+	ath -= 200;
+    else {
+	ath -= 114;
+    }
+    ath = pow(10.0, ath / 10.0);
+    return ath;
+}
+
+void compute_ath(lame_global_flags * gfp, FLOAT8 ATH_l[21], FLOAT8 ATH_s[21])
+{
+    int sfb, i, start, end;
+    FLOAT8 ATH_f;
+    FLOAT8 samp_freq = gfp->out_samplerate / 1000.0;
+    for (sfb = 0; sfb < 21; sfb++) {
+	start = scalefac_band.l[sfb];
+	end = scalefac_band.l[sfb + 1];
+	ATH_l[sfb] = 1e99;
+	for (i = start; i < end; i++) {
+	    ATH_f = ATHformula(gfp, samp_freq * i / (2 * 576));
+	    ATH_l[sfb] = ((ATH_l[sfb]) < (ATH_f) ? (ATH_l[sfb]) : (ATH_f));
+	}
+    }
+    for (sfb = 0; sfb < 12; sfb++) {
+	start = scalefac_band.s[sfb];
+	end = scalefac_band.s[sfb + 1];
+	ATH_s[sfb] = 1e99;
+	for (i = start; i < end; i++) {
+	    ATH_f = ATHformula(gfp, samp_freq * i / (2 * 192));
+	    ATH_s[sfb] = ((ATH_s[sfb]) < (ATH_f) ? (ATH_s[sfb]) : (ATH_f));
+	}
+    }
+}
+
+void ms_convert(FLOAT8 xr[2][576], FLOAT8 xr_org[2][576])
+{
+    int i;
+    for (i = 0; i < 576; i++) {
+	FLOAT8 l = xr_org[0][i];
+	FLOAT8 r = xr_org[1][i];
+	xr[0][i] = (l + r) * (1.41421356237309504880 * 0.5);
+	xr[1][i] = (l - r) * (1.41421356237309504880 * 0.5);
+    }
+}
+//complexity is O(n) inferred by loopus
+void on_pe(lame_global_flags * gfp, FLOAT8 pe[2][2], III_side_info_t * l3_side, int targ_bits[2], int mean_bits, int gr)
+{
+    gr_info *cod_info;
+    int extra_bits, tbits, bits;
+    int add_bits[2];
+    int ch;
+    ResvMaxBits(mean_bits, &tbits, &extra_bits, gr);
+    for (ch = 0; ch < gfp->stereo; ch++) {
+	cod_info = &l3_side->gr[gr].ch[ch].tt;
+	targ_bits[ch] = tbits / gfp->stereo;
+	bits = 0;
+	add_bits[ch] = (pe[gr][ch] - 750) / 1.55;
+	if (cod_info->block_type == 2)
+	    if (add_bits[ch] < 500)
+		add_bits[ch] = 500;
+	if (add_bits[ch] < 0)
+	    add_bits[ch] = 0;
+	bits += add_bits[ch];
+	if (bits > extra_bits)
+	    add_bits[ch] = (extra_bits * add_bits[ch]) / bits;
+	if ((targ_bits[ch] + add_bits[ch]) > 4095)
+	    add_bits[ch] = 4095 - targ_bits[ch];
+	targ_bits[ch] = targ_bits[ch] + add_bits[ch];
+	extra_bits -= add_bits[ch];
+    }
+}
+
+void reduce_side(int targ_bits[2], FLOAT8 ms_ener_ratio, int mean_bits)
+{
+    int ch;
+    int numchn = 2;
+    float fac = .33 * (.5 - ms_ener_ratio) / .5;
+    if (fac < 0)
+	fac = 0;
+    if (targ_bits[1] >= 125) {
+	if (targ_bits[1] - targ_bits[1] * fac > 125) {
+	    targ_bits[0] += targ_bits[1] * fac;
+	    targ_bits[1] -= targ_bits[1] * fac;
+	} else {
+	    targ_bits[0] += targ_bits[1] - 125;
+	    targ_bits[1] = 125;
+	}
+    }
+    for (ch = 0; ch < numchn; ch++) {
+	int max_bits = ((4095) < (mean_bits / 2 + 1200) ? (4095) : (mean_bits / 2 + 1200));
+	if (targ_bits[ch] > max_bits) {
+	    targ_bits[ch] = max_bits;
+	}
+    }
+}
+
+int inner_loop(lame_global_flags * gfp, FLOAT8 xrpow[576], int l3_enc[576], int max_bits, gr_info * cod_info)
+{
+    int bits;
+    ((max_bits >= 0) ? (void) (0) : __assert_fail("max_bits >= 0", "quantize-pvt.c", 431, __PRETTY_FUNCTION__));
+    cod_info->global_gain--;
+    do {
+	cod_info->global_gain++;
+	bits = count_bits(gfp, l3_enc, xrpow, cod_info);
+    } while (bits > max_bits);
+    return bits;
+}
+
+int scale_bitcount(III_scalefac_t * scalefac, gr_info * cod_info)
+{
+    int i, k, sfb, max_slen1 = 0, max_slen2 = 0, ep = 2;
+    static int slen1[16] = { 1, 1, 1, 1, 8, 2, 2, 2, 4, 4, 4, 8, 8, 8, 16, 16 };
+    static int slen2[16] = { 1, 2, 4, 8, 1, 2, 4, 8, 2, 4, 8, 2, 4, 8, 4, 8 };
+    static int slen1_tab[16] = { 0, 18, 36, 54, 54, 36, 54, 72, 54, 72, 90, 72, 90, 108, 108, 126 };
+    static int slen2_tab[16] = { 0, 10, 20, 30, 33, 21, 31, 41, 32, 42, 52, 43, 53, 63, 64, 74 };
+    int *tab;
+    if (cod_info->block_type == 2) {
+	tab = slen1_tab;
+	for (i = 0; i < 3; i++) {
+	    for (sfb = 0; sfb < 6; sfb++)
+		if (scalefac->s[sfb][i] > max_slen1)
+		    max_slen1 = scalefac->s[sfb][i];
+	    for (sfb = 6; sfb < 12; sfb++)
+		if (scalefac->s[sfb][i] > max_slen2)
+		    max_slen2 = scalefac->s[sfb][i];
+	}
     } else {
-	side_queue_free = f->next;
-	f->next = ((void *) 0);
-	l = f;
-    } l->side_info.frameLength = info->frameLength;
-    l->side_info.nGranules = info->nGranules;
-    l->side_info.nChannels = info->nChannels;
-    l->side_info.headerPH = BF_LoadHolderFromBitstreamPart(l->side_info.headerPH, info->header);
-    l->side_info.frameSIPH = BF_LoadHolderFromBitstreamPart(l->side_info.frameSIPH, info->frameSI);
-    bits += BF_PartLength(info->header);
-    bits += BF_PartLength(info->frameSI);
-    for (ch = 0; ch < info->nChannels; ch++) {
-	l->side_info.channelSIPH[ch] = BF_LoadHolderFromBitstreamPart(l->side_info.channelSIPH[ch], info->channelSI[ch]);
-	bits += BF_PartLength(info->channelSI[ch]);
-    }
-    for (gr = 0; gr < info->nGranules; gr++)
-	for (ch = 0; ch < info->nChannels; ch++) {
-	    l->side_info.spectrumSIPH[gr][ch] = BF_LoadHolderFromBitstreamPart(l->side_info.spectrumSIPH[gr][ch], info->spectrumSI[gr][ch]);
-	    bits += BF_PartLength(info->spectrumSI[gr][ch]);
+	tab = slen2_tab;
+	for (sfb = 0; sfb < 11; sfb++)
+	    if (scalefac->l[sfb] > max_slen1)
+		max_slen1 = scalefac->l[sfb];
+	if (!cod_info->preflag) {
+	    for (sfb = 11; sfb < 21; sfb++)
+		if (scalefac->l[sfb] < pretab[sfb])
+		    break;
+	    if (sfb == 21) {
+		cod_info->preflag = 1;
+		for (sfb = 11; sfb < 21; sfb++)
+		    scalefac->l[sfb] -= pretab[sfb];
+	    }
 	}
-    l->side_info.SILength = bits;
-    f = side_queue_head;
-    if (f == ((void *) 0)) {
-	side_queue_head = l;
-    } else {
-	while (f->next)
-	    f = f->next;
-	f->next = l;
+	for (sfb = 11; sfb < 21; sfb++)
+	    if (scalefac->l[sfb] > max_slen2)
+		max_slen2 = scalefac->l[sfb];
     }
-    return bits;
+    cod_info->part2_length = 100000;
+    for (k = 0; k < 16; k++) {
+	if ((max_slen1 < slen1[k]) && (max_slen2 < slen2[k]) && ((int) cod_info->part2_length > tab[k])) {
+	    cod_info->part2_length = tab[k];
+	    cod_info->scalefac_compress = k;
+	    ep = 0;
+	}
+    } return ep;
 }
+static unsigned max_range_sfac_tab[6][4] = { {15, 15, 7, 7}, {15, 15, 7, 0}, {7, 3, 0, 0}, {15, 31, 31, 0}, {7, 7, 7, 0}, {3, 3, 0, 0} };
 
-static MYSideInfo *get_side_info(void)
+int scale_bitcount_lsf(III_scalefac_t * scalefac, gr_info * cod_info)
 {
-    side_info_link *f = side_queue_free;
-    side_info_link *l = side_queue_head;
-    ((l) ? (void) (0) : __assert_fail("l", "formatBitstream.c", 384, __PRETTY_FUNCTION__));
-    side_queue_head = l->next;
-    side_queue_free = l;
-    l->next = f;
-    return &l->side_info;
-}
-
-static void free_side_queues(void)
-{
-    side_info_link *l, *next;
-    for (l = side_queue_head; l; l = next) {
-	next = l->next;
-	free_side_info_link(l);
-    }
-    side_queue_head = ((void *) 0);
-    for (l = side_queue_free; l; l = next) {
-	next = l->next;
-	free_side_info_link(l);
-    }
-    side_queue_free = ((void *) 0);
-} 
-//complexity is O(n^2) inferred by loopus 
-static void free_side_info_link(side_info_link * l)
-{
-    int gr, ch;
-    l->side_info.headerPH = BF_freePartHolder(l->side_info.headerPH);
-    l->side_info.frameSIPH = BF_freePartHolder(l->side_info.frameSIPH);
-    for (ch = 0; ch < l->side_info.nChannels; ch++)
-	l->side_info.channelSIPH[ch] = BF_freePartHolder(l->side_info.channelSIPH[ch]);
-    for (gr = 0; gr < l->side_info.nGranules; gr++)
-	for (ch = 0; ch < l->side_info.nChannels; ch++)
-	    l->side_info.spectrumSIPH[gr][ch] = BF_freePartHolder(l->side_info.spectrumSIPH[gr][ch]);
-    free(l);
-}
-
-BF_PartHolder *BF_newPartHolder(int max_elements)
-{
-    BF_PartHolder *newPH = (BF_PartHolder *) calloc(1, sizeof(BF_PartHolder));
-    ((newPH) ? (void) (0) : __assert_fail("newPH", "formatBitstream.c", 443, __PRETTY_FUNCTION__));
-    newPH->max_elements = max_elements;
-    newPH->part = (BF_BitstreamPart *) calloc(1, sizeof(BF_BitstreamPart));
-    ((newPH->part) ? (void) (0) : __assert_fail("newPH->part", "formatBitstream.c", 446, __PRETTY_FUNCTION__));
-    newPH->part->element = (BF_BitstreamElement *) calloc(max_elements, sizeof(BF_BitstreamElement));
-    if (max_elements > 0)
-	((newPH->part->element) ? (void) (0) : __assert_fail("newPH->part->element", "formatBitstream.c", 448, __PRETTY_FUNCTION__));
-    newPH->part->nrEntries = 0;
-    return newPH;
-}
-
-BF_PartHolder *BF_NewHolderFromBitstreamPart(BF_BitstreamPart * thePart)
-{
-    BF_PartHolder *newHolder = BF_newPartHolder(thePart->nrEntries);
-    return BF_LoadHolderFromBitstreamPart(newHolder, thePart);
-}
-//complexity is O(n) inferred by loopus 
-BF_PartHolder *BF_LoadHolderFromBitstreamPart(BF_PartHolder * theHolder, BF_BitstreamPart * thePart)
-{
-    BF_BitstreamElement *pElem;
-    u_int i;
-    theHolder->part->nrEntries = 0;
-    for (i = 0; i < thePart->nrEntries; i++) {
-	pElem = &(thePart->element[i]);
-	theHolder = BF_addElement(theHolder, pElem);
-    }
-    return theHolder;
-}
-//complexity is O(n) inferrred by loopus
-BF_PartHolder *BF_resizePartHolder(BF_PartHolder * oldPH, int max_elements)
-{
-    int elems, i;
-    BF_PartHolder *newPH;
-    newPH = BF_newPartHolder(max_elements);
-    elems = (oldPH->max_elements > max_elements) ? max_elements : oldPH->max_elements;
-    newPH->part->nrEntries = elems;
-    for (i = 0; i < elems; i++)
-	newPH->part->element[i] = oldPH->part->element[i];
-    BF_freePartHolder(oldPH);
-    return newPH;
-}
-
-BF_PartHolder *BF_freePartHolder(BF_PartHolder * thePH)
-{
-    free(thePH->part->element);
-    free(thePH->part);
-    free(thePH);
-    return ((void *) 0);
-} BF_PartHolder *BF_addElement(BF_PartHolder * thePH, BF_BitstreamElement * theElement)
-{
-    BF_PartHolder *retPH = thePH;
-    int needed_entries = thePH->part->nrEntries + 1;
-    int extraPad = 8;
-    if (needed_entries > thePH->max_elements)
-	retPH = BF_resizePartHolder(thePH, needed_entries + extraPad);
-    retPH->part->element[retPH->part->nrEntries++] = *theElement;
-    return retPH;
-}
-
-BF_PartHolder *BF_addEntry(BF_PartHolder * thePH, u_int value, u_int length)
-{
-    BF_BitstreamElement myElement;
-    myElement.value = value;
-    myElement.length = length;
-    if (length)
-	return BF_addElement(thePH, &myElement);
+    int table_number, row_in_table, partition, nr_sfb, window, over;
+    int i, sfb, max_sfac[4];
+    unsigned *partition_table;
+    if (cod_info->preflag)
+	table_number = 2;
     else
-	return thePH;
+	table_number = 0;
+    for (i = 0; i < 4; i++)
+	max_sfac[i] = 0;
+    if (cod_info->block_type == 2) {
+	row_in_table = 1;
+	partition_table = &nr_of_sfb_block[table_number][row_in_table][0];
+	for (sfb = 0, partition = 0; partition < 4; partition++) {
+	    nr_sfb = partition_table[partition] / 3;
+	    for (i = 0; i < nr_sfb; i++, sfb++)
+		for (window = 0; window < 3; window++)
+		    if (scalefac->s[sfb][window] > max_sfac[partition])
+			max_sfac[partition] = scalefac->s[sfb][window];
+	}
+    } else {
+	row_in_table = 0;
+	partition_table = &nr_of_sfb_block[table_number][row_in_table][0];
+	for (sfb = 0, partition = 0; partition < 4; partition++) {
+	    nr_sfb = partition_table[partition];
+	    for (i = 0; i < nr_sfb; i++, sfb++)
+		if (scalefac->l[sfb] > max_sfac[partition])
+		    max_sfac[partition] = scalefac->l[sfb];
+	}
+    }
+    for (over = 0, partition = 0; partition < 4; partition++) {
+	if (max_sfac[partition] > (int) max_range_sfac_tab[table_number][partition])
+	    over++;
+    } if (!over) {
+	static int log2tab[] = { 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4 };
+	unsigned slen1, slen2, slen3, slen4;
+	cod_info->sfb_partition_table = &nr_of_sfb_block[table_number][row_in_table][0];
+	for (partition = 0; partition < 4; partition++)
+	    cod_info->slen[partition] = log2tab[max_sfac[partition]];
+	slen1 = cod_info->slen[0];
+	slen2 = cod_info->slen[1];
+	slen3 = cod_info->slen[2];
+	slen4 = cod_info->slen[3];
+	switch (table_number) {
+	case 0:
+	    cod_info->scalefac_compress = (((slen1 * 5) + slen2) << 4) + (slen3 << 2) + slen4;
+	    break;
+	case 1:
+	    cod_info->scalefac_compress = 400 + (((slen1 * 5) + slen2) << 2) + slen3;
+	    break;
+	case 2:
+	    cod_info->scalefac_compress = 500 + (slen1 * 3) + slen2;
+	    break;
+	default:
+	    fprintf(stderr, "intensity stereo not implemented yet\n");
+	    exit(1);
+	    break;
+	}
+    }
+    if (!over) {
+	((cod_info->sfb_partition_table) ? (void) (0) : __assert_fail("cod_info->sfb_partition_table", "quantize-pvt.c", 665, __PRETTY_FUNCTION__));
+	cod_info->part2_length = 0;
+	for (partition = 0; partition < 4; partition++)
+	    cod_info->part2_length += cod_info->slen[partition] * cod_info->sfb_partition_table[partition];
+    }
+    return over;
 }
+
+int calc_xmin(lame_global_flags * gfp, FLOAT8 xr[576], III_psy_ratio * ratio, gr_info * cod_info, III_psy_xmin * l3_xmin)
+{
+    int start, end, bw, l, b, ath_over = 0;
+    u_int sfb;
+    FLOAT8 en0, xmin, ener;
+    if (gfp->ATHonly) {
+	for (sfb = cod_info->sfb_smax; sfb < 12; sfb++)
+	    for (b = 0; b < 3; b++)
+		l3_xmin->s[sfb][b] = ATH_s[sfb];
+	for (sfb = 0; sfb < cod_info->sfb_lmax; sfb++)
+	    l3_xmin->l[sfb] = ATH_l[sfb];
+    } else {
+	for (sfb = cod_info->sfb_smax; sfb < 12; sfb++) {
+	    start = scalefac_band.s[sfb];
+	    end = scalefac_band.s[sfb + 1];
+	    bw = end - start;
+	    for (b = 0; b < 3; b++) {
+		for (en0 = 0.0, l = start; l < end; l++) {
+		    ener = xr[l * 3 + b];
+		    ener = ener * ener;
+		    en0 += ener;
+		}
+		en0 /= bw;
+		xmin = ratio->en.s[sfb][b];
+		if (xmin > 0.0)
+		    xmin = en0 * ratio->thm.s[sfb][b] * masking_lower / xmin;
+		l3_xmin->s[sfb][b] = ((ATH_s[sfb]) > (xmin) ? (ATH_s[sfb]) : (xmin));
+		if (en0 > ATH_s[sfb])
+		    ath_over++;
+	    }
+	}
+	for (sfb = 0; sfb < cod_info->sfb_lmax; sfb++) {
+	    start = scalefac_band.l[sfb];
+	    end = scalefac_band.l[sfb + 1];
+	    bw = end - start;
+	    for (en0 = 0.0, l = start; l < end; l++) {
+		ener = xr[l] * xr[l];
+		en0 += ener;
+	    }
+	    en0 /= bw;
+	    xmin = ratio->en.l[sfb];
+	    if (xmin > 0.0)
+		xmin = en0 * ratio->thm.l[sfb] * masking_lower / xmin;
+	    l3_xmin->l[sfb] = ((ATH_l[sfb]) > (xmin) ? (ATH_l[sfb]) : (xmin));
+	    if (en0 > ATH_l[sfb])
+		ath_over++;
+	}
+    }
+    return ath_over;
+}
+//complexity is O(n) inferred by loopus
+int loop_break(III_scalefac_t * scalefac, gr_info * cod_info)
+{
+    int i;
+    u_int sfb;
+    for (sfb = 0; sfb < cod_info->sfb_lmax; sfb++)
+	if (scalefac->l[sfb] == 0)
+	    return 0;
+    for (sfb = cod_info->sfb_smax; sfb < 12; sfb++)
+	for (i = 0; i < 3; i++)
+	    if (scalefac->s[sfb][i] == 0)
+		return 0;
+    return 1;
+}
+typedef enum { BINSEARCH_NONE, BINSEARCH_UP, BINSEARCH_DOWN } binsearchDirection_t;
+int bin_search_StepSize2(lame_global_flags * gfp, int desired_rate, int start, int *ix, FLOAT8 xrspow[576], gr_info * cod_info)
+{
+    static int CurrentStep = 4;
+    int nBits;
+    int flag_GoneOver = 0;
+    int StepSize = start;
+    binsearchDirection_t Direction = BINSEARCH_NONE;
+    do {
+	cod_info->global_gain = StepSize;
+	nBits = count_bits(gfp, ix, xrspow, cod_info);
+	if (CurrentStep == 1) {
+	    break;
+	}
+	if (flag_GoneOver) {
+	    CurrentStep /= 2;
+	}
+	if (nBits > desired_rate) {
+	    if (Direction == BINSEARCH_DOWN && !flag_GoneOver) {
+		flag_GoneOver = 1;
+		CurrentStep /= 2;
+	    }
+	    Direction = BINSEARCH_UP;
+	    StepSize += CurrentStep;
+	    if (StepSize > 255)
+		break;
+	} else if (nBits < desired_rate) {
+	    if (Direction == BINSEARCH_UP && !flag_GoneOver) {
+		flag_GoneOver = 1;
+		CurrentStep /= 2;
+	    }
+	    Direction = BINSEARCH_DOWN;
+	    StepSize -= CurrentStep;
+	    if (StepSize < 0)
+		break;
+	} else
+	    break;
+    } while (1);
+    CurrentStep = abs(start - StepSize);
+    if (CurrentStep >= 4) {
+	CurrentStep = 4;
+    } else {
+	CurrentStep = 2;
+    }
+    return nBits;
+}
+
+void quantize_xrpow(FLOAT8 xr[576], int ix[576], gr_info * cod_info)
+{
+    const FLOAT8 istep = ipow20[cod_info->global_gain]; {
+	FLOAT8 x;
+	int j, rx;
+	for (j = 576 / 4; j > 0; --j) {
+	    x = *xr++ * istep;
+	  asm("fistpl %0 ": "=m"(rx): "t"(x):"st");
+	  asm("fistpl %0 ": "=m"(*ix++): "t"(x + adj43asm[rx]):"st");
+	    x = *xr++ * istep;
+	  asm("fistpl %0 ": "=m"(rx): "t"(x):"st");
+	  asm("fistpl %0 ": "=m"(*ix++): "t"(x + adj43asm[rx]):"st");
+	    x = *xr++ * istep;
+	  asm("fistpl %0 ": "=m"(rx): "t"(x):"st");
+	  asm("fistpl %0 ": "=m"(*ix++): "t"(x + adj43asm[rx]):"st");
+	    x = *xr++ * istep;
+	  asm("fistpl %0 ": "=m"(rx): "t"(x):"st");
+	  asm("fistpl %0 ": "=m"(*ix++): "t"(x + adj43asm[rx]):"st");
+	}
+    }
+}
+
+void quantize_xrpow_ISO(FLOAT8 xr[576], int ix[576], gr_info * cod_info)
+{
+    const FLOAT8 istep = ipow20[cod_info->global_gain]; {
+	__asm__ __volatile__("\n\nloop0:\n\t" "fld" "l" " 0*" "8" "(%3)\n\t" "fld" "l" " 1*" "8" "(%3)\n\t" "fld" "l" " 2*" "8" "(%3)\n\t" "fld" "l" " 3*" "8" "(%3)\n\t" "addl $4*" "8" ", %3\n\t" "addl $16, %4\n\t" "fxch %%st(3)\n\t" "fmul %%st(4)\n\t" "fxch %%st(2)\n\t" "fmul %%st(4)\n\t" "fxch %%st(1)\n\t" "fmul %%st(4)\n\t" "fxch %%st(3)\n\t" "fmul %%st(4)\n\t" "dec %0\n\t" "fxch %%st(2)\n\t" "fadd %%st(5)\n\t" "fxch %%st(1)\n\t" "fadd %%st(5)\n\t" "fxch %%st(3)\n\t" "fadd %%st(5)\n\t" "fxch %%st(2)\n\t" "fadd %%st(5)\n\t" "fxch %%st(1)\n\t" "fistpl -16(%4)\n\t" "fxch %%st(2)\n\t" "fistpl -12(%4)\n\t" "fistpl -8(%4)\n\t" "fistpl -4(%4)\n\t" "jnz loop0\n\n"::"r"(576 / 4), "u"((FLOAT8) (0.4054 - 0.5)), "t"(istep), "r"(xr), "r"(ix):"memory", "cc");
+}}

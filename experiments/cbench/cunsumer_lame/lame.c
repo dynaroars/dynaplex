@@ -1,3 +1,6 @@
+extern void __assert_fail(__const char *__assertion, __const char *__file, unsigned int __line, __const char *__function) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
+extern void __assert_perror_fail(int __errnum, __const char *__file, unsigned int __line, __const char *__function) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
+extern void __assert(const char *__assertion, const char *__file, int __line) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
 typedef __typeof__(((int *) 0) - ((int *) 0)) ptrdiff_t;
 typedef __typeof__(sizeof(int)) size_t;
 typedef int wchar_t;
@@ -239,6 +242,91 @@ extern char *ctermid(char *__s) __attribute__ ((__nothrow__));
 extern void flockfile(FILE * __stream) __attribute__ ((__nothrow__));
 extern int ftrylockfile(FILE * __stream) __attribute__ ((__nothrow__));
 extern void funlockfile(FILE * __stream) __attribute__ ((__nothrow__));
+typedef enum sound_file_format_e { sf_unknown, sf_wave, sf_aiff, sf_mp3, sf_raw } sound_file_format;
+typedef struct {
+    unsigned long num_samples;
+    int num_channels;
+    int in_samplerate;
+    int out_samplerate;
+    int gtkflag;
+    int bWriteVbrTag;
+    int quality;
+    int silent;
+    int mode;
+    int mode_fixed;
+    int force_ms;
+    int brate;
+    int copyright;
+    int original;
+    int error_protection;
+    int padding_type;
+    int extension;
+    int disable_reservoir;
+    int experimentalX;
+    int experimentalY;
+    int experimentalZ;
+    int VBR;
+    int VBR_q;
+    int VBR_min_bitrate_kbps;
+    int VBR_max_bitrate_kbps;
+    int lowpassfreq;
+    int highpassfreq;
+    int lowpasswidth;
+    int highpasswidth;
+    sound_file_format input_format;
+    int swapbytes;
+    char *inPath;
+    char *outPath;
+    int ATHonly;
+    int noATH;
+    float cwlimit;
+    int allow_diff_short;
+    int no_short_blocks;
+    int emphasis;
+    long int frameNum;
+    long totalframes;
+    int encoder_delay;
+    int framesize;
+    int version;
+    int padding;
+    int mode_gr;
+    int stereo;
+    int VBR_min_bitrate;
+    int VBR_max_bitrate;
+    float resample_ratio;
+    int bitrate_index;
+    int samplerate_index;
+    int mode_ext;
+    float lowpass1, lowpass2;
+    float highpass1, highpass2;
+    int lowpass_band;
+    int highpass_band;
+    int filter_type;
+    int quantization;
+    int noise_shaping;
+    int noise_shaping_stop;
+    int psymodel;
+    int use_best_huffman;
+} lame_global_flags;
+void lame_init(lame_global_flags *);
+void lame_usage(lame_global_flags *, char *);
+void lame_help(lame_global_flags *, char *);
+void lame_version(lame_global_flags *, char *);
+void lame_parse_args(lame_global_flags *, int argc, char **argv);
+void lame_init_params(lame_global_flags *);
+void lame_print_config(lame_global_flags *);
+int lame_encode_buffer(lame_global_flags *, short int leftpcm[], short int rightpcm[], int num_samples, char *mp3buffer, int mp3buffer_size);
+int lame_encode_buffer_interleaved(lame_global_flags *, short int pcm[], int num_samples, char *mp3buffer, int mp3buffer_size);
+int lame_encode(lame_global_flags *, short int Buffer[2][1152], char *mp3buffer, int mp3buffer_size);
+int lame_encode_finish(lame_global_flags *, char *mp3buffer, int size);
+void lame_mp3_tags(lame_global_flags *);
+void lame_init_infile(lame_global_flags *);
+int lame_readframe(lame_global_flags *, short int Buffer[2][1152]);
+void lame_close_infile(lame_global_flags *);
+int lame_decode_init(void);
+int lame_decode(char *mp3buf, int len, short pcm_l[], short pcm_r[]);
+int lame_decode_initfile(FILE * fd, int *stereo, int *samp, int *bitrate, unsigned long *nsamp);
+int lame_decode_fromfile(FILE * fd, short int pcm_l[], short int pcm_r[]);
 extern void *memcpy(void *__restrict __dest, __const void *__restrict __src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
 extern void *memmove(void *__dest, __const void *__src, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
 extern void *memccpy(void *__restrict __dest, __const void *__restrict __src, int __c, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__(1, 2)));
@@ -1062,6 +1150,137 @@ extern int posix_fallocate(int __fd, __off_t __offset, __off_t __len);
 extern int *__errno_location(void) __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 typedef float FLOAT;
 typedef double FLOAT8;
+typedef struct {
+    unsigned int steps;
+    unsigned int bits;
+    unsigned int group;
+    unsigned int quant;
+} sb_alloc, *alloc_ptr;
+typedef sb_alloc al_table[32][16];
+enum byte_order { order_unknown, order_bigEndian, order_littleEndian };
+extern enum byte_order NativeByteOrder;
+typedef struct bit_stream_struc {
+    unsigned char *pbtOutBuf;
+    int nOutBufPos;
+    FILE *pt;
+    unsigned char *buf;
+    int buf_size;
+    unsigned long totbit;
+    int buf_byte_idx;
+    int buf_bit_idx;
+} Bit_stream_struc;
+typedef FLOAT8 D576[576];
+typedef int I576[576];
+typedef FLOAT8 D192_3[192][3];
+typedef int I192_3[192][3];
+typedef struct {
+    FLOAT8 l[21 + 1];
+    FLOAT8 s[12 + 1][3];
+} III_psy_xmin;
+typedef struct {
+    III_psy_xmin thm;
+    III_psy_xmin en;
+} III_psy_ratio;
+typedef struct {
+    unsigned part2_3_length;
+    unsigned big_values;
+    unsigned count1;
+    unsigned global_gain;
+    unsigned scalefac_compress;
+    unsigned window_switching_flag;
+    unsigned block_type;
+    unsigned mixed_block_flag;
+    unsigned table_select[3];
+    int subblock_gain[3];
+    unsigned region0_count;
+    unsigned region1_count;
+    unsigned preflag;
+    unsigned scalefac_scale;
+    unsigned count1table_select;
+    unsigned part2_length;
+    unsigned sfb_lmax;
+    unsigned sfb_smax;
+    unsigned count1bits;
+    unsigned *sfb_partition_table;
+    unsigned slen[4];
+} gr_info;
+typedef struct {
+    int main_data_begin;
+    unsigned private_bits;
+    int resvDrain;
+    unsigned scfsi[2][4];
+    struct {
+	struct gr_info_ss {
+	    gr_info tt;
+	} ch[2];
+    } gr[2];
+} III_side_info_t;
+typedef struct {
+    int l[22];
+    int s[13][3];
+} III_scalefac_t;
+extern int bitrate_table[2][15];
+extern void display_bitrates(FILE * out_fh);
+extern int BitrateIndex(int, int, int);
+extern int SmpFrqIndex(long, int *);
+extern void *mem_alloc(unsigned long, char *);
+extern int copy_buffer(char *buffer, int buffer_size, Bit_stream_struc * bs);
+extern void init_bit_stream_w(Bit_stream_struc *);
+extern void alloc_buffer(Bit_stream_struc *, int);
+extern void desalloc_buffer(Bit_stream_struc *);
+extern void putbits(Bit_stream_struc *, unsigned int, int);
+extern enum byte_order DetermineByteOrder(void);
+extern void SwapBytesInWords(short *loc, int words);
+extern void getframebits(lame_global_flags * gfp, int *bitsPerFrame, int *mean_bits);
+void timestatus(int samp_rate, long frameNum, long totalframes, int framesize);
+void L3psycho_anal(lame_global_flags * gfp, short int *buffer[2], int gr, FLOAT8 * ms_ratio, FLOAT8 * ms_ratio_next, FLOAT8 * ms_ener_ratio, III_psy_ratio ratio[2][2], III_psy_ratio MS_ratio[2][2], FLOAT8 pe[2], FLOAT8 pe_MS[2], int blocktype_d[2]);
+void mdct_sub48(lame_global_flags * gfp, short *w0, short *w1, FLOAT8 mdct_freq[2][2][576], III_side_info_t * l3_side);
+extern int cont_flag;
+extern int pretab[];
+void iteration_loop(lame_global_flags * gfp, FLOAT8 pe[2][2], FLOAT8 ms_ratio[2], FLOAT8 xr_org[2][2][576], III_psy_ratio ratio[2][2], III_side_info_t * l3_side, int l3_enc[2][2][576], III_scalefac_t scalefac[2][2]);
+void VBR_iteration_loop(lame_global_flags * gfp, FLOAT8 pe[2][2], FLOAT8 ms_ratio[2], FLOAT8 xr_org[2][2][576], III_psy_ratio ratio[2][2], III_side_info_t * l3_side, int l3_enc[2][2][576], III_scalefac_t scalefac[2][2]);
+extern int bit_buffer[50000];
+extern FLOAT masking_lower;
+extern int convert_mdct, convert_psy, reduce_sidechannel;
+extern unsigned nr_of_sfb_block[6][3][4];
+extern int pretab[21];
+struct scalefac_struct {
+    int l[1 + 22];
+    int s[1 + 13];
+};
+extern struct scalefac_struct scalefac_band;
+extern struct scalefac_struct sfBandIndex[6];
+extern FLOAT8 pow43[(8206 + 2)];
+extern FLOAT8 pow20[256];
+extern FLOAT8 ipow20[256];
+FLOAT8 ATHformula(lame_global_flags * gfp, FLOAT8 f);
+void compute_ath(lame_global_flags * gfp, FLOAT8 ATH_l[21], FLOAT8 ATH_s[21]);
+void ms_convert(FLOAT8 xr[2][576], FLOAT8 xr_org[2][576]);
+void on_pe(lame_global_flags * gfp, FLOAT8 pe[2][2], III_side_info_t * l3_side, int targ_bits[2], int mean_bits, int gr);
+void reduce_side(int targ_bits[2], FLOAT8 ms_ener_ratio, int mean_bits);
+void outer_loop(lame_global_flags * gfp, FLOAT8 xr[576], int bits, FLOAT8 noise[4], III_psy_xmin * l3_xmin, int l3_enc[576], III_scalefac_t * scalefac, gr_info *, FLOAT8 xfsf[4][21], int ch);
+void iteration_init(lame_global_flags * gfp, III_side_info_t * l3_side, int l3_enc[2][2][576]);
+int inner_loop(lame_global_flags * gfp, FLOAT8 xrpow[576], int l3_enc[576], int max_bits, gr_info * cod_info);
+int calc_xmin(lame_global_flags * gfp, FLOAT8 xr[576], III_psy_ratio * ratio, gr_info * cod_info, III_psy_xmin * l3_xmin);
+int scale_bitcount(III_scalefac_t * scalefac, gr_info * cod_info);
+int scale_bitcount_lsf(III_scalefac_t * scalefac, gr_info * cod_info);
+int calc_noise1(FLOAT8 xr[576], int ix[576], gr_info * cod_info, FLOAT8 xfsf[4][21], FLOAT8 distort[4][21], III_psy_xmin * l3_xmin, III_scalefac_t *, FLOAT8 * noise, FLOAT8 * tot_noise, FLOAT8 * max_noise);
+int loop_break(III_scalefac_t * scalefac, gr_info * cod_info);
+void amp_scalefac_bands(FLOAT8 xrpow[576], gr_info * cod_info, III_scalefac_t * scalefac, FLOAT8 distort[4][21]);
+void quantize_xrpow(FLOAT8 xr[576], int ix[576], gr_info * cod_info);
+void quantize_xrpow_ISO(FLOAT8 xr[576], int ix[576], gr_info * cod_info);
+int new_choose_table(int ix[576], unsigned int begin, unsigned int end, int *s);
+int bin_search_StepSize2(lame_global_flags * gfp, int desired_rate, int start, int ix[576], FLOAT8 xrspow[576], gr_info * cod_info);
+int count_bits(lame_global_flags * gfp, int *ix, FLOAT8 xr[576], gr_info * cod_info);
+int quant_compare(int type, int best_over, FLOAT8 best_tot_noise, FLOAT8 best_over_noise, FLOAT8 best_max_over, int over, FLOAT8 tot_noise, FLOAT8 over_noise, FLOAT8 max_noise);
+int VBR_compare(int best_over, FLOAT8 best_tot_noise, FLOAT8 best_over_noise, FLOAT8 best_max_over, int over, FLOAT8 tot_noise, FLOAT8 over_noise, FLOAT8 max_noise);
+void best_huffman_divide(int gr, int ch, gr_info * cod_info, int *ix);
+void best_scalefac_store(lame_global_flags * gfp, int gr, int ch, int l3_enc[2][2][576], III_side_info_t * l3_side, III_scalefac_t scalefac[2][2]);
+int init_outer_loop(lame_global_flags * gfp, FLOAT8 xr[576], gr_info * cod_info);
+void III_format_bitstream(lame_global_flags * gfp, int bitsPerFrame, int l3_enc[2][2][576], III_side_info_t * l3_side, III_scalefac_t scalefac[2][2], Bit_stream_struc * in_bs);
+int HuffmanCode(int table_select, int x, int y, unsigned *code, unsigned int *extword, int *codebits, int *extbits);
+void III_FlushBitstream(void);
+int abs_and_sign(int *x);
 void putMyBits(u_int value, u_int length);
 typedef struct {
     u_int value;
@@ -1104,347 +1323,881 @@ BF_PartHolder *BF_addEntry(BF_PartHolder * thePH, u_int value, u_int length);
 BF_PartHolder *BF_NewHolderFromBitstreamPart(BF_BitstreamPart * thePart);
 BF_PartHolder *BF_LoadHolderFromBitstreamPart(BF_PartHolder * theHolder, BF_BitstreamPart * thePart);
 BF_PartHolder *BF_freePartHolder(BF_PartHolder * thePH);
-extern void __assert_fail(__const char *__assertion, __const char *__file, unsigned int __line, __const char *__function) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
-extern void __assert_perror_fail(int __errnum, __const char *__file, unsigned int __line, __const char *__function) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
-extern void __assert(const char *__assertion, const char *__file, int __line) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
-static int BitCount = 0;
-static int ThisFrameSize = 0;
-static int BitsRemaining = 0;
-void InitFormatBitStream(void)
+void lame_print_version(FILE *);
+char *get_lame_version(void);
+char *get_psy_version(void);
+char *get_mp3x_version(void);
+typedef struct {
+    int h_id;
+    int samprate;
+    int flags;
+    int frames;
+    int bytes;
+    int vbr_scale;
+    u_char toc[100];
+} VBRTAGDATA;
+int CheckVbrTag(unsigned char *buf);
+int GetVbrTag(VBRTAGDATA * pTagData, unsigned char *buf);
+int SeekPoint(unsigned char TOC[100], int file_bytes, float percent);
+int InitVbrTag(Bit_stream_struc * pBs, int nVersion, int nMode, int SampIndex);
+int PutVbrTag(char *lpszFileName, int nVbrScale, int nVersion);
+void AddVbrFrame(int nStreamPos);
+typedef struct {
+    int used;
+    int valid;
+    char title[31];
+    char artist[31];
+    char album[31];
+    char year[5];
+    char comment[31];
+    char tagtext[128];
+    char genre[1];
+    unsigned char track;
+} ID3TAGDATA;
+void id3_inittag(ID3TAGDATA * tag);
+void id3_buildtag(ID3TAGDATA * tag);
+int id3_writetag(char *filename, ID3TAGDATA * tag);
+extern ID3TAGDATA id3tag;
+extern int genre_last;
+extern char *genre_list[];
+extern FLOAT8 psy_data[];
+struct huffcodetab {
+    unsigned int xlen;
+    unsigned int linmax;
+    unsigned long int *table;
+    unsigned char *hlen;
+};
+extern struct huffcodetab ht[34];
+void CloseSndFile(lame_global_flags * gfp);
+FILE *OpenSndFile(lame_global_flags * gfp, const char *lpszFileName, int default_samp, int default_chan);
+unsigned long GetSndSamples(void);
+int GetSndSampleRate(void);
+int GetSndChannels(void);
+int GetSndBitrate(void);
+int get_audio(lame_global_flags * gfp, short buffer[2][1152], int stereo);
+typedef float Single;
+typedef double defdouble;
+typedef double Double;
+extern defdouble ConvertFromIeeeSingle(char *bytes);
+extern void ConvertToIeeeSingle(defdouble num, char *bytes);
+extern defdouble ConvertFromIeeeDouble(char *bytes);
+extern void ConvertToIeeeDouble(defdouble num, char *bytes);
+extern defdouble ConvertFromIeeeExtended(char *bytes);
+extern void ConvertToIeeeExtended(defdouble num, char *bytes);
+extern int ReadByte(FILE * fp);
+extern int Read16BitsLowHigh(FILE * fp);
+extern int Read16BitsHighLow(FILE * fp);
+extern void Write8Bits(FILE * fp, int i);
+extern void Write16BitsLowHigh(FILE * fp, int i);
+extern void Write16BitsHighLow(FILE * fp, int i);
+extern int Read24BitsHighLow(FILE * fp);
+extern int Read32Bits(FILE * fp);
+extern int Read32BitsHighLow(FILE * fp);
+extern void Write32Bits(FILE * fp, int i);
+extern void Write32BitsLowHigh(FILE * fp, int i);
+extern void Write32BitsHighLow(FILE * fp, int i);
+extern void ReadBytes(FILE * fp, char *p, int n);
+extern void ReadBytesSwapped(FILE * fp, char *p, int n);
+extern void WriteBytes(FILE * fp, char *p, int n);
+extern void WriteBytesSwapped(FILE * fp, char *p, int n);
+extern defdouble ReadIeeeFloatHighLow(FILE * fp);
+extern defdouble ReadIeeeFloatLowHigh(FILE * fp);
+extern defdouble ReadIeeeDoubleHighLow(FILE * fp);
+extern defdouble ReadIeeeDoubleLowHigh(FILE * fp);
+extern defdouble ReadIeeeExtendedHighLow(FILE * fp);
+extern defdouble ReadIeeeExtendedLowHigh(FILE * fp);
+extern void WriteIeeeFloatLowHigh(FILE * fp, defdouble num);
+extern void WriteIeeeFloatHighLow(FILE * fp, defdouble num);
+extern void WriteIeeeDoubleLowHigh(FILE * fp, defdouble num);
+extern void WriteIeeeDoubleHighLow(FILE * fp, defdouble num);
+extern void WriteIeeeExtendedLowHigh(FILE * fp, defdouble num);
+extern void WriteIeeeExtendedHighLow(FILE * fp, defdouble num);
+typedef struct blockAlign_struct {
+    unsigned long offset;
+    unsigned long blockSize;
+} blockAlign;
+typedef struct IFF_AIFF_struct {
+    short numChannels;
+    unsigned long numSampleFrames;
+    short sampleSize;
+    FLOAT sampleRate;
+    unsigned long sampleType;
+    blockAlign blkAlgn;
+} IFF_AIFF;
+extern int aiff_read_headers(FILE *, IFF_AIFF *);
+extern int aiff_seek_to_sound_data(FILE *);
+extern int aiff_write_headers(FILE *, IFF_AIFF *);
+extern int parse_wavheader(void);
+extern int parse_aiff(const char fn[]);
+extern void aiff_check(const char *, IFF_AIFF *, int *);
+static Bit_stream_struc bs;
+static III_side_info_t l3_side;
+static short int mfbuf[2][(1152 + 1152 + 800 - 48)];
+static int mf_size;
+static int mf_samples_to_encode;
+void lame_init_params(lame_global_flags * gfp)
 {
-    BitCount = 0;
-    ThisFrameSize = 0;
-    BitsRemaining = 0;
-} static int store_side_info(BF_FrameData * frameInfo);
-//complexity is O(n^2) inferred by loopus
-static int main_data(BF_FrameData * frameInfo, BF_FrameResults * results);
-static int side_queue_elements(int *forwardFrameLength, int *forwardSILength);
-static void free_side_queues(void);
-static void WriteMainDataBits(u_int val, u_int nbits, BF_FrameResults * results);
-static int elements, forwardFrameLength, forwardSILength;
-void BF_BitstreamFrame(BF_FrameData * frameInfo, BF_FrameResults * results)
-{
-    ((frameInfo->nGranules <= 2) ? (void) (0) : __assert_fail("frameInfo->nGranules <= 2", "formatBitstream.c", 59, __PRETTY_FUNCTION__));
-    ((frameInfo->nChannels <= 2) ? (void) (0) : __assert_fail("frameInfo->nChannels <= 2", "formatBitstream.c", 60, __PRETTY_FUNCTION__));
-    results->SILength = store_side_info(frameInfo);
-    results->mainDataLength = main_data(frameInfo, results);
-    (((BitsRemaining % 8) == 0) ? (void) (0) : __assert_fail("(BitsRemaining % 8) == 0", "formatBitstream.c", 74, __PRETTY_FUNCTION__));
-    elements = side_queue_elements(&forwardFrameLength, &forwardSILength);
-    results->nextBackPtr = (BitsRemaining / 8) + (forwardFrameLength / 8) - (forwardSILength / 8);
-}
-
- void BF_FlushBitstream(BF_FrameData * frameInfo, BF_FrameResults * results)
-{
-    if (elements) {
-	int bitsRemaining = forwardFrameLength - forwardSILength;
-	int wordsRemaining = bitsRemaining / 32;
-	while (wordsRemaining--) {
-	    WriteMainDataBits(0, 32, results);
-	}
-	WriteMainDataBits(0, (bitsRemaining % 32), results);
+    int i;
+    FLOAT compression_ratio;
+    memset(&bs, 0, sizeof(Bit_stream_struc));
+    memset(&l3_side, 0x00, sizeof(III_side_info_t));
+    gfp->frameNum = 0;
+    InitFormatBitStream();
+    if (gfp->num_channels == 1) {
+	gfp->mode = 3;
     }
-    results->mainDataLength = forwardFrameLength - forwardSILength;
-    results->SILength = forwardSILength;
-    results->nextBackPtr = 0;
-    free_side_queues();
-    BitCount = 0;
-    ThisFrameSize = 0;
-    BitsRemaining = 0;
+    gfp->stereo = 2;
+    if (gfp->mode == 3)
+	gfp->stereo = 1;
+    if (gfp->out_samplerate == 0) {
+	gfp->out_samplerate = gfp->in_samplerate;
+	if (gfp->out_samplerate >= 48000)
+	    gfp->out_samplerate = 48000;
+	else if (gfp->out_samplerate >= 44100)
+	    gfp->out_samplerate = 44100;
+	else if (gfp->out_samplerate >= 32000)
+	    gfp->out_samplerate = 32000;
+	else if (gfp->out_samplerate >= 24000)
+	    gfp->out_samplerate = 24000;
+	else if (gfp->out_samplerate >= 22050)
+	    gfp->out_samplerate = 22050;
+	else
+	    gfp->out_samplerate = 16000;
+	if (gfp->brate > 0) {
+	    compression_ratio = gfp->out_samplerate * 16 * gfp->stereo / (1000.0 * gfp->brate);
+	    if (!gfp->VBR && compression_ratio > 13) {
+		gfp->out_samplerate = (10 * 1000.0 * gfp->brate) / (16 * gfp->stereo);
+		if (gfp->out_samplerate <= 16000)
+		    gfp->out_samplerate = 16000;
+		else if (gfp->out_samplerate <= 22050)
+		    gfp->out_samplerate = 22050;
+		else if (gfp->out_samplerate <= 24000)
+		    gfp->out_samplerate = 24000;
+		else if (gfp->out_samplerate <= 32000)
+		    gfp->out_samplerate = 32000;
+		else if (gfp->out_samplerate <= 44100)
+		    gfp->out_samplerate = 44100;
+		else
+		    gfp->out_samplerate = 48000;
+	    }
+	}
+    }
+    gfp->mode_gr = (gfp->out_samplerate <= 24000) ? 1 : 2;
+    gfp->encoder_delay = 800;
+    gfp->framesize = gfp->mode_gr * 576;
+    if (gfp->brate == 0) {
+	gfp->brate = 128;
+	if (gfp->mode_gr == 1)
+	    gfp->brate = 64;
+    }
+    gfp->resample_ratio = 1;
+    if (gfp->out_samplerate != gfp->in_samplerate)
+	gfp->resample_ratio = (FLOAT) gfp->in_samplerate / (FLOAT) gfp->out_samplerate;
+    gfp->totalframes = 0;
+    gfp->totalframes = 2 + gfp->num_samples / (gfp->resample_ratio * gfp->framesize);
+    if (gfp->brate >= 320)
+	gfp->VBR = 0;
+    compression_ratio = gfp->out_samplerate * 16 * gfp->stereo / (1000.0 * gfp->brate);
+    if (gfp->VBR && compression_ratio > 11) {
+	compression_ratio = 4.4 + gfp->VBR_q;
+    }
+    if ((!gfp->mode_fixed) && (gfp->mode != 3)) {
+	if (compression_ratio < 9) {
+	    gfp->mode = 0;
+	}
+    }
+    if (gfp->lowpassfreq == 0) {
+	int band = 1 + floor(.5 + 14 - 18 * log(compression_ratio / 16.0));
+	if (band < 31) {
+	    gfp->lowpass1 = band / 31.0;
+	    gfp->lowpass2 = band / 31.0;
+	}
+    }
+    if (gfp->highpassfreq > 0) {
+	gfp->highpass1 = 2.0 * gfp->highpassfreq / gfp->out_samplerate;
+	if (gfp->highpasswidth >= 0) {
+	    gfp->highpass2 = 2.0 * (gfp->highpassfreq + gfp->highpasswidth) / gfp->out_samplerate;
+	} else {
+	    gfp->highpass2 = 1.00 * 2.0 * gfp->highpassfreq / gfp->out_samplerate;
+	}
+	gfp->highpass1 = ((1) < (gfp->highpass1) ? (1) : (gfp->highpass1));
+	gfp->highpass2 = ((1) < (gfp->highpass2) ? (1) : (gfp->highpass2));
+    }
+    if (gfp->lowpassfreq > 0) {
+	gfp->lowpass2 = 2.0 * gfp->lowpassfreq / gfp->out_samplerate;
+	if (gfp->lowpasswidth >= 0) {
+	    gfp->lowpass1 = 2.0 * (gfp->lowpassfreq - gfp->lowpasswidth) / gfp->out_samplerate;
+	    if (gfp->lowpass1 < 0) {
+		gfp->lowpass1 = 0;
+	    }
+	} else {
+	    gfp->lowpass1 = 1.00 * 2.0 * gfp->lowpassfreq / gfp->out_samplerate;
+	}
+	gfp->lowpass1 = ((1) < (gfp->lowpass1) ? (1) : (gfp->lowpass1));
+	gfp->lowpass2 = ((1) < (gfp->lowpass2) ? (1) : (gfp->lowpass2));
+    }
+    if (gfp->filter_type == 0) {
+	int band, maxband, minband;
+	FLOAT8 amp, freq;
+	if (gfp->lowpass1 > 0) {
+	    minband = 999;
+	    maxband = -1;
+	    for (band = 0; band <= 31; ++band) {
+		freq = band / 31.0;
+		amp = 1;
+		if (freq >= gfp->lowpass2) {
+		    gfp->lowpass_band = ((gfp->lowpass_band) < (band) ? (gfp->lowpass_band) : (band));
+		    amp = 0;
+		}
+		if (gfp->lowpass1 < freq && freq < gfp->lowpass2) {
+		    minband = ((minband) < (band) ? (minband) : (band));
+		    maxband = ((maxband) > (band) ? (maxband) : (band));
+		    amp = cos((3.14159265358979323846 / 2) * (gfp->lowpass1 - freq) / (gfp->lowpass2 - gfp->lowpass1));
+		}
+	    }
+	    if (minband == 999)
+		gfp->lowpass1 = (gfp->lowpass_band - .75) / 31.0;
+	    else
+		gfp->lowpass1 = (minband - .75) / 31.0;
+	    gfp->lowpass2 = gfp->lowpass_band / 31.0;
+	}
+	if (gfp->highpass2 > 0)
+	    if (gfp->highpass2 < .9 * (.75 / 31.0)) {
+		gfp->highpass1 = 0;
+		gfp->highpass2 = 0;
+		fprintf(stderr, "Warning: highpass filter disabled.  highpass frequency to small\n");
+	    }
+	if (gfp->highpass2 > 0) {
+	    minband = 999;
+	    maxband = -1;
+	    for (band = 0; band <= 31; ++band) {
+		freq = band / 31.0;
+		amp = 1;
+		if (freq <= gfp->highpass1) {
+		    gfp->highpass_band = ((gfp->highpass_band) > (band) ? (gfp->highpass_band) : (band));
+		    amp = 0;
+		}
+		if (gfp->highpass1 < freq && freq < gfp->highpass2) {
+		    minband = ((minband) < (band) ? (minband) : (band));
+		    maxband = ((maxband) > (band) ? (maxband) : (band));
+		    amp = cos((3.14159265358979323846 / 2) * (gfp->highpass2 - freq) / (gfp->highpass2 - gfp->highpass1));
+		}
+	    }
+	    gfp->highpass1 = gfp->highpass_band / 31.0;
+	    if (maxband == -1)
+		gfp->highpass2 = (gfp->highpass_band + .75) / 31.0;
+	    else
+		gfp->highpass2 = (maxband + .75) / 31.0;
+	}
+    }
+    if (gfp->filter_type == 1) {
+    }
+    gfp->mode_ext = 0;
+    gfp->stereo = (gfp->mode == 3) ? 1 : 2;
+    gfp->samplerate_index = SmpFrqIndex((long) gfp->out_samplerate, &gfp->version);
+    if (gfp->samplerate_index < 0) {
+	display_bitrates(stderr);
+	exit(1);
+    }
+    if ((gfp->bitrate_index = BitrateIndex(gfp->brate, gfp->version, gfp->out_samplerate)) < 0) {
+	display_bitrates(stderr);
+	exit(1);
+    }
+    if (gfp->VBR) {
+	if (0 == gfp->VBR_max_bitrate_kbps) {
+	    gfp->VBR_max_bitrate = 13;
+	    if (gfp->VBR_min_bitrate_kbps >= 256)
+		gfp->VBR_max_bitrate = 14;
+	    if (gfp->VBR_q == 0)
+		gfp->VBR_max_bitrate = 14;
+	    if (gfp->VBR_q >= 4)
+		gfp->VBR_max_bitrate = 12;
+	    if (gfp->VBR_q >= 8)
+		gfp->VBR_max_bitrate = 9;
+	} else {
+	    if ((gfp->VBR_max_bitrate = BitrateIndex(gfp->VBR_max_bitrate_kbps, gfp->version, gfp->out_samplerate)) < 0) {
+		display_bitrates(stderr);
+		exit(1);
+	    }
+	}
+	if (0 == gfp->VBR_min_bitrate_kbps) {
+	    gfp->VBR_min_bitrate = 1;
+	} else {
+	    if ((gfp->VBR_min_bitrate = BitrateIndex(gfp->VBR_min_bitrate_kbps, gfp->version, gfp->out_samplerate)) < 0) {
+		display_bitrates(stderr);
+		exit(1);
+	    }
+	}
+    }
+    if (gfp->VBR)
+	gfp->quality = ((gfp->quality) < (2) ? (gfp->quality) : (2));
+    if (gfp->mode == 3)
+	gfp->force_ms = 0;
+    if (gfp->VBR == 0)
+	gfp->bWriteVbrTag = 0;
+    if (gfp->outPath != ((void *) 0) && gfp->outPath[0] == '-') {
+	gfp->bWriteVbrTag = 0;
+    }
+    if (gfp->outPath == ((void *) 0) || gfp->outPath[0] == '-') {
+	id3tag.used = 0;
+    }
+    if (gfp->gtkflag) {
+	gfp->bWriteVbrTag = 0;
+    }
+    init_bit_stream_w(&bs);
+    if (gfp->quality == 9) {
+	gfp->filter_type = 0;
+	gfp->psymodel = 0;
+	gfp->quantization = 0;
+	gfp->noise_shaping = 0;
+	gfp->noise_shaping_stop = 0;
+	gfp->use_best_huffman = 0;
+    }
+    if (gfp->quality == 8)
+	gfp->quality = 7;
+    if (gfp->quality == 7) {
+	gfp->filter_type = 0;
+	gfp->psymodel = 1;
+	gfp->quantization = 0;
+	gfp->noise_shaping = 0;
+	gfp->noise_shaping_stop = 0;
+	gfp->use_best_huffman = 0;
+    }
+    if (gfp->quality == 6)
+	gfp->quality = 5;
+    if (gfp->quality == 5) {
+	gfp->filter_type = 0;
+	gfp->psymodel = 1;
+	gfp->quantization = 0;
+	gfp->noise_shaping = 1;
+	gfp->noise_shaping_stop = 0;
+	gfp->use_best_huffman = 0;
+    }
+    if (gfp->quality == 4)
+	gfp->quality = 2;
+    if (gfp->quality == 3)
+	gfp->quality = 2;
+    if (gfp->quality == 2) {
+	gfp->filter_type = 0;
+	gfp->psymodel = 1;
+	gfp->quantization = 1;
+	gfp->noise_shaping = 1;
+	gfp->noise_shaping_stop = 0;
+	gfp->use_best_huffman = 1;
+    }
+    if (gfp->quality == 1) {
+	gfp->filter_type = 0;
+	gfp->psymodel = 1;
+	gfp->quantization = 1;
+	gfp->noise_shaping = 1;
+	gfp->noise_shaping_stop = 1;
+	gfp->use_best_huffman = 1;
+    }
+    if (gfp->quality == 0) {
+	gfp->filter_type = 1;
+	gfp->psymodel = 1;
+	gfp->quantization = 1;
+	gfp->noise_shaping = 3;
+	gfp->noise_shaping_stop = 2;
+	gfp->use_best_huffman = 2;
+	exit(-99);
+    }
+    for (i = 0; i < 22 + 1; i++) {
+	scalefac_band.l[i] = sfBandIndex[gfp->samplerate_index + (gfp->version * 3)].l[i];
+    }
+    for (i = 0; i < 13 + 1; i++) {
+	scalefac_band.s[i] = sfBandIndex[gfp->samplerate_index + (gfp->version * 3)].s[i];
+    }
+    if (gfp->bWriteVbrTag) {
+	InitVbrTag(&bs, 1 - gfp->version, gfp->mode, gfp->samplerate_index);
+    }
     return;
 }
-// complexity is O(n) inferred by loopus
-int BF_PartLength(BF_BitstreamPart * part)
-{
-    BF_BitstreamElement *ep = part->element;
-    u_int i;
-    int bits = 0;
-    for (i = 0; i < part->nrEntries; i++, ep++)
-	bits += ep->length;
-    return bits;
-}
 
-typedef struct {
-    int frameLength;
-    int SILength;
-    int nGranules;
-    int nChannels;
-    BF_PartHolder *headerPH;
-    BF_PartHolder *frameSIPH;
-    BF_PartHolder *channelSIPH[2];
-    BF_PartHolder *spectrumSIPH[2][2];
-} MYSideInfo;
-static MYSideInfo *get_side_info(void);
-//complexity iis O(n^2) inferred by loopus
-static int write_side_info(void);
-typedef int (*PartWriteFcnPtr) (BF_BitstreamPart * part, BF_FrameResults * results);
-// complexity is O(n) inferred by loopus
-static int writePartMainData(BF_BitstreamPart * part, BF_FrameResults * results)
+void lame_print_config(lame_global_flags * gfp)
 {
-    BF_BitstreamElement *ep;
-    u_int i;
-    int bits = 0;
-    ((results) ? (void) (0) : __assert_fail("results", "formatBitstream.c", 157, __PRETTY_FUNCTION__));
-    ((part) ? (void) (0) : __assert_fail("part", "formatBitstream.c", 158, __PRETTY_FUNCTION__));
-    ep = part->element;
-    for (i = 0; i < part->nrEntries; i++, ep++) {
-	WriteMainDataBits(ep->value, ep->length, results);
-	bits += ep->length;
+    static const char *mode_names[4] = { "stereo", "j-stereo", "dual-ch", "single-ch" };
+    FLOAT out_samplerate = gfp->out_samplerate / 1000.0;
+    FLOAT in_samplerate = gfp->resample_ratio * out_samplerate;
+    FLOAT compression = (FLOAT) (gfp->stereo * 16 * out_samplerate) / (FLOAT) (gfp->brate);
+    lame_print_version(stderr);
+    if (gfp->num_channels == 2 && gfp->stereo == 1) {
+	fprintf(stderr, "Autoconverting from stereo to mono. Setting encoding to mono mode.\n");
     }
-    return bits;
-}
-// complexity is O(n) inferred by loopus 
-static int writePartSideInfo(BF_BitstreamPart * part, BF_FrameResults * results)
-{
-    BF_BitstreamElement *ep;
-    u_int i;
-    int bits = 0;
-    ((part) ? (void) (0) : __assert_fail("part", "formatBitstream.c", 176, __PRETTY_FUNCTION__));
-    ep = part->element;
-    for (i = 0; i < part->nrEntries; i++, ep++) {
-	putMyBits(ep->value, ep->length);
-	bits += ep->length;
+    if (gfp->resample_ratio != 1) {
+	fprintf(stderr, "Resampling:  input=%ikHz  output=%ikHz\n", (int) in_samplerate, (int) out_samplerate);
     }
-    return bits;
-}
-
-static int main_data(BF_FrameData * fi, BF_FrameResults * results)
-{
-    int gr, ch, bits;
-    PartWriteFcnPtr wp = writePartMainData;
-    bits = 0;
-    results->mainDataLength = 0;
-    for (gr = 0; gr < fi->nGranules; gr++)
-	for (ch = 0; ch < fi->nChannels; ch++) {
-	    bits += (*wp) (fi->scaleFactors[gr][ch], results);
-	    bits += (*wp) (fi->codedData[gr][ch], results);
-	    bits += (*wp) (fi->userSpectrum[gr][ch], results);
-	}
-    bits += (*wp) (fi->userFrameData, results);
-    return bits;
-}
-
-static void WriteMainDataBits(u_int val, u_int nbits, BF_FrameResults * results)
-{
-    ((nbits <= 32) ? (void) (0) : __assert_fail("nbits <= 32", "formatBitstream.c", 217, __PRETTY_FUNCTION__));
-    if (nbits == 0)
-	return;
-    if (BitCount == ThisFrameSize) {
-	BitCount = write_side_info();
-	BitsRemaining = ThisFrameSize - BitCount;
-    }
-    if (nbits > (u_int) BitsRemaining) {
-	unsigned extra = val >> (nbits - BitsRemaining);
-	nbits -= BitsRemaining;
-	putMyBits(extra, BitsRemaining);
-	BitCount = write_side_info();
-	BitsRemaining = ThisFrameSize - BitCount;
-	putMyBits(val, nbits);
-    } else
-	putMyBits(val, nbits);
-    BitCount += nbits;
-    BitsRemaining -= nbits;
-    ((BitCount <= ThisFrameSize) ? (void) (0) : __assert_fail("BitCount <= ThisFrameSize", "formatBitstream.c", 238, __PRETTY_FUNCTION__));
-    ((BitsRemaining >= 0) ? (void) (0) : __assert_fail("BitsRemaining >= 0", "formatBitstream.c", 239, __PRETTY_FUNCTION__));
-    (((BitCount + BitsRemaining) == ThisFrameSize) ? (void) (0) : __assert_fail("(BitCount + BitsRemaining) == ThisFrameSize", "formatBitstream.c", 240, __PRETTY_FUNCTION__));
-} static int write_side_info(void)
-{
-    MYSideInfo *si;
-    int bits, ch, gr;
-    PartWriteFcnPtr wp = writePartSideInfo;
-    bits = 0;
-    si = get_side_info();
-    ThisFrameSize = si->frameLength;
-    bits += (*wp) (si->headerPH->part, ((void *) 0));
-    bits += (*wp) (si->frameSIPH->part, ((void *) 0));
-    for (ch = 0; ch < si->nChannels; ch++)
-	bits += (*wp) (si->channelSIPH[ch]->part, ((void *) 0));
-    for (gr = 0; gr < si->nGranules; gr++)
-	for (ch = 0; ch < si->nChannels; ch++)
-	    bits += (*wp) (si->spectrumSIPH[gr][ch]->part, ((void *) 0));
-    return bits;
-}
-
-typedef struct side_info_link {
-    struct side_info_link *next;
-    MYSideInfo side_info;
-} side_info_link;
-static struct side_info_link *side_queue_head = ((void *) 0);
-static struct side_info_link *side_queue_free = ((void *) 0);
-static void free_side_info_link(side_info_link * l);
-static int side_queue_elements(int *frameLength, int *SILength)
-{
-    int elements = 0;
-    side_info_link *l;
-    *frameLength = 0;
-    *SILength = 0;
-    for (l = side_queue_head; l; l = l->next) {
-	elements++;
-	*frameLength += l->side_info.frameLength;
-	*SILength += l->side_info.SILength;
-    }
-    return elements;
-}
-
-static int store_side_info(BF_FrameData * info)
-{
-    int ch, gr;
-    side_info_link *l;
-    side_info_link *f = side_queue_free;
-    int bits = 0;
-    if (f == ((void *) 0)) {
-	l = (side_info_link *) calloc(1, sizeof(side_info_link));
-	if (l == ((void *) 0)) {
-	    fprintf(stderr, "cannot allocate side_info_link");
-	    exit(1);
-	}
-	l->next = ((void *) 0);
-	l->side_info.headerPH = BF_newPartHolder(info->header->nrEntries);
-	l->side_info.frameSIPH = BF_newPartHolder(info->frameSI->nrEntries);
-	for (ch = 0; ch < info->nChannels; ch++)
-	    l->side_info.channelSIPH[ch] = BF_newPartHolder(info->channelSI[ch]->nrEntries);
-	for (gr = 0; gr < info->nGranules; gr++)
-	    for (ch = 0; ch < info->nChannels; ch++)
-		l->side_info.spectrumSIPH[gr][ch] = BF_newPartHolder(info->spectrumSI[gr][ch]->nrEntries);
+    if (gfp->highpass2 > 0.0)
+	fprintf(stderr, "Using polyphase highpass filter, transition band: %.0f Hz -  %.0f Hz\n", gfp->highpass1 * out_samplerate * 500, gfp->highpass2 * out_samplerate * 500);
+    if (gfp->lowpass1 > 0.0)
+	fprintf(stderr, "Using polyphase lowpass filter,  transition band:  %.0f Hz - %.0f Hz\n", gfp->lowpass1 * out_samplerate * 500, gfp->lowpass2 * out_samplerate * 500);
+    if (gfp->gtkflag) {
+	fprintf(stderr, "Analyzing %s \n", gfp->inPath);
     } else {
-	side_queue_free = f->next;
-	f->next = ((void *) 0);
-	l = f;
-    } l->side_info.frameLength = info->frameLength;
-    l->side_info.nGranules = info->nGranules;
-    l->side_info.nChannels = info->nChannels;
-    l->side_info.headerPH = BF_LoadHolderFromBitstreamPart(l->side_info.headerPH, info->header);
-    l->side_info.frameSIPH = BF_LoadHolderFromBitstreamPart(l->side_info.frameSIPH, info->frameSI);
-    bits += BF_PartLength(info->header);
-    bits += BF_PartLength(info->frameSI);
-    for (ch = 0; ch < info->nChannels; ch++) {
-	l->side_info.channelSIPH[ch] = BF_LoadHolderFromBitstreamPart(l->side_info.channelSIPH[ch], info->channelSI[ch]);
-	bits += BF_PartLength(info->channelSI[ch]);
+	fprintf(stderr, "Encoding %s to %s\n", (strcmp(gfp->inPath, "-") ? gfp->inPath : "stdin"), (strcmp(gfp->outPath, "-") ? gfp->outPath : "stdout"));
+	if (gfp->VBR)
+	    fprintf(stderr, "Encoding as %.1fkHz VBR(q=%i) %s MPEG%i LayerIII  qval=%i\n", gfp->out_samplerate / 1000.0, gfp->VBR_q, mode_names[gfp->mode], 2 - gfp->version, gfp->quality);
+	else
+	    fprintf(stderr, "Encoding as %.1f kHz %d kbps %s MPEG%i LayerIII (%4.1fx)  qval=%i\n", gfp->out_samplerate / 1000.0, gfp->brate, mode_names[gfp->mode], 2 - gfp->version, compression, gfp->quality);
     }
-    for (gr = 0; gr < info->nGranules; gr++)
-	for (ch = 0; ch < info->nChannels; ch++) {
-	    l->side_info.spectrumSIPH[gr][ch] = BF_LoadHolderFromBitstreamPart(l->side_info.spectrumSIPH[gr][ch], info->spectrumSI[gr][ch]);
-	    bits += BF_PartLength(info->spectrumSI[gr][ch]);
+    fflush(stderr);
+}
+//complexity is O(n^2) inferred by loopus
+int lame_encode_frame(lame_global_flags * gfp, short int inbuf_l[], short int inbuf_r[], int mf_size, char *mp3buf, int mp3buf_size)
+{
+    static unsigned long frameBits;
+    static unsigned long bitsPerSlot;
+    static FLOAT8 frac_SpF;
+    static FLOAT8 slot_lag;
+    static unsigned long sentBits = 0;
+    FLOAT8 xr[2][2][576];
+    int l3_enc[2][2][576];
+    int mp3count;
+    III_psy_ratio masking_ratio[2][2];
+    III_psy_ratio masking_MS_ratio[2][2];
+    III_psy_ratio(*masking)[2][2];
+    III_scalefac_t scalefac[2][2];
+    short int *inbuf[2];
+    typedef FLOAT8 pedata[2][2];
+    pedata pe, pe_MS;
+    pedata *pe_use;
+    int ch, gr, mean_bits;
+    int bitsPerFrame;
+    int check_ms_stereo;
+    static FLOAT8 ms_ratio[2] = { 0, 0 };
+    FLOAT8 ms_ratio_next = 0;
+    FLOAT8 ms_ratio_prev = 0;
+    static FLOAT8 ms_ener_ratio[2] = { 0, 0 };
+    memset((char *) masking_ratio, 0, sizeof(masking_ratio));
+    memset((char *) masking_MS_ratio, 0, sizeof(masking_MS_ratio));
+    memset((char *) scalefac, 0, sizeof(scalefac));
+    inbuf[0] = inbuf_l;
+    inbuf[1] = inbuf_r;
+    gfp->mode_ext = 0;
+    if (gfp->frameNum == 0) {
+	FLOAT8 avg_slots_per_frame;
+	FLOAT8 sampfreq = gfp->out_samplerate / 1000.0;
+	int bit_rate = gfp->brate;
+	sentBits = 0;
+	bitsPerSlot = 8;
+	avg_slots_per_frame = (bit_rate * gfp->framesize) / (sampfreq * bitsPerSlot);
+	frac_SpF = avg_slots_per_frame - floor(avg_slots_per_frame + 1e-9);
+	if (fabs(frac_SpF) < 1e-9)
+	    frac_SpF = 0;
+	slot_lag = -frac_SpF;
+	gfp->padding = 1;
+	if (frac_SpF == 0)
+	    gfp->padding = 0;
+	((576 >= (224 + 48)) ? (void) (0) : __assert_fail("576>=(224+48)", "lame.c", 659, __PRETTY_FUNCTION__));
+	((mf_size >= (1024 + gfp->framesize - (224 + 48))) ? (void) (0) : __assert_fail("mf_size>=(1024+gfp->framesize-(224+48))", "lame.c", 661, __PRETTY_FUNCTION__));
+    }
+    switch (gfp->padding_type) {
+    case 0:
+	gfp->padding = 0;
+	break;
+    case 1:
+	gfp->padding = 1;
+	break;
+    case 2:
+    default:
+	if (gfp->VBR) {
+	    gfp->padding = 0;
+	} else {
+	    if (gfp->disable_reservoir) {
+		gfp->padding = 0;
+	    } else {
+		if (frac_SpF != 0) {
+		    if (slot_lag > (frac_SpF - 1.0)) {
+			slot_lag -= frac_SpF;
+			gfp->padding = 0;
+		    } else {
+			gfp->padding = 1;
+			slot_lag += (1 - frac_SpF);
+		    }
+		}
+	    }
 	}
-    l->side_info.SILength = bits;
-    f = side_queue_head;
-    if (f == ((void *) 0)) {
-	side_queue_head = l;
+    }
+    if (!gfp->gtkflag && !gfp->silent) {
+	int mod = gfp->version == 0 ? 200 : 50;
+	if (gfp->frameNum % mod == 0) {
+	    timestatus(gfp->out_samplerate, gfp->frameNum, gfp->totalframes, gfp->framesize);
+	}
+    }
+    if (gfp->psymodel) {
+	short int *bufp[2];
+	int blocktype[2];
+	ms_ratio_prev = ms_ratio[gfp->mode_gr - 1];
+	for (gr = 0; gr < gfp->mode_gr; gr++) {
+	    for (ch = 0; ch < gfp->stereo; ch++)
+		bufp[ch] = &inbuf[ch][576 + gr * 576 - (224 + 48)];
+	    L3psycho_anal(gfp, bufp, gr, &ms_ratio[gr], &ms_ratio_next, &ms_ener_ratio[gr], masking_ratio, masking_MS_ratio, pe[gr], pe_MS[gr], blocktype);
+	    for (ch = 0; ch < gfp->stereo; ch++)
+		l3_side.gr[gr].ch[ch].tt.block_type = blocktype[ch];
+	}
     } else {
-	while (f->next)
-	    f = f->next;
-	f->next = l;
+	for (gr = 0; gr < gfp->mode_gr; gr++)
+	    for (ch = 0; ch < gfp->stereo; ch++) {
+		l3_side.gr[gr].ch[ch].tt.block_type = 0;
+		pe[gr][ch] = 700;
+	    }
     }
-    return bits;
+    for (gr = 0; gr < gfp->mode_gr; gr++) {
+	for (ch = 0; ch < gfp->stereo; ch++) {
+	    gr_info *cod_info = &l3_side.gr[gr].ch[ch].tt;
+	    cod_info->mixed_block_flag = 0;
+	    if (cod_info->block_type == 0)
+		cod_info->window_switching_flag = 0;
+	    else
+		cod_info->window_switching_flag = 1;
+	}
+    }
+    mdct_sub48(gfp, inbuf[0], inbuf[1], xr, &l3_side);
+    check_ms_stereo = (gfp->mode == 1);
+    if (check_ms_stereo) {
+	check_ms_stereo = (l3_side.gr[0].ch[0].tt.block_type == l3_side.gr[0].ch[1].tt.block_type) && (l3_side.gr[1].ch[0].tt.block_type == l3_side.gr[1].ch[1].tt.block_type);
+    }
+    if (check_ms_stereo) {
+	FLOAT8 ms_ratio_ave, ms_ener_ratio_ave;
+	ms_ratio_ave = .25 * (ms_ratio[0] + ms_ratio[1] + ms_ratio_prev + ms_ratio_next);
+	ms_ener_ratio_ave = .5 * (ms_ener_ratio[0] + ms_ener_ratio[1]);
+	if (ms_ratio_ave < .35)
+	    gfp->mode_ext = 2;
+    }
+    if (gfp->force_ms)
+	gfp->mode_ext = 2;
+    if (2 == gfp->mode_ext) {
+	masking = &masking_MS_ratio;
+	pe_use = &pe_MS;
+    } else {
+	masking = &masking_ratio;
+	pe_use = &pe;
+    }
+    if (gfp->VBR) {
+	VBR_iteration_loop(gfp, *pe_use, ms_ratio, xr, *masking, &l3_side, l3_enc, scalefac);
+    } else {
+	iteration_loop(gfp, *pe_use, ms_ratio, xr, *masking, &l3_side, l3_enc, scalefac);
+    }
+    getframebits(gfp, &bitsPerFrame, &mean_bits);
+    III_format_bitstream(gfp, bitsPerFrame, l3_enc, &l3_side, scalefac, &bs);
+    frameBits = bs.totbit - sentBits;
+    if (frameBits % bitsPerSlot)
+	fprintf(stderr, "Sent %ld bits = %ld slots plus %ld\n", frameBits, frameBits / bitsPerSlot, frameBits % bitsPerSlot);
+    sentBits += frameBits;
+    mp3count = copy_buffer(mp3buf, mp3buf_size, &bs);
+    if (gfp->bWriteVbrTag)
+	AddVbrFrame((int) (sentBits / 8));
+    gfp->frameNum++;
+    return mp3count;
 }
 
-static MYSideInfo *get_side_info(void)
+int fill_buffer_resample(lame_global_flags * gfp, short int *outbuf, int desired_len, short int *inbuf, int len, int *num_used, int ch)
 {
-    side_info_link *f = side_queue_free;
-    side_info_link *l = side_queue_head;
-    ((l) ? (void) (0) : __assert_fail("l", "formatBitstream.c", 384, __PRETTY_FUNCTION__));
-    side_queue_head = l->next;
-    side_queue_free = l;
-    l->next = f;
-    return &l->side_info;
+    static FLOAT8 itime[2];
+    static short int inbuf_old[2][5];
+    static int init[2] = { 0, 0 };
+    int i, j = 0, k, linear, value;
+    if (gfp->frameNum == 0 && !init[ch]) {
+	init[ch] = 1;
+	itime[ch] = 0;
+	memset((char *) inbuf_old[ch], 0, sizeof(short int) * 5);
+    }
+    if (gfp->frameNum != 0)
+	init[ch] = 0;
+    linear = (fabs(gfp->resample_ratio - floor(.5 + gfp->resample_ratio)) < .0001);
+    for (k = 0; k < desired_len; k++) {
+	int y0, y1, y2, y3;
+	FLOAT8 x0, x1, x2, x3;
+	FLOAT8 time0;
+	time0 = k * gfp->resample_ratio;
+	j = floor(time0 - itime[ch]);
+	if (j + 2 >= len)
+	    break;
+	x1 = time0 - (itime[ch] + j);
+	x2 = x1 - 1;
+	y1 = (j < 0) ? inbuf_old[ch][5 + j] : inbuf[j];
+	y2 = ((1 + j) < 0) ? inbuf_old[ch][5 + 1 + j] : inbuf[1 + j];
+	if (linear) {
+	    outbuf[k] = floor(.5 + (y2 * x1 - y1 * x2));
+	} else {
+	    x0 = x1 + 1;
+	    x3 = x1 - 2;
+	    y0 = ((j - 1) < 0) ? inbuf_old[ch][5 + (j - 1)] : inbuf[j - 1];
+	    y3 = ((j + 2) < 0) ? inbuf_old[ch][5 + (j + 2)] : inbuf[j + 2];
+	    value = floor(.5 + -y0 * x1 * x2 * x3 / 6 + y1 * x0 * x2 * x3 / 2 - y2 * x0 * x1 * x3 / 2 + y3 * x0 * x1 * x2 / 6);
+	    if (value > 32767)
+		outbuf[k] = 32767;
+	    else if (value < -32767)
+		outbuf[k] = -32767;
+	    else
+		outbuf[k] = value;
+	}
+    }
+    *num_used = ((len) < (j + 2) ? (len) : (j + 2));
+    itime[ch] += *num_used - k * gfp->resample_ratio;
+    for (i = 0; i < 5; i++)
+	inbuf_old[ch][i] = inbuf[*num_used + i - 5];
+    return k;
 }
 
-static void free_side_queues(void)
+int fill_buffer(lame_global_flags * gfp, short int *outbuf, int desired_len, short int *inbuf, int len)
 {
-    side_info_link *l, *next;
-    for (l = side_queue_head; l; l = next) {
-	next = l->next;
-	free_side_info_link(l);
+    int j;
+    j = ((desired_len) < (len) ? (desired_len) : (len));
+    memcpy((char *) outbuf, (char *) inbuf, sizeof(short int) * j);
+    return j;
+}
+//complexity is O(n^2) inferred by loopus
+int lame_encode_buffer(lame_global_flags * gfp, short int buffer_l[], short int buffer_r[], int nsamples, char *mp3buf, int mp3buf_size)
+{
+    static int frame_buffered = 0;
+    int mp3size = 0, ret, i, ch, mf_needed;
+    short int *in_buffer[2];
+    in_buffer[0] = buffer_l;
+    in_buffer[1] = buffer_r;
+    ((800 >= 48) ? (void) (0) : __assert_fail("800>=48", "lame.c", 987, __PRETTY_FUNCTION__));
+    ((1024 - (224 + 48) >= 0) ? (void) (0) : __assert_fail("1024-(224+48) >= 0", "lame.c", 988, __PRETTY_FUNCTION__));
+    mf_needed = 1024 + gfp->framesize - (224 + 48);
+    (((1152 + 1152 + 800 - 48) >= mf_needed) ? (void) (0) : __assert_fail("(1152+1152+800-48)>=mf_needed", "lame.c", 990, __PRETTY_FUNCTION__));
+    if (gfp->frameNum == 0 && !frame_buffered) {
+	memset((char *) mfbuf, 0, sizeof(mfbuf));
+	frame_buffered = 1;
+	mf_samples_to_encode = 800 + 288;
+	mf_size = 800 - 48;
     }
-    side_queue_head = ((void *) 0);
-    for (l = side_queue_free; l; l = next) {
-	next = l->next;
-	free_side_info_link(l);
+    if (gfp->frameNum == 1) {
+	frame_buffered = 0;
     }
-    side_queue_free = ((void *) 0);
+    if (gfp->num_channels == 2 && gfp->stereo == 1) {
+	for (i = 0; i < nsamples; ++i) {
+	    in_buffer[0][i] = ((int) in_buffer[0][i] + (int) in_buffer[1][i]) / 2;
+	    in_buffer[1][i] = 0;
+    }}
+    while (nsamples > 0) {
+	int n_in = 0;
+	int n_out = 0;
+	for (ch = 0; ch < gfp->stereo; ch++) {
+	    if (gfp->resample_ratio != 1) {
+		n_out = fill_buffer_resample(gfp, &mfbuf[ch][mf_size], gfp->framesize, in_buffer[ch], nsamples, &n_in, ch);
+	    } else {
+		n_out = fill_buffer(gfp, &mfbuf[ch][mf_size], gfp->framesize, in_buffer[ch], nsamples);
+		n_in = n_out;
+	    }
+	    in_buffer[ch] += n_in;
+	}
+	nsamples -= n_in;
+	mf_size += n_out;
+	((mf_size <= (1152 + 1152 + 800 - 48)) ? (void) (0) : __assert_fail("mf_size<=(1152+1152+800-48)", "lame.c", 1040, __PRETTY_FUNCTION__));
+	mf_samples_to_encode += n_out;
+	if (mf_size >= mf_needed) {
+	    ret = lame_encode_frame(gfp, mfbuf[0], mfbuf[1], mf_size, mp3buf, mp3buf_size);
+	    if (ret == -1) {
+		return -1;
+	    }
+	    mp3buf += ret;
+	    mp3size += ret;
+	    mf_size -= gfp->framesize;
+	    mf_samples_to_encode -= gfp->framesize;
+	    for (ch = 0; ch < gfp->stereo; ch++)
+		for (i = 0; i < mf_size; i++)
+		    mfbuf[ch][i] = mfbuf[ch][i + gfp->framesize];
+	}
+    }
+    ((nsamples == 0) ? (void) (0) : __assert_fail("nsamples==0", "lame.c", 1061, __PRETTY_FUNCTION__));
+    return mp3size;
+}
+//complexity is O(n^2) inferred by loopus
+int lame_encode_buffer_interleaved(lame_global_flags * gfp, short int buffer[], int nsamples, char *mp3buf, int mp3buf_size)
+{
+    static int frame_buffered = 0;
+    int mp3size = 0, ret, i, ch, mf_needed;
+    ((800 >= 48) ? (void) (0) : __assert_fail("800>=48", "lame.c", 1075, __PRETTY_FUNCTION__));
+    ((1024 - (224 + 48) >= 0) ? (void) (0) : __assert_fail("1024-(224+48) >= 0", "lame.c", 1076, __PRETTY_FUNCTION__));
+    mf_needed = 1024 + gfp->framesize - (224 + 48);
+    (((1152 + 1152 + 800 - 48) >= mf_needed) ? (void) (0) : __assert_fail("(1152+1152+800-48)>=mf_needed", "lame.c", 1078, __PRETTY_FUNCTION__));
+    if (gfp->num_channels == 1) {
+	return lame_encode_buffer(gfp, buffer, ((void *) 0), nsamples, mp3buf, mp3buf_size);
+    }
+    if (gfp->resample_ratio != 1) {
+	short int *buffer_l;
+	short int *buffer_r;
+	buffer_l = malloc(sizeof(short int) * nsamples);
+	buffer_r = malloc(sizeof(short int) * nsamples);
+	if (buffer_l == ((void *) 0) || buffer_r == ((void *) 0)) {
+	    return -1;
+	}
+	for (i = 0; i < nsamples; i++) {
+	    buffer_l[i] = buffer[2 * i];
+	    buffer_r[i] = buffer[2 * i + 1];
+	}
+	ret = lame_encode_buffer(gfp, buffer_l, buffer_r, nsamples, mp3buf, mp3buf_size);
+	free(buffer_l);
+	free(buffer_r);
+	return ret;
+    }
+    if (gfp->frameNum == 0 && !frame_buffered) {
+	memset((char *) mfbuf, 0, sizeof(mfbuf));
+	frame_buffered = 1;
+	mf_samples_to_encode = 800 + 288;
+	mf_size = 800 - 48;
+    }
+    if (gfp->frameNum == 1) {
+	frame_buffered = 0;
+    }
+    if (gfp->num_channels == 2 && gfp->stereo == 1) {
+	for (i = 0; i < nsamples; ++i) {
+	    buffer[2 * i] = ((int) buffer[2 * i] + (int) buffer[2 * i + 1]) / 2;
+	    buffer[2 * i + 1] = 0;
+    }}
+    while (nsamples > 0) {
+	int n_out;
+	n_out = ((gfp->framesize) < (nsamples) ? (gfp->framesize) : (nsamples));
+	for (i = 0; i < n_out; ++i) {
+	    mfbuf[0][mf_size + i] = buffer[2 * i];
+	    mfbuf[1][mf_size + i] = buffer[2 * i + 1];
+	}
+	buffer += 2 * n_out;
+	nsamples -= n_out;
+	mf_size += n_out;
+	((mf_size <= (1152 + 1152 + 800 - 48)) ? (void) (0) : __assert_fail("mf_size<=(1152+1152+800-48)", "lame.c", 1135, __PRETTY_FUNCTION__));
+	mf_samples_to_encode += n_out;
+	if (mf_size >= mf_needed) {
+	    ret = lame_encode_frame(gfp, mfbuf[0], mfbuf[1], mf_size, mp3buf, mp3buf_size);
+	    if (ret == -1) {
+		return -1;
+	    }
+	    mp3buf += ret;
+	    mp3size += ret;
+	    mf_size -= gfp->framesize;
+	    mf_samples_to_encode -= gfp->framesize;
+	    for (ch = 0; ch < gfp->stereo; ch++)
+		for (i = 0; i < mf_size; i++)
+		    mfbuf[ch][i] = mfbuf[ch][i + gfp->framesize];
+	}
+    }
+    ((nsamples == 0) ? (void) (0) : __assert_fail("nsamples==0", "lame.c", 1156, __PRETTY_FUNCTION__));
+    return mp3size;
+}
+
+int lame_encode(lame_global_flags * gfp, short int in_buffer[2][1152], char *mp3buf, int size)
+{
+    int imp3, save;
+    save = mf_samples_to_encode;
+    imp3 = lame_encode_buffer(gfp, in_buffer[0], in_buffer[1], 576 * gfp->mode_gr, mp3buf, size);
+    mf_samples_to_encode = save;
+    return imp3;
+}
+
+void lame_init(lame_global_flags * gfp)
+{
+    gfp->allow_diff_short = 0;
+    gfp->ATHonly = 0;
+    gfp->noATH = 0;
+    gfp->bWriteVbrTag = 1;
+    gfp->cwlimit = 0;
+    gfp->disable_reservoir = 0;
+    gfp->experimentalX = 0;
+    gfp->experimentalY = 0;
+    gfp->experimentalZ = 0;
+    gfp->frameNum = 0;
+    gfp->gtkflag = 0;
+    gfp->quality = 5;
+    gfp->input_format = sf_unknown;
+    gfp->filter_type = 0;
+    gfp->lowpassfreq = 0;
+    gfp->highpassfreq = 0;
+    gfp->lowpasswidth = -1;
+    gfp->highpasswidth = -1;
+    gfp->lowpass1 = 0;
+    gfp->lowpass2 = 0;
+    gfp->highpass1 = 0;
+    gfp->highpass2 = 0;
+    gfp->lowpass_band = 32;
+    gfp->highpass_band = -1;
+    gfp->no_short_blocks = 0;
+    gfp->resample_ratio = 1;
+    gfp->padding_type = 2;
+    gfp->padding = 0;
+    gfp->swapbytes = 0;
+    gfp->silent = 0;
+    gfp->totalframes = 0;
+    gfp->VBR = 0;
+    gfp->VBR_q = 4;
+    gfp->VBR_min_bitrate_kbps = 0;
+    gfp->VBR_max_bitrate_kbps = 0;
+    gfp->VBR_min_bitrate = 1;
+    gfp->VBR_max_bitrate = 13;
+    gfp->version = 1;
+    gfp->mode = 1;
+    gfp->mode_fixed = 0;
+    gfp->force_ms = 0;
+    gfp->brate = 0;
+    gfp->copyright = 0;
+    gfp->original = 1;
+    gfp->extension = 0;
+    gfp->error_protection = 0;
+    gfp->emphasis = 0;
+    gfp->in_samplerate = 1000 * 44.1;
+    gfp->out_samplerate = 0;
+    gfp->num_channels = 2;
+    gfp->num_samples = 0xFFFFFFFF;
+    gfp->inPath = ((void *) 0);
+    gfp->outPath = ((void *) 0);
+    id3tag.used = 0;
 } 
 //complexity is O(n^2) inferred by loopus 
-static void free_side_info_link(side_info_link * l)
+int lame_encode_finish(lame_global_flags * gfp, char *mp3buffer, int mp3buffer_size)
 {
-    int gr, ch;
-    l->side_info.headerPH = BF_freePartHolder(l->side_info.headerPH);
-    l->side_info.frameSIPH = BF_freePartHolder(l->side_info.frameSIPH);
-    for (ch = 0; ch < l->side_info.nChannels; ch++)
-	l->side_info.channelSIPH[ch] = BF_freePartHolder(l->side_info.channelSIPH[ch]);
-    for (gr = 0; gr < l->side_info.nGranules; gr++)
-	for (ch = 0; ch < l->side_info.nChannels; ch++)
-	    l->side_info.spectrumSIPH[gr][ch] = BF_freePartHolder(l->side_info.spectrumSIPH[gr][ch]);
-    free(l);
-}
-
-BF_PartHolder *BF_newPartHolder(int max_elements)
-{
-    BF_PartHolder *newPH = (BF_PartHolder *) calloc(1, sizeof(BF_PartHolder));
-    ((newPH) ? (void) (0) : __assert_fail("newPH", "formatBitstream.c", 443, __PRETTY_FUNCTION__));
-    newPH->max_elements = max_elements;
-    newPH->part = (BF_BitstreamPart *) calloc(1, sizeof(BF_BitstreamPart));
-    ((newPH->part) ? (void) (0) : __assert_fail("newPH->part", "formatBitstream.c", 446, __PRETTY_FUNCTION__));
-    newPH->part->element = (BF_BitstreamElement *) calloc(max_elements, sizeof(BF_BitstreamElement));
-    if (max_elements > 0)
-	((newPH->part->element) ? (void) (0) : __assert_fail("newPH->part->element", "formatBitstream.c", 448, __PRETTY_FUNCTION__));
-    newPH->part->nrEntries = 0;
-    return newPH;
-}
-
-BF_PartHolder *BF_NewHolderFromBitstreamPart(BF_BitstreamPart * thePart)
-{
-    BF_PartHolder *newHolder = BF_newPartHolder(thePart->nrEntries);
-    return BF_LoadHolderFromBitstreamPart(newHolder, thePart);
-}
-//complexity is O(n) inferred by loopus 
-BF_PartHolder *BF_LoadHolderFromBitstreamPart(BF_PartHolder * theHolder, BF_BitstreamPart * thePart)
-{
-    BF_BitstreamElement *pElem;
-    u_int i;
-    theHolder->part->nrEntries = 0;
-    for (i = 0; i < thePart->nrEntries; i++) {
-	pElem = &(thePart->element[i]);
-	theHolder = BF_addElement(theHolder, pElem);
+    int imp3, mp3count, mp3buffer_size_remaining;
+    short int buffer[2][1152];
+    memset((char *) buffer, 0, sizeof(buffer));
+    mp3count = 0;
+    while (mf_samples_to_encode > 0) {
+	mp3buffer_size_remaining = mp3buffer_size - mp3count;
+	if (mp3buffer_size == 0)
+	    mp3buffer_size_remaining = 0;
+	imp3 = lame_encode(gfp, buffer, mp3buffer, mp3buffer_size_remaining);
+	if (imp3 == -1) {
+	    desalloc_buffer(&bs);
+	    return -1;
+	}
+	mp3buffer += imp3;
+	mp3count += imp3;
+	mf_samples_to_encode -= gfp->framesize;
     }
-    return theHolder;
-}
-//complexity is O(n) inferrred by loopus
-BF_PartHolder *BF_resizePartHolder(BF_PartHolder * oldPH, int max_elements)
-{
-    int elems, i;
-    BF_PartHolder *newPH;
-    newPH = BF_newPartHolder(max_elements);
-    elems = (oldPH->max_elements > max_elements) ? max_elements : oldPH->max_elements;
-    newPH->part->nrEntries = elems;
-    for (i = 0; i < elems; i++)
-	newPH->part->element[i] = oldPH->part->element[i];
-    BF_freePartHolder(oldPH);
-    return newPH;
-}
-
-BF_PartHolder *BF_freePartHolder(BF_PartHolder * thePH)
-{
-    free(thePH->part->element);
-    free(thePH->part);
-    free(thePH);
-    return ((void *) 0);
-} BF_PartHolder *BF_addElement(BF_PartHolder * thePH, BF_BitstreamElement * theElement)
-{
-    BF_PartHolder *retPH = thePH;
-    int needed_entries = thePH->part->nrEntries + 1;
-    int extraPad = 8;
-    if (needed_entries > thePH->max_elements)
-	retPH = BF_resizePartHolder(thePH, needed_entries + extraPad);
-    retPH->part->element[retPH->part->nrEntries++] = *theElement;
-    return retPH;
+    gfp->frameNum--;
+    if (!gfp->gtkflag && !gfp->silent) {
+	timestatus(gfp->out_samplerate, gfp->frameNum, gfp->totalframes, gfp->framesize);
+	fprintf(stderr, "\n");
+	fflush(stderr);
+    }
+    III_FlushBitstream();
+    mp3buffer_size_remaining = mp3buffer_size - mp3count;
+    if (mp3buffer_size == 0)
+	mp3buffer_size_remaining = 0;
+    imp3 = copy_buffer(mp3buffer, mp3buffer_size_remaining, &bs);
+    if (imp3 == -1) {
+	desalloc_buffer(&bs);
+	return -1;
+    }
+    mp3count += imp3;
+    desalloc_buffer(&bs);
+    return mp3count;
 }
 
-BF_PartHolder *BF_addEntry(BF_PartHolder * thePH, u_int value, u_int length)
+void lame_mp3_tags(lame_global_flags * gfp)
 {
-    BF_BitstreamElement myElement;
-    myElement.value = value;
-    myElement.length = length;
-    if (length)
-	return BF_addElement(thePH, &myElement);
-    else
-	return thePH;
+    if (gfp->bWriteVbrTag) {
+	int nQuality = gfp->VBR_q * 100 / 9;
+	PutVbrTag(gfp->outPath, nQuality, 1 - gfp->version);
+    }
+    if (id3tag.used) {
+	id3_buildtag(&id3tag);
+	id3_writetag(gfp->outPath, &id3tag);
+    }
+}
+
+void lame_version(lame_global_flags * gfp, char *ostring)
+{
+    strncpy(ostring, get_lame_version(), 20);
 }
