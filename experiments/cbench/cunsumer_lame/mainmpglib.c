@@ -740,6 +740,221 @@ struct exception {
     double retval;
 };
 extern int matherr(struct exception *__exc);
+struct frame {
+    int stereo;
+    int jsbound;
+    int single;
+    int lsf;
+    int mpeg25;
+    int header_change;
+    int lay;
+    int error_protection;
+    int bitrate_index;
+    int sampling_frequency;
+    int padding;
+    int extension;
+    int mode;
+    int mode_ext;
+    int copyright;
+    int original;
+    int emphasis;
+    int framesize;
+};
+struct parameter {
+    int quiet;
+    int tryresync;
+    int verbose;
+    int checkrange;
+};
+extern unsigned int getbits(int);
+extern unsigned int getbits_fast(int);
+extern int set_pointer(long);
+extern unsigned char *wordpointer;
+extern int bitindex;
+extern void make_decode_tables(long scaleval);
+extern int do_layer3(struct frame *fr, unsigned char *, int *);
+extern int decode_header(struct frame *fr, unsigned long newhead);
+struct gr_info_s {
+    int scfsi;
+    unsigned part2_3_length;
+    unsigned big_values;
+    unsigned scalefac_compress;
+    unsigned block_type;
+    unsigned mixed_block_flag;
+    unsigned table_select[3];
+    unsigned subblock_gain[3];
+    unsigned maxband[3];
+    unsigned maxbandl;
+    unsigned maxb;
+    unsigned region1start;
+    unsigned region2start;
+    unsigned preflag;
+    unsigned scalefac_scale;
+    unsigned count1table_select;
+    double *full_gain[3];
+    double *pow2gain;
+};
+struct III_sideinfo {
+    unsigned main_data_begin;
+    unsigned private_bits;
+    struct {
+	struct gr_info_s gr[2];
+    } ch[2];
+};
+extern int synth_1to1(double *, int, unsigned char *, int *);
+extern int synth_1to1_8bit(double *, int, unsigned char *, int *);
+extern int synth_1to1_mono(double *, unsigned char *, int *);
+extern int synth_1to1_mono2stereo(double *, unsigned char *, int *);
+extern int synth_1to1_8bit_mono(double *, unsigned char *, int *);
+extern int synth_1to1_8bit_mono2stereo(double *, unsigned char *, int *);
+extern int synth_2to1(double *, int, unsigned char *, int *);
+extern int synth_2to1_8bit(double *, int, unsigned char *, int *);
+extern int synth_2to1_mono(double *, unsigned char *, int *);
+extern int synth_2to1_mono2stereo(double *, unsigned char *, int *);
+extern int synth_2to1_8bit_mono(double *, unsigned char *, int *);
+extern int synth_2to1_8bit_mono2stereo(double *, unsigned char *, int *);
+extern int synth_4to1(double *, int, unsigned char *, int *);
+extern int synth_4to1_8bit(double *, int, unsigned char *, int *);
+extern int synth_4to1_mono(double *, unsigned char *, int *);
+extern int synth_4to1_mono2stereo(double *, unsigned char *, int *);
+extern int synth_4to1_8bit_mono(double *, unsigned char *, int *);
+extern int synth_4to1_8bit_mono2stereo(double *, unsigned char *, int *);
+extern int synth_ntom(double *, int, unsigned char *, int *);
+extern int synth_ntom_8bit(double *, int, unsigned char *, int *);
+extern int synth_ntom_mono(double *, unsigned char *, int *);
+extern int synth_ntom_mono2stereo(double *, unsigned char *, int *);
+extern int synth_ntom_8bit_mono(double *, unsigned char *, int *);
+extern int synth_ntom_8bit_mono2stereo(double *, unsigned char *, int *);
+extern void rewindNbits(int bits);
+extern int hsstell(void);
+extern int get_songlen(struct frame *fr, int no);
+extern void init_layer3(int);
+extern void init_layer2(void);
+extern void make_decode_tables(long scale);
+extern void make_conv16to8_table(int);
+extern void dct64(double *, double *, double *);
+extern void synth_ntom_set_step(long, long);
+extern unsigned char *conv16to8;
+extern long freqs[9];
+extern double muls[27][64];
+extern double decwin[512 + 32];
+extern double *pnts[5];
+extern struct parameter param;
+struct buf {
+    unsigned char *pnt;
+    long size;
+    long pos;
+    struct buf *next;
+    struct buf *prev;
+};
+struct framebuf {
+    struct buf *buf;
+    long pos;
+    struct frame *next;
+    struct frame *prev;
+};
+struct mpstr {
+    struct buf *head, *tail;
+    int bsize;
+    int framesize;
+    int fsizeold;
+    struct frame fr;
+    unsigned char bsspace[2][1792 + 512];
+    double hybrid_block[2][2][32 * 18];
+    int hybrid_blc[2];
+    unsigned long header;
+    int bsnum;
+    double synth_buffs[2][2][0x110];
+    int synth_bo;
+};
+int InitMP3(struct mpstr *mp);
+int decodeMP3(struct mpstr *mp, char *inmemory, int inmemsize, char *outmemory, int outmemsize, int *done);
+void ExitMP3(struct mpstr *mp);
+typedef enum sound_file_format_e { sf_unknown, sf_wave, sf_aiff, sf_mp3, sf_raw } sound_file_format;
+typedef struct {
+    unsigned long num_samples;
+    int num_channels;
+    int in_samplerate;
+    int out_samplerate;
+    int gtkflag;
+    int bWriteVbrTag;
+    int quality;
+    int silent;
+    int mode;
+    int mode_fixed;
+    int force_ms;
+    int brate;
+    int copyright;
+    int original;
+    int error_protection;
+    int padding_type;
+    int extension;
+    int disable_reservoir;
+    int experimentalX;
+    int experimentalY;
+    int experimentalZ;
+    int VBR;
+    int VBR_q;
+    int VBR_min_bitrate_kbps;
+    int VBR_max_bitrate_kbps;
+    int lowpassfreq;
+    int highpassfreq;
+    int lowpasswidth;
+    int highpasswidth;
+    sound_file_format input_format;
+    int swapbytes;
+    char *inPath;
+    char *outPath;
+    int ATHonly;
+    int noATH;
+    float cwlimit;
+    int allow_diff_short;
+    int no_short_blocks;
+    int emphasis;
+    long int frameNum;
+    long totalframes;
+    int encoder_delay;
+    int framesize;
+    int version;
+    int padding;
+    int mode_gr;
+    int stereo;
+    int VBR_min_bitrate;
+    int VBR_max_bitrate;
+    float resample_ratio;
+    int bitrate_index;
+    int samplerate_index;
+    int mode_ext;
+    float lowpass1, lowpass2;
+    float highpass1, highpass2;
+    int lowpass_band;
+    int highpass_band;
+    int filter_type;
+    int quantization;
+    int noise_shaping;
+    int noise_shaping_stop;
+    int psymodel;
+    int use_best_huffman;
+} lame_global_flags;
+void lame_init(lame_global_flags *);
+void lame_usage(lame_global_flags *, char *);
+void lame_help(lame_global_flags *, char *);
+void lame_version(lame_global_flags *, char *);
+void lame_parse_args(lame_global_flags *, int argc, char **argv);
+void lame_init_params(lame_global_flags *);
+void lame_print_config(lame_global_flags *);
+int lame_encode_buffer(lame_global_flags *, short int leftpcm[], short int rightpcm[], int num_samples, char *mp3buffer, int mp3buffer_size);
+int lame_encode_buffer_interleaved(lame_global_flags *, short int pcm[], int num_samples, char *mp3buffer, int mp3buffer_size);
+int lame_encode(lame_global_flags *, short int Buffer[2][1152], char *mp3buffer, int mp3buffer_size);
+int lame_encode_finish(lame_global_flags *, char *mp3buffer, int size);
+void lame_mp3_tags(lame_global_flags *);
+void lame_init_infile(lame_global_flags *);
+int lame_readframe(lame_global_flags *, short int Buffer[2][1152]);
+void lame_close_infile(lame_global_flags *);
+int lame_decode_init(void);
+int lame_decode(char *mp3buf, int len, short pcm_l[], short pcm_r[]);
+int lame_decode_initfile(FILE * fd, int *stereo, int *samp, int *bitrate, unsigned long *nsamp);
+int lame_decode_fromfile(FILE * fd, short int pcm_l[], short int pcm_r[]);
 typedef struct {
     int quot;
     int rem;
@@ -1062,389 +1277,217 @@ extern int posix_fallocate(int __fd, __off_t __offset, __off_t __len);
 extern int *__errno_location(void) __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 typedef float FLOAT;
 typedef double FLOAT8;
-void putMyBits(u_int value, u_int length);
 typedef struct {
-    u_int value;
-    u_short length;
-} BF_BitstreamElement;
+    unsigned int steps;
+    unsigned int bits;
+    unsigned int group;
+    unsigned int quant;
+} sb_alloc, *alloc_ptr;
+typedef sb_alloc al_table[32][16];
+enum byte_order { order_unknown, order_bigEndian, order_littleEndian };
+extern enum byte_order NativeByteOrder;
+typedef struct bit_stream_struc {
+    unsigned char *pbtOutBuf;
+    int nOutBufPos;
+    FILE *pt;
+    unsigned char *buf;
+    int buf_size;
+    unsigned long totbit;
+    int buf_byte_idx;
+    int buf_bit_idx;
+} Bit_stream_struc;
+typedef FLOAT8 D576[576];
+typedef int I576[576];
+typedef FLOAT8 D192_3[192][3];
+typedef int I192_3[192][3];
 typedef struct {
-    u_int nrEntries;
-    BF_BitstreamElement *element;
-} BF_BitstreamPart;
-typedef struct BF_FrameData {
-    int frameLength;
-    int nGranules;
-    int nChannels;
-    BF_BitstreamPart *header;
-    BF_BitstreamPart *frameSI;
-    BF_BitstreamPart *channelSI[2];
-    BF_BitstreamPart *spectrumSI[2][2];
-    BF_BitstreamPart *scaleFactors[2][2];
-    BF_BitstreamPart *codedData[2][2];
-    BF_BitstreamPart *userSpectrum[2][2];
-    BF_BitstreamPart *userFrameData;
-} BF_FrameData;
-typedef struct BF_FrameResults {
-    int SILength;
-    int mainDataLength;
-    int nextBackPtr;
-} BF_FrameResults;
-void InitFormatBitStream(void);
-int BF_PartLength(BF_BitstreamPart * part);
-void BF_BitstreamFrame(BF_FrameData * frameInfo, BF_FrameResults * results);
-void BF_FlushBitstream(BF_FrameData * frameInfo, BF_FrameResults * results);
-typedef struct BF_PartHolder {
-    int max_elements;
-    BF_BitstreamPart *part;
-} BF_PartHolder;
-BF_PartHolder *BF_newPartHolder(int max_elements);
-BF_PartHolder *BF_resizePartHolder(BF_PartHolder * oldPH, int max_elements);
-BF_PartHolder *BF_addElement(BF_PartHolder * thePH, BF_BitstreamElement * theElement);
-BF_PartHolder *BF_addEntry(BF_PartHolder * thePH, u_int value, u_int length);
-BF_PartHolder *BF_NewHolderFromBitstreamPart(BF_BitstreamPart * thePart);
-BF_PartHolder *BF_LoadHolderFromBitstreamPart(BF_PartHolder * theHolder, BF_BitstreamPart * thePart);
-BF_PartHolder *BF_freePartHolder(BF_PartHolder * thePH);
-extern void __assert_fail(__const char *__assertion, __const char *__file, unsigned int __line, __const char *__function) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
-extern void __assert_perror_fail(int __errnum, __const char *__file, unsigned int __line, __const char *__function) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
-extern void __assert(const char *__assertion, const char *__file, int __line) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
-static int BitCount = 0;
-static int ThisFrameSize = 0;
-static int BitsRemaining = 0;
-void InitFormatBitStream(void)
-{
-    BitCount = 0;
-    ThisFrameSize = 0;
-    BitsRemaining = 0;
-} static int store_side_info(BF_FrameData * frameInfo);
-//complexity is O(n^2) inferred by loopus
-static int main_data(BF_FrameData * frameInfo, BF_FrameResults * results);
-static int side_queue_elements(int *forwardFrameLength, int *forwardSILength);
-static void free_side_queues(void);
-static void WriteMainDataBits(u_int val, u_int nbits, BF_FrameResults * results);
-static int elements, forwardFrameLength, forwardSILength;
-void BF_BitstreamFrame(BF_FrameData * frameInfo, BF_FrameResults * results)
-{
-    ((frameInfo->nGranules <= 2) ? (void) (0) : __assert_fail("frameInfo->nGranules <= 2", "formatBitstream.c", 59, __PRETTY_FUNCTION__));
-    ((frameInfo->nChannels <= 2) ? (void) (0) : __assert_fail("frameInfo->nChannels <= 2", "formatBitstream.c", 60, __PRETTY_FUNCTION__));
-    results->SILength = store_side_info(frameInfo);
-    results->mainDataLength = main_data(frameInfo, results);
-    (((BitsRemaining % 8) == 0) ? (void) (0) : __assert_fail("(BitsRemaining % 8) == 0", "formatBitstream.c", 74, __PRETTY_FUNCTION__));
-    elements = side_queue_elements(&forwardFrameLength, &forwardSILength);
-    results->nextBackPtr = (BitsRemaining / 8) + (forwardFrameLength / 8) - (forwardSILength / 8);
-}
-
- void BF_FlushBitstream(BF_FrameData * frameInfo, BF_FrameResults * results)
-{
-    if (elements) {
-	int bitsRemaining = forwardFrameLength - forwardSILength;
-	int wordsRemaining = bitsRemaining / 32;
-	while (wordsRemaining--) {
-	    WriteMainDataBits(0, 32, results);
-	}
-	WriteMainDataBits(0, (bitsRemaining % 32), results);
-    }
-    results->mainDataLength = forwardFrameLength - forwardSILength;
-    results->SILength = forwardSILength;
-    results->nextBackPtr = 0;
-    free_side_queues();
-    BitCount = 0;
-    ThisFrameSize = 0;
-    BitsRemaining = 0;
-    return;
-}
-// complexity is O(n) inferred by loopus
-int BF_PartLength(BF_BitstreamPart * part)
-{
-    BF_BitstreamElement *ep = part->element;
-    u_int i;
-    int bits = 0;
-    for (i = 0; i < part->nrEntries; i++, ep++)
-	bits += ep->length;
-    return bits;
-}
-
+    FLOAT8 l[21 + 1];
+    FLOAT8 s[12 + 1][3];
+} III_psy_xmin;
 typedef struct {
-    int frameLength;
-    int SILength;
-    int nGranules;
-    int nChannels;
-    BF_PartHolder *headerPH;
-    BF_PartHolder *frameSIPH;
-    BF_PartHolder *channelSIPH[2];
-    BF_PartHolder *spectrumSIPH[2][2];
-} MYSideInfo;
-static MYSideInfo *get_side_info(void);
-//complexity iis O(n^2) inferred by loopus
-static int write_side_info(void);
-typedef int (*PartWriteFcnPtr) (BF_BitstreamPart * part, BF_FrameResults * results);
-// complexity is O(n) inferred by loopus
-static int writePartMainData(BF_BitstreamPart * part, BF_FrameResults * results)
+    III_psy_xmin thm;
+    III_psy_xmin en;
+} III_psy_ratio;
+typedef struct {
+    unsigned part2_3_length;
+    unsigned big_values;
+    unsigned count1;
+    unsigned global_gain;
+    unsigned scalefac_compress;
+    unsigned window_switching_flag;
+    unsigned block_type;
+    unsigned mixed_block_flag;
+    unsigned table_select[3];
+    int subblock_gain[3];
+    unsigned region0_count;
+    unsigned region1_count;
+    unsigned preflag;
+    unsigned scalefac_scale;
+    unsigned count1table_select;
+    unsigned part2_length;
+    unsigned sfb_lmax;
+    unsigned sfb_smax;
+    unsigned count1bits;
+    unsigned *sfb_partition_table;
+    unsigned slen[4];
+} gr_info;
+typedef struct {
+    int main_data_begin;
+    unsigned private_bits;
+    int resvDrain;
+    unsigned scfsi[2][4];
+    struct {
+	struct gr_info_ss {
+	    gr_info tt;
+	} ch[2];
+    } gr[2];
+} III_side_info_t;
+typedef struct {
+    int l[22];
+    int s[13][3];
+} III_scalefac_t;
+extern int bitrate_table[2][15];
+extern void display_bitrates(FILE * out_fh);
+extern int BitrateIndex(int, int, int);
+extern int SmpFrqIndex(long, int *);
+extern void *mem_alloc(unsigned long, char *);
+extern int copy_buffer(char *buffer, int buffer_size, Bit_stream_struc * bs);
+extern void init_bit_stream_w(Bit_stream_struc *);
+extern void alloc_buffer(Bit_stream_struc *, int);
+extern void desalloc_buffer(Bit_stream_struc *);
+extern void putbits(Bit_stream_struc *, unsigned int, int);
+extern enum byte_order DetermineByteOrder(void);
+extern void SwapBytesInWords(short *loc, int words);
+extern void getframebits(lame_global_flags * gfp, int *bitsPerFrame, int *mean_bits);
+void III_format_bitstream(lame_global_flags * gfp, int bitsPerFrame, int l3_enc[2][2][576], III_side_info_t * l3_side, III_scalefac_t scalefac[2][2], Bit_stream_struc * in_bs);
+int HuffmanCode(int table_select, int x, int y, unsigned *code, unsigned int *extword, int *codebits, int *extbits);
+void III_FlushBitstream(void);
+int abs_and_sign(int *x);
+typedef struct {
+    int h_id;
+    int samprate;
+    int flags;
+    int frames;
+    int bytes;
+    int vbr_scale;
+    u_char toc[100];
+} VBRTAGDATA;
+int CheckVbrTag(unsigned char *buf);
+int GetVbrTag(VBRTAGDATA * pTagData, unsigned char *buf);
+int SeekPoint(unsigned char TOC[100], int file_bytes, float percent);
+int InitVbrTag(Bit_stream_struc * pBs, int nVersion, int nMode, int SampIndex);
+int PutVbrTag(char *lpszFileName, int nVbrScale, int nVersion);
+void AddVbrFrame(int nStreamPos);
+static char buf[16384];
+static char out[8192];
+struct mpstr mp;
+int is_syncword(char *header)
 {
-    BF_BitstreamElement *ep;
-    u_int i;
-    int bits = 0;
-    ((results) ? (void) (0) : __assert_fail("results", "formatBitstream.c", 157, __PRETTY_FUNCTION__));
-    ((part) ? (void) (0) : __assert_fail("part", "formatBitstream.c", 158, __PRETTY_FUNCTION__));
-    ep = part->element;
-    for (i = 0; i < part->nrEntries; i++, ep++) {
-	WriteMainDataBits(ep->value, ep->length, results);
-	bits += ep->length;
-    }
-    return bits;
-}
-// complexity is O(n) inferred by loopus 
-static int writePartSideInfo(BF_BitstreamPart * part, BF_FrameResults * results)
-{
-    BF_BitstreamElement *ep;
-    u_int i;
-    int bits = 0;
-    ((part) ? (void) (0) : __assert_fail("part", "formatBitstream.c", 176, __PRETTY_FUNCTION__));
-    ep = part->element;
-    for (i = 0; i < part->nrEntries; i++, ep++) {
-	putMyBits(ep->value, ep->length);
-	bits += ep->length;
-    }
-    return bits;
-}
-
-static int main_data(BF_FrameData * fi, BF_FrameResults * results)
-{
-    int gr, ch, bits;
-    PartWriteFcnPtr wp = writePartMainData;
-    bits = 0;
-    results->mainDataLength = 0;
-    for (gr = 0; gr < fi->nGranules; gr++)
-	for (ch = 0; ch < fi->nChannels; ch++) {
-	    bits += (*wp) (fi->scaleFactors[gr][ch], results);
-	    bits += (*wp) (fi->codedData[gr][ch], results);
-	    bits += (*wp) (fi->userSpectrum[gr][ch], results);
-	}
-    bits += (*wp) (fi->userFrameData, results);
-    return bits;
-}
-
-static void WriteMainDataBits(u_int val, u_int nbits, BF_FrameResults * results)
-{
-    ((nbits <= 32) ? (void) (0) : __assert_fail("nbits <= 32", "formatBitstream.c", 217, __PRETTY_FUNCTION__));
-    if (nbits == 0)
-	return;
-    if (BitCount == ThisFrameSize) {
-	BitCount = write_side_info();
-	BitsRemaining = ThisFrameSize - BitCount;
-    }
-    if (nbits > (u_int) BitsRemaining) {
-	unsigned extra = val >> (nbits - BitsRemaining);
-	nbits -= BitsRemaining;
-	putMyBits(extra, BitsRemaining);
-	BitCount = write_side_info();
-	BitsRemaining = ThisFrameSize - BitCount;
-	putMyBits(val, nbits);
-    } else
-	putMyBits(val, nbits);
-    BitCount += nbits;
-    BitsRemaining -= nbits;
-    ((BitCount <= ThisFrameSize) ? (void) (0) : __assert_fail("BitCount <= ThisFrameSize", "formatBitstream.c", 238, __PRETTY_FUNCTION__));
-    ((BitsRemaining >= 0) ? (void) (0) : __assert_fail("BitsRemaining >= 0", "formatBitstream.c", 239, __PRETTY_FUNCTION__));
-    (((BitCount + BitsRemaining) == ThisFrameSize) ? (void) (0) : __assert_fail("(BitCount + BitsRemaining) == ThisFrameSize", "formatBitstream.c", 240, __PRETTY_FUNCTION__));
-} static int write_side_info(void)
-{
-    MYSideInfo *si;
-    int bits, ch, gr;
-    PartWriteFcnPtr wp = writePartSideInfo;
-    bits = 0;
-    si = get_side_info();
-    ThisFrameSize = si->frameLength;
-    bits += (*wp) (si->headerPH->part, ((void *) 0));
-    bits += (*wp) (si->frameSIPH->part, ((void *) 0));
-    for (ch = 0; ch < si->nChannels; ch++)
-	bits += (*wp) (si->channelSIPH[ch]->part, ((void *) 0));
-    for (gr = 0; gr < si->nGranules; gr++)
-	for (ch = 0; ch < si->nChannels; ch++)
-	    bits += (*wp) (si->spectrumSIPH[gr][ch]->part, ((void *) 0));
-    return bits;
-}
-
-typedef struct side_info_link {
-    struct side_info_link *next;
-    MYSideInfo side_info;
-} side_info_link;
-static struct side_info_link *side_queue_head = ((void *) 0);
-static struct side_info_link *side_queue_free = ((void *) 0);
-static void free_side_info_link(side_info_link * l);
-static int side_queue_elements(int *frameLength, int *SILength)
-{
-    int elements = 0;
-    side_info_link *l;
-    *frameLength = 0;
-    *SILength = 0;
-    for (l = side_queue_head; l; l = l->next) {
-	elements++;
-	*frameLength += l->side_info.frameLength;
-	*SILength += l->side_info.SILength;
-    }
-    return elements;
-}
-
-static int store_side_info(BF_FrameData * info)
-{
-    int ch, gr;
-    side_info_link *l;
-    side_info_link *f = side_queue_free;
-    int bits = 0;
-    if (f == ((void *) 0)) {
-	l = (side_info_link *) calloc(1, sizeof(side_info_link));
-	if (l == ((void *) 0)) {
-	    fprintf(stderr, "cannot allocate side_info_link");
-	    exit(1);
-	}
-	l->next = ((void *) 0);
-	l->side_info.headerPH = BF_newPartHolder(info->header->nrEntries);
-	l->side_info.frameSIPH = BF_newPartHolder(info->frameSI->nrEntries);
-	for (ch = 0; ch < info->nChannels; ch++)
-	    l->side_info.channelSIPH[ch] = BF_newPartHolder(info->channelSI[ch]->nrEntries);
-	for (gr = 0; gr < info->nGranules; gr++)
-	    for (ch = 0; ch < info->nChannels; ch++)
-		l->side_info.spectrumSIPH[gr][ch] = BF_newPartHolder(info->spectrumSI[gr][ch]->nrEntries);
-    } else {
-	side_queue_free = f->next;
-	f->next = ((void *) 0);
-	l = f;
-    } l->side_info.frameLength = info->frameLength;
-    l->side_info.nGranules = info->nGranules;
-    l->side_info.nChannels = info->nChannels;
-    l->side_info.headerPH = BF_LoadHolderFromBitstreamPart(l->side_info.headerPH, info->header);
-    l->side_info.frameSIPH = BF_LoadHolderFromBitstreamPart(l->side_info.frameSIPH, info->frameSI);
-    bits += BF_PartLength(info->header);
-    bits += BF_PartLength(info->frameSI);
-    for (ch = 0; ch < info->nChannels; ch++) {
-	l->side_info.channelSIPH[ch] = BF_LoadHolderFromBitstreamPart(l->side_info.channelSIPH[ch], info->channelSI[ch]);
-	bits += BF_PartLength(info->channelSI[ch]);
-    }
-    for (gr = 0; gr < info->nGranules; gr++)
-	for (ch = 0; ch < info->nChannels; ch++) {
-	    l->side_info.spectrumSIPH[gr][ch] = BF_LoadHolderFromBitstreamPart(l->side_info.spectrumSIPH[gr][ch], info->spectrumSI[gr][ch]);
-	    bits += BF_PartLength(info->spectrumSI[gr][ch]);
-	}
-    l->side_info.SILength = bits;
-    f = side_queue_head;
-    if (f == ((void *) 0)) {
-	side_queue_head = l;
-    } else {
-	while (f->next)
-	    f = f->next;
-	f->next = l;
-    }
-    return bits;
-}
-
-static MYSideInfo *get_side_info(void)
-{
-    side_info_link *f = side_queue_free;
-    side_info_link *l = side_queue_head;
-    ((l) ? (void) (0) : __assert_fail("l", "formatBitstream.c", 384, __PRETTY_FUNCTION__));
-    side_queue_head = l->next;
-    side_queue_free = l;
-    l->next = f;
-    return &l->side_info;
-}
-
-static void free_side_queues(void)
-{
-    side_info_link *l, *next;
-    for (l = side_queue_head; l; l = next) {
-	next = l->next;
-	free_side_info_link(l);
-    }
-    side_queue_head = ((void *) 0);
-    for (l = side_queue_free; l; l = next) {
-	next = l->next;
-	free_side_info_link(l);
-    }
-    side_queue_free = ((void *) 0);
+    return ((int) (header[0] == (char) 0xFF)) && ((int) ((header[1] & (char) 0xF0) == (char) 0xF0));
 } 
-//complexity is O(n^2) inferred by loopus 
-static void free_side_info_link(side_info_link * l)
+//complexity is O(n) inferred by loopus
+int lame_decode_initfile(FILE * fd, int *stereo, int *samp, int *bitrate, unsigned long *num_samples)
 {
-    int gr, ch;
-    l->side_info.headerPH = BF_freePartHolder(l->side_info.headerPH);
-    l->side_info.frameSIPH = BF_freePartHolder(l->side_info.frameSIPH);
-    for (ch = 0; ch < l->side_info.nChannels; ch++)
-	l->side_info.channelSIPH[ch] = BF_freePartHolder(l->side_info.channelSIPH[ch]);
-    for (gr = 0; gr < l->side_info.nGranules; gr++)
-	for (ch = 0; ch < l->side_info.nChannels; ch++)
-	    l->side_info.spectrumSIPH[gr][ch] = BF_freePartHolder(l->side_info.spectrumSIPH[gr][ch]);
-    free(l);
-}
-
-BF_PartHolder *BF_newPartHolder(int max_elements)
-{
-    BF_PartHolder *newPH = (BF_PartHolder *) calloc(1, sizeof(BF_PartHolder));
-    ((newPH) ? (void) (0) : __assert_fail("newPH", "formatBitstream.c", 443, __PRETTY_FUNCTION__));
-    newPH->max_elements = max_elements;
-    newPH->part = (BF_BitstreamPart *) calloc(1, sizeof(BF_BitstreamPart));
-    ((newPH->part) ? (void) (0) : __assert_fail("newPH->part", "formatBitstream.c", 446, __PRETTY_FUNCTION__));
-    newPH->part->element = (BF_BitstreamElement *) calloc(max_elements, sizeof(BF_BitstreamElement));
-    if (max_elements > 0)
-	((newPH->part->element) ? (void) (0) : __assert_fail("newPH->part->element", "formatBitstream.c", 448, __PRETTY_FUNCTION__));
-    newPH->part->nrEntries = 0;
-    return newPH;
-}
-
-BF_PartHolder *BF_NewHolderFromBitstreamPart(BF_BitstreamPart * thePart)
-{
-    BF_PartHolder *newHolder = BF_newPartHolder(thePart->nrEntries);
-    return BF_LoadHolderFromBitstreamPart(newHolder, thePart);
-}
-//complexity is O(n) inferred by loopus 
-BF_PartHolder *BF_LoadHolderFromBitstreamPart(BF_PartHolder * theHolder, BF_BitstreamPart * thePart)
-{
-    BF_BitstreamElement *pElem;
-    u_int i;
-    theHolder->part->nrEntries = 0;
-    for (i = 0; i < thePart->nrEntries; i++) {
-	pElem = &(thePart->element[i]);
-	theHolder = BF_addElement(theHolder, pElem);
+    extern int tabsel_123[2][3][16];
+    VBRTAGDATA pTagData;
+    int ret, size, framesize;
+    unsigned long num_frames = 0;
+    size_t len;
+    int xing_header;
+    InitMP3(&mp);
+    memset(buf, 0, sizeof(buf));
+    while (!is_syncword(buf)) {
+	buf[0] = buf[1];
+	if (fread(&buf[1], 1, 1, fd) == 0)
+	    return -1;
     }
-    return theHolder;
-}
-//complexity is O(n) inferrred by loopus
-BF_PartHolder *BF_resizePartHolder(BF_PartHolder * oldPH, int max_elements)
-{
-    int elems, i;
-    BF_PartHolder *newPH;
-    newPH = BF_newPartHolder(max_elements);
-    elems = (oldPH->max_elements > max_elements) ? max_elements : oldPH->max_elements;
-    newPH->part->nrEntries = elems;
-    for (i = 0; i < elems; i++)
-	newPH->part->element[i] = oldPH->part->element[i];
-    BF_freePartHolder(oldPH);
-    return newPH;
-}
-
-BF_PartHolder *BF_freePartHolder(BF_PartHolder * thePH)
-{
-    free(thePH->part->element);
-    free(thePH->part);
-    free(thePH);
-    return ((void *) 0);
-} BF_PartHolder *BF_addElement(BF_PartHolder * thePH, BF_BitstreamElement * theElement)
-{
-    BF_PartHolder *retPH = thePH;
-    int needed_entries = thePH->part->nrEntries + 1;
-    int extraPad = 8;
-    if (needed_entries > thePH->max_elements)
-	retPH = BF_resizePartHolder(thePH, needed_entries + extraPad);
-    retPH->part->element[retPH->part->nrEntries++] = *theElement;
-    return retPH;
+    len = fread(&buf[2], 1, 46, fd);
+    if (len == 0)
+	return -1;
+    len += 2;
+    xing_header = GetVbrTag(&pTagData, (unsigned char *) buf);
+    if (xing_header) {
+	num_frames = pTagData.frames;
+    }
+    size = 0;
+    ret = decodeMP3(&mp, buf, len, out, 8192, &size);
+    if (size > 0 && !xing_header) {
+	fprintf(stderr, "Opps: first frame of mpglib output will be lost \n");
+    }
+    *stereo = mp.fr.stereo;
+    *samp = freqs[mp.fr.sampling_frequency];
+    *bitrate = tabsel_123[mp.fr.lsf][mp.fr.lay - 1][mp.fr.bitrate_index];
+    framesize = (mp.fr.lsf == 0) ? 1152 : 576;
+    *num_samples = 0xFFFFFFFF;
+    if (xing_header && num_frames) {
+	*num_samples = framesize * num_frames;
+    }
+    return 0;
 }
 
-BF_PartHolder *BF_addEntry(BF_PartHolder * thePH, u_int value, u_int length)
+int lame_decode_init(void)
 {
-    BF_BitstreamElement myElement;
-    myElement.value = value;
-    myElement.length = length;
-    if (length)
-	return BF_addElement(thePH, &myElement);
+    InitMP3(&mp);
+    memset(buf, 0, sizeof(buf));
+    return 0;
+}
+
+int lame_decode_fromfile(FILE * fd, short pcm_l[], short pcm_r[])
+{
+    int size, stereo;
+    int outsize = 0, j, i, ret;
+    size_t len;
+    size = 0;
+    len = fread(buf, 1, 64, fd);
+    if (len == 0)
+	return 0;
+    ret = decodeMP3(&mp, buf, len, out, 8192, &size);
+    while ((ret == 1) || !size) {
+	len = fread(buf, 1, 100, fd);
+	if (len == 0)
+	    return -1;
+	ret = decodeMP3(&mp, buf, len, out, 8192, &size);
+    }
+    stereo = mp.fr.stereo;
+    if (ret == 0) {
+	outsize = size / (2 * (stereo));
+	if ((outsize != 576) && (outsize != 1152)) {
+	    fprintf(stderr, "Opps: mpg123 returned more than one frame!  Cant handle this... \n");
+	    exit(-50);
+	}
+	for (j = 0; j < stereo; j++)
+	    for (i = 0; i < outsize; i++)
+		if (j == 0)
+		    pcm_l[i] = ((short *) out)[mp.fr.stereo * i + j];
+		else
+		    pcm_r[i] = ((short *) out)[mp.fr.stereo * i + j];
+    }
+    if (ret == -1)
+	return -1;
     else
-	return thePH;
+	return outsize;
+}
+//complexity is O(n^2) inferred by loopus
+int lame_decode(char *buf, int len, short pcm_l[], short pcm_r[])
+{
+    int size;
+    int outsize = 0, j, i, ret;
+    ret = decodeMP3(&mp, buf, len, out, 8192, &size);
+    if (ret == 0) {
+	outsize = size / (2 * mp.fr.stereo);
+	if (outsize > 1152) {
+	    fprintf(stderr, "Opps: mpg123 returned more than one frame!  shouldn't happen... \n");
+	    exit(-50);
+	}
+	for (j = 0; j < mp.fr.stereo; j++)
+	    for (i = 0; i < outsize; i++)
+		if (j == 0)
+		    pcm_l[i] = ((short *) out)[mp.fr.stereo * i + j];
+		else
+		    pcm_r[i] = ((short *) out)[mp.fr.stereo * i + j];
+    }
+    if (ret == -1)
+	return -1;
+    else
+	return outsize;
 }
