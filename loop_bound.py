@@ -307,8 +307,10 @@ def compute_overall_complexity(loop_dict):
     return overall_complexity
 
 def main(path):
-    dc_filename = '{}/traces_dc.txt'.format(path)
-    inv_filename = '{}/traces_inv.txt'.format(path)
+    # dc_filename = '{}/traces_dc.txt'.format(path)
+    # inv_filename = '{}/traces_inv.txt'.format(path)
+    inv_filename = "/var/folders/8z/kmhn_s9x4ds0hlqrp29tm2jm0000gn/T/tmppie65eug"
+    dc_filename = "/var/folders/8z/kmhn_s9x4ds0hlqrp29tm2jm0000gn/T/tmphyyl7ah4"
     dc_traces, loops = read_trace_file_and_parse(dc_filename, "DC")
     inv_traces, _ = read_trace_file_and_parse(inv_filename, "inv")
 
