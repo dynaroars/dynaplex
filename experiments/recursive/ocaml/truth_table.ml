@@ -23,8 +23,6 @@ let rec eval val_vars expr depth =
   | And(e1, e2) -> eval val_vars e1 depth && eval val_vars e2 depth
   | Or(e1, e2) -> eval val_vars e1 depth || eval val_vars e2 depth
 
-(* Again, this is an easy and short implementation rather than an
-   efficient one. *)
 let rec table_make val_vars vars expr file depth =
   Printf.fprintf file "%d;%d\n" depth (len vars);
   if depth=0 then counter := !counter + 1 else counter := !counter;

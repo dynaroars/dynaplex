@@ -1053,3 +1053,24 @@ djpeg_dest_ptr jinit_write_targa(j_decompress_ptr cinfo)
     dest->pub.buffer_height = 1;
     return (djpeg_dest_ptr) dest;
 }
+int main(){
+    j_decompress_ptr cinfo; // Declare cinfo
+    cinfo = (j_decompress_ptr)malloc(sizeof(struct jpeg_decompress_struct));
+    jpeg_create_decompress(cinfo);
+    
+
+    djpeg_dest_ptr dinfo = jinit_write_targa(cinfo); 
+    
+    tga_dest_ptr dest = (tga_dest_ptr) dinfo;
+    register JSAMPROW inptr;
+    register char *outptr;
+    register JDIMENSION col;
+    inptr = dest->pub.buffer[0];
+    outptr = dest->iobuffer;
+    for (col = cinfo->output_width; col > 0; col--) { // Use cinfo here
+        outptr[0] = (char) ((int) (inptr[2]));
+        outptr[1] = (char) ((int) (inptr[1]));
+        outptr[2] = (char) ((int) (inptr[0]));
+        inptr += 3, outptr += 3;
+    } (void) ((size_t) fwrite((const void *) (dest->iobuffer), (size_t) 1, (size_t) (dest->buffer_width), (dest->pub.output_file)));
+}

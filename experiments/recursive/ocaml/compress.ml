@@ -2,12 +2,10 @@
 
 let counter = ref 0;;
 
-let rec compress l file depth =
-  Printf.fprintf file "%d;%d\n" depth (List.length l);
-  if depth=0 then counter := !counter + 1 else counter := !counter;
+let rec compress l =
   match l with
-    | a :: (b :: _ as t) -> if a = b then compress t file (depth+1)
-    else a :: compress t file (depth+1)
+    | a :: (b :: _ as t) -> if a = b then compress t
+    else a :: compress t
     | smaller -> smaller;;
 
 
